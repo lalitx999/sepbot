@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ article.title }} - Sepsis Care</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@200..900&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sarabun', 'Noto Serif Thai', sans-serif;
+            background: linear-gradient(145deg, #eef1fb 0%, #f6e8f2 100%);
+            min-height: 100vh;
+            padding: 20px 0 40px 0;
+            position: relative;
+        }
+
+        /* Decorative background circles */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            z-index: 0;
+            opacity: 0.15;
+        }
+
+        body::before {
+            width: 350px;
+            height: 350px;
+            background: #64B5F6;
+            top: -80px;
+            right: -80px;
+        }
+
+        body::after {
+            width: 450px;
+            height: 450px;
+            background: #F06292;
+            bottom: -150px;
+            left: -120px;
+        }
+
+        .container {
+            max-width: 720px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Back Button */
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #7B3F9E;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(123, 63, 158, 0.2);
+            text-decoration: none;
+            transition: all 0.25s ease;
+            margin-bottom: 16px;
+        }
+
+        .btn-back:hover {
+            background: #7B3F9E;
+            color: #ffffff;
+            border-color: #7B3F9E;
+            transform: translateX(-4px);
+            box-shadow: 0 4px 12px rgba(123, 63, 158, 0.2);
+        }
+
+        .btn-back .bi {
+            font-size: 18px;
+            transition: transform 0.25s ease;
+        }
+
+        .btn-back:hover .bi {
+            transform: translateX(-2px);
+        }
+
+        /* Article Header */
+        .article-header {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px rgba(123, 63, 158, 0.08);
+            padding: 24px 28px;
+            margin-bottom: 20px;
+        }
+
+        .article-header .badge-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 13px;
+            background: rgba(123, 63, 158, 0.10);
+            color: #7B3F9E;
+            border: 1.5px solid rgba(123, 63, 158, 0.20);
+            margin-bottom: 12px;
+        }
+
+        .article-header .badge-category .bi {
+            font-size: 15px;
+        }
+
+        .article-header h4 {
+            font-weight: 700;
+            font-size: 24px;
+            color: #2A1B3D;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .article-header .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            color: #6A4C7A;
+            font-size: 14px;
+        }
+
+        .article-header .article-meta .bi {
+            font-size: 16px;
+            color: #8A6FA0;
+        }
+
+        .article-header .article-meta .separator {
+            color: #b0d0b0;
+        }
+
+        /* E-Book Carousel */
+        .ebook-carousel-container {
+            background: rgba(30, 30, 30, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 20px 16px 16px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .ebook-carousel-container .carousel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .ebook-carousel-container .carousel-header .title {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ebook-carousel-container .carousel-header .title .bi {
+            color: #D6006C;
+            font-size: 18px;
+        }
+
+        .ebook-carousel-container .carousel-header .page-badge {
+            background: rgba(255, 255, 255, 0.10);
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 50px;
+            font-size: 13px;
+            padding: 4px 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .ebook-carousel-container .carousel-header .page-badge .bi {
+            font-size: 14px;
+        }
+
+        .carousel-item img {
+            max-height: 70vh;
+            object-fit: contain;
+            width: 100%;
+            cursor: zoom-in;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .carousel-item .image-caption {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            margin-top: 10px;
+            padding: 0 8px;
+        }
+
+        /* Carousel Controls */
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 40px;
+            height: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .ebook-carousel-container:hover .carousel-control-prev,
+        .ebook-carousel-container:hover .carousel-control-next {
+            opacity: 1;
+        }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 50%;
+            padding: 16px;
+            background-size: 50% 50%;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .carousel-control-prev-icon:hover,
+        .carousel-control-next-icon:hover {
+            background-color: rgba(123, 63, 158, 0.8);
+        }
+
+        /* Thumbnail Strip */
+        .thumb-strip {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding-top: 14px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+        }
+
+        .thumb-strip::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .thumb-strip::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .thumb-strip::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .thumb-item {
+            width: 64px;
+            height: 84px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            opacity: 0.5;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .thumb-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.3);
+            transition: background 0.25s ease;
+        }
+
+        .thumb-item.active {
+            opacity: 1;
+            border-color: #D6006C;
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(214, 0, 108, 0.3);
+        }
+
+        .thumb-item.active::after {
+            background: transparent;
+        }
+
+        .thumb-item:hover {
+            opacity: 0.8;
+            transform: scale(1.03);
+        }
+
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Content Box */
+        .content-box {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px rgba(123, 63, 158, 0.06);
+            padding: 28px 32px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .content-box:hover {
+            box-shadow: 0 12px 48px rgba(123, 63, 158, 0.10);
+        }
+
+        .content-box .content-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid rgba(123, 63, 158, 0.10);
+            font-weight: 700;
+            font-size: 17px;
+            color: #2A1B3D;
+        }
+
+        .content-box .content-header .bi {
+            font-size: 22px;
+            color: #7B3F9E;
+        }
+
+        .content-box .article-content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #241A2E;
+        }
+
+        .content-box .article-content p {
+            margin-bottom: 16px;
+        }
+
+        .content-box .article-content h1,
+        .content-box .article-content h2,
+        .content-box .article-content h3 {
+            color: #2A1B3D;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .content-box .article-content ul,
+        .content-box .article-content ol {
+            padding-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        .content-box .article-content li {
+            margin-bottom: 6px;
+        }
+
+        .content-box .article-content img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin: 12px 0;
+        }
+
+        /* Fullscreen Zoom Modal */
+        .modal-content.bg-black {
+            background: rgba(0, 0, 0, 0.95) !important;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-header.border-0 {
+            border: none !important;
+            padding: 16px 20px 0;
+        }
+
+        .modal-header .btn-close-white {
+            filter: invert(1) brightness(2);
+            opacity: 0.6;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-header .btn-close-white:hover {
+            opacity: 1;
+        }
+
+        .modal-body img {
+            max-height: 90vh;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (max-width: 480px) {
+            .article-header {
+                padding: 18px 16px;
+                border-radius: 18px;
+            }
+
+            .article-header h4 {
+                font-size: 20px;
+            }
+
+            .article-header .article-meta {
+                font-size: 13px;
+                gap: 10px;
+            }
+
+            .ebook-carousel-container {
+                padding: 14px 10px 12px;
+                border-radius: 18px;
+            }
+
+            .ebook-carousel-container .carousel-header .title {
+                font-size: 13px;
+            }
+
+            .ebook-carousel-container .carousel-header .page-badge {
+                font-size: 12px;
+                padding: 3px 12px;
+            }
+
+            .carousel-item img {
+                max-height: 55vh;
+                border-radius: 8px;
+            }
+
+            .carousel-control-prev,
+            .carousel-control-next {
+                width: 32px;
+                height: 32px;
+                opacity: 0.6;
+            }
+
+            .carousel-control-prev-icon,
+            .carousel-control-next-icon {
+                padding: 12px;
+                background-size: 40% 40%;
+            }
+
+            .thumb-item {
+                width: 52px;
+                height: 70px;
+            }
+
+            .content-box {
+                padding: 20px 16px;
+                border-radius: 18px;
+            }
+
+            .content-box .content-header {
+                font-size: 15px;
+            }
+
+            .content-box .article-content {
+                font-size: 15px;
+                line-height: 1.7;
+            }
+
+            .btn-back {
+                font-size: 13px;
+                padding: 6px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <a href="{% url 'knowledge-web-list' %}" class="btn-back">
+            <i class="bi bi-arrow-left"></i> กลับหน้าคลังความรู้
+        </a>
+
+        <!-- Article Header -->
+        <div class="article-header">
+            <span class="badge-category">
+                <i class="{{ article.category.icon }}"></i> {{ article.category.name }}
+            </span>
+            <h4>{{ article.title }}</h4>
+            <div class="article-meta">
+                <span><i class="bi bi-calendar3"></i> {{ article.created_at|date:"d M Y" }}</span>
+                <span class="separator">|</span>
+                <span><i class="bi bi-journal-text"></i> บทเรียนการดูแลสุขภาพ</span>
+            </div>
+        </div>
+
+        <!-- E-Book Carousel Gallery -->
+        {% if images %}
+            <div class="ebook-carousel-container">
+                <div class="carousel-header">
+                    <span class="title">
+                        <i class="bi bi-journal-album"></i> ภาพอินโฟกราฟิก (E-Book)
+                    </span>
+                    <span id="pageBadge" class="page-badge">
+                        <i class="bi bi-file-earmark-text"></i> หน้า 1 / {{ images|length }}
+                    </span>
+                </div>
+
+                <div id="infographicCarousel" class="carousel slide" data-bs-touch="true" data-bs-interval="false">
+                    <div class="carousel-inner">
+                        {% for img in images %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}" data-slide-index="{{ forloop.counter }}">
+                                <img src="{{ img.image.url }}" alt="{{ img.caption }}" onclick="openModal(this.src)">
+                                {% if img.caption %}
+                                    <div class="image-caption">{{ img.caption }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Carousel Controls -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#infographicCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">หน้าก่อนหน้า</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#infographicCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">หน้าถัดไป</span>
+                    </button>
+                </div>
+
+                <!-- Thumbnail Navigation Strip -->
+                <div class="thumb-strip">
+                    {% for img in images %}
+                        <div class="thumb-item {% if forloop.first %}active{% endif %}" onclick="goToSlide({{ forloop.counter0 }})">
+                            <img src="{{ img.image.url }}" alt="Thumb {{ forloop.counter }}">
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Article Content -->
+        <div class="content-box">
+            <div class="content-header">
+                <i class="bi bi-file-text"></i> สรุปเนื้อหาบทเรียน
+            </div>
+            <div class="article-content">
+                {{ article.content|safe }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Zoom Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-fullscreen">
+            <div class="modal-content bg-black border-0">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex justify-content-center align-items-center p-2">
+                    <img id="modalImg" src="" alt="ภาพขยาย" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const totalSlides = {{ images|length|default:0 }};
+        const carouselEl = document.getElementById('infographicCarousel');
+        const pageBadge = document.getElementById('pageBadge');
+        const thumbs = document.querySelectorAll('.thumb-item');
+
+        if (carouselEl) {
+            const carousel = new bootstrap.Carousel(carouselEl, {
+                interval: false,
+                touch: true
+            });
+
+            carouselEl.addEventListener('slide.bs.carousel', function (e) {
+                const activeIndex = e.to;
+                if (pageBadge) {
+                    pageBadge.innerHTML = `<i class="bi bi-file-earmark-text"></i> หน้า ${activeIndex + 1} / ${totalSlides}`;
+                }
+                thumbs.forEach((t, i) => {
+                    t.classList.toggle('active', i === activeIndex);
+                });
+            });
+        }
+
+        function goToSlide(index) {
+            if (carouselEl) {
+                const carousel = bootstrap.Carousel.getInstance(carouselEl);
+                if (carousel) {
+                    carousel.to(index);
+                }
+            }
+        }
+
+        function openModal(src) {
+            document.getElementById('modalImg').src = src;
+            const myModal = new bootstrap.Modal(document.getElementById('imageModal'));
+            myModal.show();
+        }
+    </script>
+</body>
+
+</html>

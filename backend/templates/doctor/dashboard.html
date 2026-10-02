@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard - Sepsis Care Clinical Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --bg-main: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --navy-primary: #1E40AF;
+            --navy-hover: #1E3A8A;
+            --text-dark: #0F172A;
+            --text-body: #334155;
+            --text-muted: #64748B;
+            --border-light: #E2E8F0;
+
+            /* Triage Badges (No Gradient, Solid Crisp Medical Colors) */
+            --badge-red-bg: #FEF2F2;
+            --badge-red-text: #DC2626;
+            --badge-red-border: #FCA5A5;
+
+            --badge-yellow-bg: #FEF3C7;
+            --badge-yellow-text: #D97706;
+            --badge-yellow-border: #FCD34D;
+
+            --badge-green-bg: #ECFDF5;
+            --badge-green-text: #059669;
+            --badge-green-border: #6EE7B7;
+
+            --badge-gray-bg: #F1F5F9;
+            --badge-gray-text: #475569;
+            --badge-gray-border: #CBD5E1;
+        }
+
+        body {
+            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-body);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Top Navbar */
+        .navbar-custom {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid var(--border-light);
+            padding: 12px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+
+        .navbar-brand-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--navy-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-profile-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #F1F5F9;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* Main Container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        /* Metric Cards */
+        .metric-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 20px;
+            height: 100%;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .metric-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 2.1rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .metric-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Status Triage Colors */
+        .triage-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .triage-red {
+            background-color: var(--badge-red-bg);
+            color: var(--badge-red-text);
+            border-color: var(--badge-red-border);
+        }
+
+        .triage-yellow {
+            background-color: var(--badge-yellow-bg);
+            color: var(--badge-yellow-text);
+            border-color: var(--badge-yellow-border);
+        }
+
+        .triage-green {
+            background-color: var(--badge-green-bg);
+            color: var(--badge-green-text);
+            border-color: var(--badge-green-border);
+        }
+
+        .triage-overdue {
+            background-color: var(--badge-gray-bg);
+            color: var(--badge-gray-text);
+            border-color: var(--badge-gray-border);
+        }
+
+        /* Filter Tabs & Search */
+        .filter-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        .nav-pills-custom .nav-link {
+            color: var(--text-body);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+        }
+
+        .nav-pills-custom .nav-link.active {
+            background-color: var(--navy-primary);
+            color: #FFFFFF;
+        }
+
+        .nav-pills-custom .nav-link:hover:not(.active) {
+            background-color: #F1F5F9;
+        }
+
+        .search-input {
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 8px 14px 8px 38px;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-wrapper i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        /* Patient Table */
+        .table-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table-custom {
+            margin-bottom: 0;
+            vertical-align: middle;
+        }
+
+        .table-custom thead th {
+            background-color: #F8FAFC;
+            color: #475569;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-light);
+            padding: 14px 16px;
+        }
+
+        .table-custom tbody tr {
+            transition: background-color 0.1s ease;
+        }
+
+        .table-custom tbody tr:hover {
+            background-color: #F8FAFC;
+        }
+
+        .table-custom tbody td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.92rem;
+        }
+
+        .patient-name {
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 0.98rem;
+        }
+
+        .patient-subtext {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .btn-action {
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .navbar-custom {
+                padding: 10px 14px;
+            }
+            .dashboard-container {
+                padding: 14px 10px;
+            }
+            .metric-value {
+                font-size: 1.7rem;
+            }
+            .table-responsive {
+                border: 0;
+            }
+        }
+
+        /* Offcanvas Patient Drawer */
+        .patient-drawer {
+            width: 100%;
+            max-width: 650px;
+        }
+
+        .drawer-header {
+            background-color: #F8FAFC;
+            border-bottom: 1px solid var(--border-light);
+            padding: 18px 24px;
+        }
+
+        .vital-badge-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 10px 14px;
+            text-align: center;
+        }
+        .vital-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .vital-val {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation Bar -->
+<nav class="navbar-custom">
+    <div class="d-flex align-items-center justify-content-between">
+        <div class="navbar-brand-title">
+            <i class="bi bi-hospital fs-4 text-primary"></i>
+            <span>Sepsis Care Portal</span>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-2 d-none d-md-inline" style="font-size: 0.75rem;">สำหรับแพทย์/พยาบาล</span>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <div class="user-profile-badge">
+                <i class="bi bi-person-circle text-primary"></i>
+                <span>{{ doctor_name }}</span>
+                <span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.72rem;">{{ doctor_role|upper }}</span>
+            </div>
+            <a href="{% url 'doctor-logout' %}" class="btn btn-outline-danger btn-sm rounded-2">
+                <i class="bi bi-box-arrow-right"></i> <span class="d-none d-md-inline">ออกจากระบบ</span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Container -->
+<div class="dashboard-container">
+
+    <!-- Top Summary Stat Cards (4 Cards) -->
+    <div class="row g-3 mb-4">
+        <!-- Red Flag Card -->
+        <div class="col-6 col-md-3">
+            <div class="metric-card border-danger-subtle">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="metric-title text-danger">🔴 เคสวิกฤต (Red Flag)</div>
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+                </div>
+                <div class="metric-value text-danger">{{ red_count }}</div>
+                <div class="metric-desc">ต้องได้รับการดูแลด่วนวันนี้</div>
+            </div>
+        </div>
+
+        <!-- Amber Flag Card -->
+        <div class="col-6 col-md-3">
+            <div class="metric-card border-warning-subtle">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="metric-title text-warning">🟡 เฝ้าระวัง (Amber Flag)</div>
+                    <i class="bi bi-exclamation-circle-fill text-warning fs-5"></i>
+                </div>
+                <div class="metric-value text-warning">{{ yellow_count }}</div>
+                <div class="metric-desc">มีอาการต้องติดตามใกล้ชิด</div>
+            </div>
+        </div>
+
+        <!-- Green Normal Card -->
+        <div class="col-6 col-md-3">
+            <div class="metric-card border-success-subtle">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="metric-title text-success">🟢 ประเมินปกติวันนี้</div>
+                    <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                </div>
+                <div class="metric-value text-success">{{ green_count }}</div>
+                <div class="metric-desc">ผลประเมินอาการปลอดภัย</div>
+            </div>
+        </div>
+
+        <!-- Overdue Check-ins Card -->
+        <div class="col-6 col-md-3">
+            <div class="metric-card border-secondary-subtle">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="metric-title text-secondary">⚠️ ขาดส่งประเมิน</div>
+                    <i class="bi bi-clock-history text-secondary fs-5"></i>
+                </div>
+                <div class="metric-value text-secondary">{{ overdue_count }}</div>
+                <div class="metric-desc">ยังไม่ได้เช็คอาการในวันนี้</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Controls -->
+    <div class="filter-section">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-7">
+                <div class="nav nav-pills nav-pills-custom gap-1 overflow-auto flex-nowrap" id="filterTabs">
+                    <button class="nav-link active" onclick="filterPatients('all')">ทั้งหมด ({{ total_patients }})</button>
+                    <button class="nav-link text-danger" onclick="filterPatients('red')">🔴 เคสวิกฤต ({{ red_count }})</button>
+                    <button class="nav-link text-warning" onclick="filterPatients('yellow')">🟡 เฝ้าระวัง ({{ yellow_count }})</button>
+                    <button class="nav-link text-secondary" onclick="filterPatients('overdue')">⚠️ ขาดส่งวันนี้ ({{ overdue_count }})</button>
+                </div>
+            </div>
+            <div class="col-12 col-md-5">
+                <div class="search-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="ค้นหาชื่อคนไข้, HN, รหัสครอบครัว (FGxxxxx)..." onkeyup="searchPatient()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Triage Table -->
+    <div class="table-card">
+        <div class="table-responsive">
+            <table class="table table-custom align-middle" id="patientTable">
+                <thead>
+                    <tr>
+                        <th>ผู้ป่วย / ข้อมูลทั่วไป</th>
+                        <th>ระดับ Triage</th>
+                        <th>เช็คอาการล่าสุด</th>
+                        <th>สัญญาณชีพล่าสุด</th>
+                        <th>ผู้ดูแลหลัก & ติดต่อ</th>
+                        <th class="text-end">การกระทำ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in patient_list %}
+                    <tr class="patient-row" data-status="{{ p.status_code }}" data-search="{{ p.name }} {{ p.id_card }} {{ p.family_code }}">
+                        <td>
+                            <div class="patient-name">{{ p.name }}</div>
+                            <div class="patient-subtext">
+                                อายุ: {{ p.age }} ปี | รหัสครอบครัว: <span class="badge bg-light text-dark border">{{ p.family_code }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if p.status_code == 'red' %}
+                                <span class="triage-badge triage-red"><i class="bi bi-exclamation-triangle-fill"></i> {{ p.status_label }}</span>
+                            {% elif p.status_code == 'yellow' %}
+                                <span class="triage-badge triage-yellow"><i class="bi bi-exclamation-circle-fill"></i> {{ p.status_label }}</span>
+                            {% elif p.status_code == 'overdue' %}
+                                <span class="triage-badge triage-overdue"><i class="bi bi-clock-history"></i> {{ p.status_label }}</span>
+                            {% else %}
+                                <span class="triage-badge triage-green"><i class="bi bi-check-circle-fill"></i> {{ p.status_label }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if p.latest_check %}
+                                <div class="fw-semibold text-dark" style="font-size:0.88rem;">{{ p.latest_check.date|date:"d/m/Y" }}</div>
+                                <div class="patient-subtext">{{ p.latest_check.get_responder_display }}</div>
+                            {% else %}
+                                <span class="text-muted" style="font-size:0.82rem;">ยังไม่มีประวัติ</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if p.latest_vitals %}
+                                <div style="font-size:0.85rem;" class="fw-medium">
+                                    BP: <strong>{{ p.latest_vitals.systolic_bp|default:"-" }}/{{ p.latest_vitals.diastolic_bp|default:"-" }}</strong> mmHg | 
+                                    HR: <strong>{{ p.latest_vitals.heart_rate|default:"-" }}</strong> bpm
+                                </div>
+                                <div class="patient-subtext">
+                                    SpO₂: <strong>{{ p.latest_vitals.spo2|default:"-" }}%</strong> | Temp: <strong>{{ p.latest_vitals.temperature|default:"-" }} °C</strong>
+                                </div>
+                            {% else %}
+                                <span class="text-muted" style="font-size:0.82rem;">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if p.primary_caregiver %}
+                                <div class="fw-semibold text-dark" style="font-size:0.88rem;">{{ p.primary_caregiver.name }}</div>
+                                <div class="patient-subtext"><i class="bi bi-telephone"></i> {{ p.primary_caregiver.phone_number|default:"-" }}</div>
+                            {% else %}
+                                <span class="text-muted" style="font-size:0.82rem;">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-primary btn-action" onclick="openPatientDrawer({{ p.id }})">
+                                <i class="bi bi-journal-medical me-1"></i> ดูรายละเอียด
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i> Unregistered or No Patients Found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Offcanvas Patient Deep-Dive Drawer Modal -->
+<div class="offcanvas offcanvas-end patient-drawer" tabindex="-1" id="patientDrawer">
+    <div class="offcanvas-header drawer-header">
+        <div>
+            <h5 class="offcanvas-title fw-bold text-dark" id="drawerPatientName">กำลังโหลด...</h5>
+            <div class="text-muted" style="font-size:0.82rem;" id="drawerPatientSub">รหัสครอบครัว: -</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body p-4">
+        <!-- Patient Summary Box -->
+        <div class="row g-2 mb-4">
+            <div class="col-3"><div class="vital-badge-box"><div class="vital-label">อายุ</div><div class="vital-val" id="dValAge">-</div></div></div>
+            <div class="col-3"><div class="vital-badge-box"><div class="vital-label">SpO₂ ล่าสุด</div><div class="vital-val text-primary" id="dValSpo2">-</div></div></div>
+            <div class="col-3"><div class="vital-badge-box"><div class="vital-label">ความดัน (BP)</div><div class="vital-val text-dark" id="dValBP">-</div></div></div>
+            <div class="col-3"><div class="vital-badge-box"><div class="vital-label">อุณหภูมิ</div><div class="vital-val text-danger" id="dValTemp">-</div></div></div>
+        </div>
+
+        <!-- Detail Tabs -->
+        <ul class="nav nav-tabs mb-3" id="drawerTab" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-vitals">📈 กราฟสัญญาณชีพ</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-history">📋 ประวัติเช็คอาการ</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-family">👥 ผู้ดูแล & สมาชิก</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-notes">📝 โน้ตแพทย์</button></li>
+        </ul>
+
+        <div class="tab-content" id="drawerTabContent">
+            <!-- Vitals Chart Tab -->
+            <div class="tab-pane fade show active" id="tab-vitals">
+                <div class="card border p-3">
+                    <h6 class="fw-bold mb-3 text-dark">แนวโน้มสัญญาณชีพ (Vital Signs Trend)</h6>
+                    <canvas id="vitalsChart" height="220"></canvas>
+                </div>
+            </div>
+
+            <!-- Daily Check History Tab -->
+            <div class="tab-pane fade" id="tab-history">
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered" style="font-size:0.85rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>วันที่</th>
+                                <th>ระดับผล</th>
+                                <th>ผู้ตอบ</th>
+                                <th>รายละเอียดอาการสำคัญ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <tr><td colspan="4" class="text-center text-muted">ไม่มีข้อมูล</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Family Members Tab -->
+            <div class="tab-pane fade" id="tab-family">
+                <div class="list-group list-group-flush" id="familyListGroup">
+                    <div class="list-group-item text-muted">กำลังโหลด...</div>
+                </div>
+            </div>
+
+            <!-- Clinical Notes Tab -->
+            <div class="tab-pane fade" id="tab-notes">
+                <form id="doctorNoteForm">
+                    <input type="hidden" id="currentPatientId">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" style="font-size:0.88rem;">โรคประจำตัว / ข้อควรระวังทางการแพทย์</label>
+                        <textarea class="form-control" id="noteUnderlying" rows="3" placeholder="กรอกโรคประจำตัว หรือประวัติเดิมของคนไข้"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" style="font-size:0.88rem;">ประวัติแพ้ยา</label>
+                        <textarea class="form-control" id="noteAllergy" rows="2" placeholder="กรอกประวัติการแพ้ยารุนแรง"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-primary w-100" onclick="saveDoctorNotes()">
+                        <i class="bi bi-check-circle me-1"></i> บันทึกข้อมูลแพทย์
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let vitalsChartInstance = null;
+    let patientDrawerModal = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        patientDrawerModal = new bootstrap.Offcanvas(document.getElementById('patientDrawer'));
+    });
+
+    // Filter Patient Table by Status
+    function filterPatients(status) {
+        document.querySelectorAll('#filterTabs .nav-link').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        const rows = document.querySelectorAll('.patient-row');
+        rows.forEach(row => {
+            const rowStatus = row.getAttribute('data-status');
+            if (status === 'all' || rowStatus === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Search Patient Table by Text
+    function searchPatient() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('.patient-row');
+        rows.forEach(row => {
+            const searchText = row.getAttribute('data-search').toLowerCase();
+            if (searchText.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Open Patient Detail Drawer
+    function openPatientDrawer(userId) {
+        document.getElementById('currentPatientId').value = userId;
+        document.getElementById('drawerPatientName').innerText = 'กำลังโหลดข้อมูล...';
+
+        fetch(`/api/v1/accounts/doctor/patient/${userId}/`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const p = data.patient;
+                    document.getElementById('drawerPatientName').innerText = p.name;
+                    document.getElementById('drawerPatientSub').innerText = `รหัสครอบครัว: ${p.family_code} | เบอร์โทร: ${p.phone}`;
+                    document.getElementById('dValAge').innerText = p.age + ' ปี';
+                    document.getElementById('noteUnderlying').value = p.underlying_disease;
+                    document.getElementById('noteAllergy').value = p.allergy;
+
+                    // Latest Vitals Overview
+                    if (data.vitals.length > 0) {
+                        const lastV = data.vitals[data.vitals.length - 1];
+                        document.getElementById('dValSpo2').innerText = (lastV.spo2 || '-') + '%';
+                        document.getElementById('dValBP').innerText = (lastV.sbp || '-') + '/' + (lastV.dbp || '-');
+                        document.getElementById('dValTemp').innerText = (lastV.temp || '-') + '°C';
+                    } else {
+                        document.getElementById('dValSpo2').innerText = '-';
+                        document.getElementById('dValBP').innerText = '-';
+                        document.getElementById('dValTemp').innerText = '-';
+                    }
+
+                    // Render Vitals Chart
+                    renderVitalsChart(data.vitals);
+
+                    // Render History Table
+                    renderHistoryTable(data.daily_checks);
+
+                    // Render Family Members
+                    renderFamilyList(data.family_members);
+
+                    patientDrawerModal.show();
+                } else {
+                    Swal.fire('ข้อผิดพลาด', data.message, 'error');
+                }
+            })
+            .catch(err => {
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+            });
+    }
+
+    // Render Line Chart for Vitals
+    function renderVitalsChart(vitals) {
+        const ctx = document.getElementById('vitalsChart').getContext('2d');
+        if (vitalsChartInstance) {
+            vitalsChartInstance.destroy();
+        }
+
+        const labels = vitals.map(v => v.date);
+        const temps = vitals.map(v => v.temp);
+        const spo2s = vitals.map(v => v.spo2);
+        const sbps = vitals.map(v => v.sbp);
+
+        vitalsChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.length > 0 ? labels : ['ไม่มีข้อมูล'],
+                datasets: [
+                    {
+                        label: 'SpO₂ (%)',
+                        data: spo2s,
+                        borderColor: '#1E40AF',
+                        backgroundColor: '#1E40AF',
+                        tension: 0.2
+                    },
+                    {
+                        label: 'Temp (°C)',
+                        data: temps,
+                        borderColor: '#DC2626',
+                        backgroundColor: '#DC2626',
+                        tension: 0.2
+                    },
+                    {
+                        label: 'Systolic BP (mmHg)',
+                        data: sbps,
+                        borderColor: '#D97706',
+                        backgroundColor: '#D97706',
+                        tension: 0.2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: { beginAtZero: false }
+                }
+            }
+        });
+    }
+
+    // Render Daily Check History Table
+    function renderHistoryTable(checks) {
+        const tbody = document.getElementById('historyTableBody');
+        if (checks.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">ไม่มีประวัติการเช็คอาการ</td></tr>';
+            return;
+        }
+
+        let html = '';
+        checks.forEach(c => {
+            let badge = `<span class="badge bg-success">🟢 ปกติ</span>`;
+            if (c.result_level === 'red') badge = `<span class="badge bg-danger">🔴 รุนแรง</span>`;
+            else if (c.result_level === 'yellow') badge = `<span class="badge bg-warning text-dark">🟡 เฝ้าระวัง</span>`;
+
+            let details = [];
+            if (c.has_fever) details.push('มีไข้: ' + (c.fever_detail || '-'));
+            if (c.has_breathless) details.push('เหนื่อยหอบ: ' + (c.breathless_detail || '-'));
+            if (c.has_confused) details.push('ซึม/สับสน: ' + (c.confused_detail || '-'));
+
+            html += `<tr>
+                <td>${c.date}</td>
+                <td>${badge}</td>
+                <td>${c.responder}</td>
+                <td>${details.length > 0 ? details.join(', ') : 'ไม่มีอาการผิดปกติ'}</td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    // Render Family List
+    function renderFamilyList(members) {
+        const container = document.getElementById('familyListGroup');
+        if (members.length === 0) {
+            container.innerHTML = '<div class="list-group-item text-muted">ไม่มีสมาชิกในกลุ่มครอบครัว</div>';
+            return;
+        }
+
+        let html = '';
+        members.forEach(m => {
+            html += `<div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="fw-bold text-dark">${m.name}</div>
+                    <div class="small text-muted">${m.role_display} | LINE: ${m.line_display}</div>
+                </div>
+                <div>
+                    <a href="tel:${m.phone}" class="btn btn-outline-primary btn-sm"><i class="bi bi-telephone"></i> ${m.phone}</a>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    // Save Doctor Clinical Notes
+    function saveDoctorNotes() {
+        const userId = document.getElementById('currentPatientId').value;
+        const underlying = document.getElementById('noteUnderlying').value;
+        const allergy = document.getElementById('noteAllergy').value;
+
+        fetch(`/api/v1/accounts/doctor/patient/${userId}/notes/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                underlying_disease: underlying,
+                allergy: allergy
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire('สำเร็จ', 'บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
+            } else {
+                Swal.fire('ข้อผิดพลาด', data.message, 'error');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

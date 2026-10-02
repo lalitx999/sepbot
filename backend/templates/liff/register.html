@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ลงทะเบียนผู้ใช้งาน - Sepsis Care Line Bot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@200..900&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            margin: 0;
+            padding: 0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sarabun', 'Noto Serif Thai', sans-serif;
+            background: linear-gradient(145deg, #eef1fb 0%, #f6e8f2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 15px;
+            position: relative;
+        }
+
+        /* Decorative background circles */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            z-index: 0;
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        body::before {
+            width: 300px;
+            height: 300px;
+            background: #64B5F6;
+            top: -80px;
+            right: -80px;
+        }
+
+        body::after {
+            width: 400px;
+            height: 400px;
+            background: #F06292;
+            bottom: -120px;
+            left: -120px;
+        }
+
+        .container {
+            max-width: 440px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .app-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .app-header .logo-icon {
+            background: linear-gradient(135deg, #0288D1 0%, #7B3F9E 55%, #E91E63 100%);
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(233, 30, 99, 0.25);
+            margin-bottom: 12px;
+        }
+
+        .app-header h1 {
+            font-weight: 700;
+            font-size: 26px;
+            color: #2A1B3D;
+            margin: 0;
+        }
+
+        .app-header h1 span {
+            color: #E91E63;
+        }
+
+        .app-header p {
+            color: #666;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* Form Card */
+        .card-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 28px;
+            padding: 28px 22px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            border-radius: 14px;
+            padding: 12px 16px;
+            border: 1.5px solid #e0e0e0;
+            font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: #E91E63;
+            box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.15);
+        }
+
+        .role-option {
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #fff;
+        }
+
+        .role-option.active {
+            border-color: #E91E63;
+            background: #fce4ec;
+            box-shadow: 0 4px 12px rgba(233, 30, 99, 0.15);
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #0288D1 0%, #E91E63 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 16px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 6px 20px rgba(233, 30, 99, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        .btn-green:hover, .btn-green:active {
+            background: linear-gradient(135deg, #0077C8 0%, #D81B60 100%);
+            color: #fff;
+        }
+
+        .btn-green:disabled {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="app-header">
+            <div class="logo-icon">
+                <i class="bi bi-heart-pulse-fill"></i>
+            </div>
+            <h1>Sepsis <span>Care</span></h1>
+            <p>ลงทะเบียนเพื่อผูกครอบครัวและรับการดูแลสุขภาพ</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card-custom">
+            <form id="registerForm" novalidate>
+                <!-- LINE User ID (Readonly) -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-qr-code-scan"></i> LINE User ID</label>
+                    <input type="text" id="lineUserId" class="form-control bg-light" placeholder="กำลังดึงข้อมูล LINE ID..." readonly required>
+                </div>
+
+                <!-- Name -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-person"></i> ชื่อ - นามสกุลจริง <span class="text-danger">*</span></label>
+                    <input type="text" id="name" class="form-control" placeholder="เช่น สมชาย ใจดี" required>
+                </div>
+
+                <!-- ID Card -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-credit-card"></i> เลขบัตรประชาชน 13 หลัก <span class="text-danger">*</span></label>
+                    <input type="text" id="idCard" class="form-control" maxlength="13" placeholder="1234567890123" required>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-telephone text-primary"></i> เบอร์โทรศัพท์มือถือ <span class="text-danger">*</span></label>
+                    <input type="tel" id="phoneNumber" class="form-control" maxlength="10" placeholder="เช่น 0812345678" required>
+                </div>
+
+                <!-- Age -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-calendar3"></i> อายุ (ปี) <span class="text-danger">*</span></label>
+                    <input type="number" id="age" class="form-control" min="1" max="120" placeholder="เช่น 65" required>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-tag"></i> บทบาทของคุณ <span class="text-danger">*</span></label>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="role-option active text-center p-2" id="rolePatientOpt" onclick="selectRole('patient')">
+                                <i class="bi bi-person-fill text-success fs-3"></i>
+                                <div class="fw-bold small">ผู้ป่วย</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="role-option text-center p-2" id="roleCaregiverOpt" onclick="selectRole('caregiver')">
+                                <i class="bi bi-people-fill text-primary fs-3"></i>
+                                <div class="fw-bold small">ผู้ดูแล</div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="role" value="patient">
+                </div>
+
+                <!-- Family Code Group (Shown only for Caregiver) -->
+                <div id="familyCodeGroup" class="mb-4 d-none">
+                    <label class="form-label"><i class="bi bi-link-45deg text-primary"></i> รหัส Family Group ของผู้ป่วย <span class="text-danger">*</span></label>
+                    <input type="text" id="familyCode" class="form-control text-uppercase fw-bold" placeholder="เช่น FG12345">
+                    <div class="form-text text-muted">
+                        <i class="bi bi-info-circle me-1"></i> กรุณาระบุรหัสครอบครัว (FGxxxxx) ที่ผู้ป่วยได้รับหลังลงทะเบียนเพื่อเชื่อมต่อกลุ่มเดียวกัน
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-green w-100 mb-2 mt-2">
+                    <i class="bi bi-check-circle me-2"></i> ลงทะเบียนเพื่อเริ่มใช้งาน
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = 'patient';
+
+        function selectRole(role) {
+            currentRole = role;
+            document.getElementById('role').value = role;
+            document.getElementById('rolePatientOpt').classList.toggle('active', role === 'patient');
+            document.getElementById('roleCaregiverOpt').classList.toggle('active', role === 'caregiver');
+            document.getElementById('roleNurseOpt').classList.toggle('active', role === 'nurse');
+
+            // Show Family Code input ONLY if caregiver role is selected
+            const familyCodeGroup = document.getElementById('familyCodeGroup');
+            if (role === 'caregiver') {
+                familyCodeGroup.classList.remove('d-none');
+            } else {
+                familyCodeGroup.classList.add('d-none');
+                document.getElementById('familyCode').value = '';
+            }
+        }
+
+        // Initialize LIFF & Auto Auth
+        window.onload = function () {
+            const storedUid = localStorage.getItem('sepbot_line_user_id');
+            if (storedUid) {
+                document.getElementById('lineUserId').value = storedUid;
+            }
+
+            if (typeof liff !== 'undefined') {
+                const liffId = "2011343821-vFX0ZUTO";
+                liff.init({ liffId: liffId }).then(() => {
+                    if (liff.isLoggedIn()) {
+                        liff.getProfile().then(profile => {
+                            document.getElementById('lineUserId').value = profile.userId;
+                            localStorage.setItem('sepbot_line_user_id', profile.userId);
+                            if (profile.displayName && !document.getElementById('name').value) {
+                                document.getElementById('name').value = profile.displayName;
+                            }
+                        });
+                    } else if (liff.isInClient()) {
+                        liff.login();
+                    }
+                }).catch(err => {
+                    console.log("LIFF Init Fallback:", err);
+                });
+            }
+        };
+
+        // Handle Form Submit
+        document.getElementById('registerForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const lineUserId = document.getElementById('lineUserId').value.trim();
+            const name = document.getElementById('name').value.trim();
+            const idCard = document.getElementById('idCard').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const age = document.getElementById('age').value.trim();
+            const familyCode = document.getElementById('familyCode').value.trim();
+
+            // Strict Validation
+            if (!lineUserId) {
+                Swal.fire('กรุณาลงชื่อเข้าใช้ LINE', 'ไม่พบ LINE User ID กรุณาเปิดผ่านแอป LINE', 'warning');
+                return;
+            }
+            if (!name) {
+                Swal.fire('กรุณากรอกข้อมูล', 'โปรดระบุ ชื่อ - นามสกุลจริง', 'warning');
+                return;
+            }
+            if (!idCard || idCard.length !== 13 || !/^\d+$/.test(idCard)) {
+                Swal.fire('ข้อมูลไม่ถูกต้อง', 'โปรดระบุเลขบัตรประชาชนเป็นตัวเลข 13 หลัก', 'warning');
+                return;
+            }
+            if (!phoneNumber || phoneNumber.length < 9 || phoneNumber.length > 10 || !/^\d+$/.test(phoneNumber)) {
+                Swal.fire('ข้อมูลไม่ถูกต้อง', 'โปรดระบุเบอร์โทรศัพท์มือถือ 9-10 หลัก', 'warning');
+                return;
+            }
+            if (!age || parseInt(age) < 1 || parseInt(age) > 120) {
+                Swal.fire('ข้อมูลไม่ถูกต้อง', 'โปรดระบุอายุระหว่าง 1 ถึง 120 ปี', 'warning');
+                return;
+            }
+            if (currentRole === 'caregiver' && !familyCode) {
+                Swal.fire('กรุณากรอกรหัสครอบครัว', 'ผู้ดูแลจำเป็นต้องระบุรหัส Family Group (FGxxxxx) ของผู้ป่วย', 'warning');
+                return;
+            }
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> กำลังบันทึกข้อมูล...';
+
+            const payload = {
+                line_user_id: lineUserId,
+                name: name,
+                id_card: idCard,
+                phone_number: phoneNumber,
+                age: parseInt(age),
+                role: currentRole,
+                family_code: familyCode
+            };
+
+            try {
+                const response = await fetch('/api/v1/accounts/register/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonErr) {
+                    data = { error: `เซิร์ฟเวอร์ตอบกลับผิดปกติ (Status: ${response.status})` };
+                }
+
+                if (response.ok) {
+                    localStorage.setItem('sepbot_line_user_id', payload.line_user_id);
+                    
+                    const roleText = currentRole === 'patient' ? 'ผู้ป่วย' : 'ผู้ดูแล';
+                    const targetPatientName = data.patient_name ? `คุณ${data.patient_name}` : '';
+                    const subInfo = currentRole === 'caregiver' 
+                        ? `<p class="small text-dark mb-0 fw-bold"><i class="bi bi-heart-fill text-danger me-1"></i> ได้ผูกเป็นผู้ดูแลของ ${targetPatientName} เรียบร้อยแล้วค่ะ 💙</p>`
+                        : `<p class="small text-muted mb-0"><i class="bi bi-info-circle me-1"></i> โปรดแจ้งรหัสนี้แก่ผู้ดูแลเพื่อใช้เชื่อมต่อกลุ่มครอบครัว</p>`;
+
+                    // Show SweetAlert2 Modal
+                    Swal.fire({
+                        title: '🎉 ลงทะเบียนสำเร็จ!',
+                        html: `
+                            <div class="py-2">
+                                <p class="text-secondary mb-1" style="font-size: 15px;">ลงทะเบียนบทบาท: <strong>${roleText}</strong></p>
+                                <p class="text-secondary mb-2" style="font-size: 15px;">รหัสครอบครัวของคุณคือ</p>
+                                <div class="p-3 mb-3" style="background: #fce4ec; border: 2px dashed #E91E63; border-radius: 16px;">
+                                    <span class="fs-1 fw-bold text-danger" style="letter-spacing: 3px;">${data.user.family_code}</span>
+                                </div>
+                                ${subInfo}
+                            </div>
+                        `,
+                        icon: 'success',
+                        confirmButtonText: '<i class="bi bi-check-circle me-1"></i> เข้าสู่หน้าหลักแชตบอท',
+                        confirmButtonColor: '#E91E63',
+                        allowOutsideClick: false
+                    }).then(() => {
+                        if (typeof liff !== 'undefined' && liff.isInClient()) {
+                            liff.closeWindow();
+                        }
+                    });
+                } else {
+                    let errMsg = "เกิดข้อผิดพลาดในการลงทะเบียน";
+                    if (data.error) {
+                        errMsg = data.error;
+                    } else if (typeof data === 'object') {
+                        errMsg = Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join('<br>');
+                    }
+                    Swal.fire('ลงทะเบียนไม่สำเร็จ', errMsg, 'error');
+                }
+            } catch (err) {
+                Swal.fire('ข้อผิดพลาดเครือข่าย', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้: ' + (err.message || err), 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i> ลงทะเบียนเพื่อเริ่มใช้งาน';
+            }
+        });
+    </script>
+</body>
+
+</html>

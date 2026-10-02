@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>คัดกรองภาวะเซพซิสในชุมชน - Sepsis Care</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --medical-blue: #0288D1;
+            --medical-magenta: #E91E63;
+            --medical-dark: #0F172A;
+            --bg-light: #F8FAFC;
+            --card-white: #FFFFFF;
+            --red-flag: #DC2626;
+            --amber-flag: #D97706;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            font-family: 'Sarabun', sans-serif;
+            color: var(--medical-dark);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .wizard-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 14px 100px 14px;
+            position: relative;
+        }
+
+        /* Top Progress Bar Header */
+        .wizard-progress-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            border: 1.5px solid #E2E8F0;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .progress-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .btn-wizard-back {
+            background: #F1F5F9;
+            color: #475569;
+            border: 1px solid #CBD5E1;
+            border-radius: 10px;
+            padding: 4px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-wizard-back:hover {
+            background: #E2E8F0;
+        }
+
+        .step-counter-label {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--medical-blue);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: #E2E8F0;
+            border-radius: 100px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0288D1 0%, #E91E63 100%);
+            width: 25%;
+            border-radius: 100px;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Step Card Page Container */
+        .wizard-page {
+            display: none;
+            animation: slideInRight 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .wizard-page.active {
+            display: block;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .medical-card {
+            background: var(--card-white);
+            border-radius: 20px;
+            border: 1.5px solid #E2E8F0;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            padding: 20px 18px;
+            margin-bottom: 16px;
+        }
+
+        .card-header-clean {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #F1F5F9;
+        }
+
+        .step-badge-clean {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--medical-blue);
+            color: #FFFFFF;
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .card-title-clean {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--medical-dark);
+            margin: 0;
+        }
+
+        /* Red / Amber Special Styling */
+        .medical-card.card-red {
+            border-left: 5px solid var(--red-flag);
+            background: #FEF2F2;
+        }
+        .medical-card.card-red .step-badge-clean {
+            background: var(--red-flag);
+        }
+        .medical-card.card-red .card-title-clean {
+            color: var(--red-flag);
+        }
+
+        .medical-card.card-amber {
+            border-left: 5px solid var(--amber-flag);
+            background: #FFFBEB;
+        }
+        .medical-card.card-amber .step-badge-clean {
+            background: var(--amber-flag);
+        }
+        .medical-card.card-amber .card-title-clean {
+            color: var(--amber-flag);
+        }
+
+        /* Checkbox Tile Item */
+        .check-tile-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 13px 14px;
+            background: #FFFFFF;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .check-tile-item:hover {
+            border-color: #CBD5E1;
+        }
+
+        .check-tile-item:has(input:checked) {
+            border-color: var(--medical-blue);
+            background: #F0F9FF;
+            box-shadow: 0 2px 8px rgba(2, 136, 209, 0.08);
+        }
+
+        .card-red .check-tile-item:has(input:checked) {
+            border-color: var(--red-flag);
+            background: #FEE2E2;
+        }
+
+        .card-amber .check-tile-item:has(input:checked) {
+            border-color: var(--amber-flag);
+            background: #FEF3C7;
+        }
+
+        .check-tile-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            flex-shrink: 0;
+            cursor: pointer;
+            accent-color: var(--medical-blue);
+        }
+
+        .card-red .check-tile-item input[type="checkbox"] {
+            accent-color: var(--red-flag);
+        }
+
+        .card-amber .check-tile-item input[type="checkbox"] {
+            accent-color: var(--amber-flag);
+        }
+
+        .check-tile-label {
+            font-size: 14.5px;
+            font-weight: 500;
+            color: #1E293B;
+            line-height: 1.45;
+            cursor: pointer;
+        }
+
+        .card-red .check-tile-label {
+            color: #991B1B;
+            font-weight: 600;
+        }
+
+        .card-amber .check-tile-label {
+            color: #92400E;
+            font-weight: 600;
+        }
+
+        /* Action Buttons */
+        .step-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-wizard-next {
+            flex: 1;
+            background: linear-gradient(135deg, #0288D1, #0277BD);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 14px;
+            padding: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(2, 136, 209, 0.25);
+        }
+
+        .btn-wizard-stop {
+            flex: 1;
+            background: #F1F5F9;
+            color: #475569;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 14px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .btn-wizard-danger {
+            flex: 1;
+            background: linear-gradient(135deg, #DC2626, #B91C1C);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 14px;
+            padding: 14px;
+            font-weight: 700;
+            font-size: 14.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
+        }
+
+        .other-text-input {
+            border: 1.5px solid #CBD5E1;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13.5px;
+            margin-top: 6px;
+            width: 100%;
+        }
+
+        .other-text-input:focus {
+            border-color: var(--medical-blue);
+            outline: none;
+        }
+
+        /* Fixed Bottom Submit Bar for Step 4 */
+        .bottom-fixed-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            background: #FFFFFF;
+            border-top: 1px solid #E2E8F0;
+            padding: 12px 16px 20px 16px;
+            z-index: 99;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .bottom-inner {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .btn-medical-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #0288D1 0%, #E91E63 100%);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 14px;
+            padding: 15px;
+            font-size: 16.5px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(233, 30, 99, 0.25);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wizard-container">
+        <!-- Progress Bar Header -->
+        <div class="wizard-progress-card">
+            <div class="progress-meta">
+                <button type="button" class="btn-wizard-back d-none" id="btnBack" onclick="goPrevStep()">
+                    <i class="bi bi-chevron-left"></i> ย้อนกลับ
+                </button>
+                <span class="step-counter-label ms-auto" id="stepLabel">ขั้นตอนที่ 1 จาก 4 (25%)</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <form id="screeningForm">
+            <input type="hidden" id="lineUserId" value="">
+
+            <!-- PAGE 1: Step 1 Risk Factors -->
+            <div class="wizard-page active" id="pageStep1">
+                <div class="medical-card">
+                    <div class="card-header-clean">
+                        <div class="step-badge-clean">1</div>
+                        <h2 class="card-title-clean">ปัจจัยเสี่ยงภาวะเซพซิส (Risk Factors)</h2>
+                    </div>
+                    <p class="small text-muted mb-3"><i class="bi bi-info-circle me-1"></i> เริ่มทำหากคนไข้มีอาการไม่สบาย หรือมีปัจจัยเสี่ยงดังต่อไปนี้:</p>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="age_over_75" class="step1-check">
+                        <span class="check-tile-label">1. อายุเกิน 75 ปี</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="immunocompromised" class="step1-check">
+                        <span class="check-tile-label">2. ระบบภูมิคุ้มกันบกพร่อง (เช่น เบาหวาน, ทานยาสเตียรอยด์, รับเคมีบำบัด)</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="has_catheter" class="step1-check">
+                        <span class="check-tile-label">3. มีสายสวนหรือสายต่าง ๆ ค้างในร่างกาย / IVDU / ผิวหนังแตกหรือมีแผล</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="recent_surgery" class="step1-check">
+                        <span class="check-tile-label">4. มีประวัติได้รับบาดเจ็บ / ผ่าตัด / ทำหัตถการรุกรานร่างกายเมื่อไม่นานมานี้</span>
+                    </label>
+
+                    <div class="step-actions">
+                        <button type="button" class="btn-wizard-stop" onclick="finishNoRisk()">
+                            <i class="bi bi-x-circle me-1"></i> ไม่มีปัจจัยเสี่ยงเลย
+                        </button>
+                        <button type="button" class="btn-wizard-next" onclick="validateAndGoStep2()">
+                            ไปต่อข้อ 2 <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 2: Step 2 Infection Source -->
+            <div class="wizard-page" id="pageStep2">
+                <div class="medical-card">
+                    <div class="card-header-clean">
+                        <div class="step-badge-clean" style="background: #7B3F9E;">2</div>
+                        <h2 class="card-title-clean">แหล่งที่มาของการติดเชื้อที่น่าจะเป็น (Infection Source)</h2>
+                    </div>
+                    <p class="small text-muted mb-3"><i class="bi bi-question-circle me-1"></i> อาการดังกล่าวอาจมีสาเหตุมาจากการติดเชื้อหรือไม่?</p>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="infection_respiratory" class="step2-check">
+                        <span class="check-tile-label">1. ระบบหายใจ (เช่น ปอดอักเสบ, ไอหนัก, เสมหะ)</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="infection_urinary" class="step2-check">
+                        <span class="check-tile-label">2. ระบบปัสสาวะ (เช่น ปัสสาวะแสบขัด, ปัสสาวะขุ่น)</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="infection_skin" class="step2-check">
+                        <span class="check-tile-label">3. ผิวหนัง / ข้อต่อ / บาดแผล</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="infection_device" class="step2-check">
+                        <span class="check-tile-label">4. วัตถุหรือสายค้างในร่างกาย</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="infection_brain" class="step2-check">
+                        <span class="check-tile-label">5. สมอง / เยื่อหุ้มสมอง</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="infection_surgery" class="step2-check">
+                        <span class="check-tile-label">6. การผ่าตัด / แผลผ่าตัด</span>
+                    </label>
+
+                    <label class="check-tile-item mb-1">
+                        <input type="checkbox" id="infection_other_check" class="step2-check" onchange="toggleOtherText(this)">
+                        <span class="check-tile-label">7. อื่น ๆ (ระบุ)</span>
+                    </label>
+                    <input type="text" id="infection_other_text" class="other-text-input d-none" placeholder="ระบุแหล่งติดเชื้ออื่นๆ...">
+
+                    <div class="step-actions">
+                        <button type="button" class="btn-wizard-stop" onclick="finishNoInfection()">
+                            <i class="bi bi-x-circle me-1"></i> ไม่มีการติดเชื้อ
+                        </button>
+                        <button type="button" class="btn-wizard-next" style="background: linear-gradient(135deg, #7B3F9E, #5B2E82);" onclick="validateAndGoStep3()">
+                            ไปต่อข้อ 3 <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 3: Step 3 Red Flags -->
+            <div class="wizard-page" id="pageStep3">
+                <div class="medical-card card-red">
+                    <div class="card-header-clean">
+                        <div class="step-badge-clean"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                        <h2 class="card-title-clean">สัญญาณเตือนระดับสีแดง (Red Flags - วิกฤต)</h2>
+                    </div>
+                    <p class="small text-muted mb-3"><i class="bi bi-exclamation-octagon me-1"></i> หากมีสัญญาณวิกฤตข้อใดข้อหนึ่ง ให้เริ่มชุดการดูแลผู้ป่วยทันที:</p>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="red_flag_mental" class="step3-check">
+                        <span class="check-tile-label">1. สภาพจิตใจเปลี่ยนแปลงหรือเกิดขึ้นใหม่ (ซึม/สับสน)</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="red_flag_rr_ge25" class="step3-check">
+                        <span class="check-tile-label">2. อัตราการหายใจ ≥ 25 ครั้ง/นาที</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="red_flag_o2_need" class="step3-check">
+                        <span class="check-tile-label">3. ให้ออกซิเจนใหม่ (≥ 40%) เพื่อรักษาระดับ SpO2 > 92%</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="red_flag_sbp_le90" class="step3-check">
+                        <span class="check-tile-label">4. ความดันตัวบน (Systolic BP) ≤ 90 mmHg (หรือลดลง > 40)</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="red_flag_hr_gt130" class="step3-check">
+                        <span class="check-tile-label">5. อัตราการเต้นหัวใจ > 130 ครั้ง/นาที</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="red_flag_no_urine_18h" class="step3-check">
+                        <span class="check-tile-label">6. ไม่ได้ปัสสาวะออกเป็นเวลา 18 ชั่วโมง</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="red_flag_skin_change" class="step3-check">
+                        <span class="check-tile-label">7. ผื่นกดแล้วสีไม่จาง / ผิวหนังลายด่างเป็นปื้น / ผิวซีดเทาหรือเขียวคล้ำ</span>
+                    </label>
+
+                    <div class="step-actions">
+                        <button type="button" class="btn-wizard-danger" onclick="triggerRedFlagAlert()">
+                            <i class="bi bi-telephone-outbound-fill me-1"></i> พบ Red Flag (โทร 1669)
+                        </button>
+                        <button type="button" class="btn-wizard-next" style="background: linear-gradient(135deg, #F57C00, #E65100);" onclick="goStep4()">
+                            ไม่มี Red Flag (ไปข้อ 4) <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 4: Step 4 Amber Flags -->
+            <div class="wizard-page" id="pageStep4">
+                <div class="medical-card card-amber">
+                    <div class="card-header-clean">
+                        <div class="step-badge-clean"><i class="bi bi-exclamation-circle-fill"></i></div>
+                        <h2 class="card-title-clean">สัญญาณเตือนระดับสีเหลือง (Amber Flags - เฝ้าระวัง)</h2>
+                    </div>
+                    <p class="small text-muted mb-3"><i class="bi bi-info-square me-1"></i> สัญญาณผิดปกติที่ต้องได้รับการประเมินภายในวันเดียวกัน:</p>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="amber_flag_behavior">
+                        <span class="check-tile-label">1. ครอบครัวรายงานพฤติกรรมหรือสภาพจิตใจที่ผิดปกติ</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="amber_flag_activity_down">
+                        <span class="check-tile-label">2. ความสามารถในการทำกิจกรรมต่าง ๆ ลดลง</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="amber_flag_rr_21_24">
+                        <span class="check-tile-label">3. อัตราการหายใจอยู่ระหว่าง 21-24 ครั้ง/นาที</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="amber_flag_sbp_91_100">
+                        <span class="check-tile-label">4. ความดันตัวบน (Systolic BP) อยู่ระหว่าง 91-100 mmHg</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="amber_flag_hr_91_120">
+                        <span class="check-tile-label">5. อัตราการเต้นหัวใจอยู่ระหว่าง 91–120 ครั้ง/นาที</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="amber_flag_spo2_lt92">
+                        <span class="check-tile-label">6. ค่า SpO2 < 92% ขณะหายใจอากาศปกติ หรือต้องการออกซิเจนเพิ่มขึ้น</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="amber_flag_no_urine_12_18h">
+                        <span class="check-tile-label">7. ไม่ได้ปัสสาวะออกเป็นเวลา 12-18 ชั่วโมง</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="amber_flag_immuno">
+                        <span class="check-tile-label">8. มีภาวะภูมิคุ้มกันบกพร่อง</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="amber_flag_infection_sign">
+                        <span class="check-tile-label">9. มีสัญญาณของการติดเชื้อ รวมถึงการติดเชื้อบริเวณบาดแผล</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="amber_flag_temp_lt36">
+                        <span class="check-tile-label">10. มีอุณหภูมิร่างกายน้อยกว่า 36.0 องศาเซลเซียส</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Fixed Bottom Bar (Visible on Page 4) -->
+            <div class="bottom-fixed-bar d-none" id="bottomSubmitBar">
+                <div class="bottom-inner">
+                    <button type="submit" class="btn-medical-submit">
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                        <span>ประมวลผลการคัดกรอง</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        function updateProgress(step) {
+            currentStep = step;
+            const fill = document.getElementById('progressFill');
+            const label = document.getElementById('stepLabel');
+            const btnBack = document.getElementById('btnBack');
+            const bottomBar = document.getElementById('bottomSubmitBar');
+
+            const pct = step * 25;
+            fill.style.width = pct + '%';
+            label.textContent = `ขั้นตอนที่ ${step} จาก 4 (${pct}%)`;
+
+            // Toggle Back button
+            if (step > 1) {
+                btnBack.classList.remove('d-none');
+            } else {
+                btnBack.classList.add('d-none');
+            }
+
+            // Show bottom submit bar only on Step 4
+            if (step === 4) {
+                bottomBar.classList.remove('d-none');
+            } else {
+                bottomBar.classList.add('d-none');
+            }
+        }
+
+        function showStepPage(step, direction = 'next') {
+            document.querySelectorAll('.wizard-page').forEach(p => p.classList.remove('active'));
+            const targetPage = document.getElementById(`pageStep${step}`);
+            if (targetPage) {
+                targetPage.style.animationName = direction === 'next' ? 'slideInRight' : 'slideInLeft';
+                targetPage.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            updateProgress(step);
+        }
+
+        function goPrevStep() {
+            if (currentStep > 1) {
+                showStepPage(currentStep - 1, 'prev');
+            }
+        }
+
+        function toggleOtherText(chk) {
+            const txt = document.getElementById('infection_other_text');
+            if (chk.checked) {
+                txt.classList.remove('d-none');
+                txt.focus();
+            } else {
+                txt.classList.add('d-none');
+                txt.value = '';
+            }
+        }
+
+        // Helper to submit payload, trigger LINE Bot notification, and auto-close LIFF window
+        async function sendScreeningPayload(payloadData) {
+            Swal.fire({
+                title: 'กำลังบันทึกข้อมูล...',
+                text: 'ระบบกำลังประมวลผลและส่งข้อมูลทาง LINE ค่ะ',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                const response = await fetch('/api/v1/assessment/screening/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payloadData)
+                });
+
+                const data = await response.json();
+
+                if (response.status === 404 && data.error && data.error.includes('ไม่พบผู้ใช้')) {
+                    Swal.fire({
+                        title: 'คุณยังไม่ได้ลงทะเบียน',
+                        text: 'โปรดลงทะเบียนเพื่อสร้างกลุ่มครอบครัวก่อนเริ่มใช้งานนะคะ',
+                        icon: 'warning',
+                        confirmButtonText: '📝 ไปหน้าลงทะเบียน',
+                        confirmButtonColor: '#E91E63',
+                        showCancelButton: true,
+                        cancelButtonText: 'ยกเลิก'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = 'https://liff.line.me/2011343821-vFX0ZUTO';
+                        }
+                    });
+                    return;
+                }
+
+                if (response.ok) {
+                    // Automatically close LIFF webview after 600ms so user sees the Bot message in LINE chat
+                    setTimeout(() => {
+                        if (typeof liff !== 'undefined' && liff.isInClient()) {
+                            liff.closeWindow();
+                        } else {
+                            Swal.fire({
+                                title: 'บันทึกเรียบร้อย',
+                                text: 'ระบบได้ส่งผลการประเมินทาง LINE เรียบร้อยแล้วค่ะ 💙',
+                                icon: 'success',
+                                confirmButtonText: 'ตกลง'
+                            });
+                        }
+                    }, 600);
+                } else {
+                    Swal.fire('ข้อผิดพลาด', data.error || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
+                }
+            } catch (err) {
+                Swal.fire('ข้อผิดพลาดเครือข่าย', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้: ' + (err.message || err), 'error');
+            }
+        }
+
+        // Branching Wizards with API submit + Auto Close
+        function finishNoRisk() {
+            document.querySelectorAll('.step1-check').forEach(c => c.checked = false);
+            const payload = {
+                line_user_id: document.getElementById('lineUserId').value,
+                age_over_75: false,
+                immunocompromised: false,
+                has_catheter: false,
+                recent_surgery: false
+            };
+            sendScreeningPayload(payload);
+        }
+
+        function validateAndGoStep2() {
+            const hasCheck = Array.from(document.querySelectorAll('.step1-check')).some(c => c.checked);
+            if (!hasCheck) {
+                Swal.fire('กรุณาเลือกรายการ', 'หากคนไข้มีปัจจัยเสี่ยง โปรดเลือกอย่างน้อย 1 ข้อ หรือกดปุ่ม "ไม่มีปัจจัยเสี่ยงเลย"', 'info');
+                return;
+            }
+            showStepPage(2, 'next');
+        }
+
+        function finishNoInfection() {
+            document.querySelectorAll('.step2-check').forEach(c => c.checked = false);
+            document.getElementById('infection_other_text').value = '';
+            const payload = {
+                line_user_id: document.getElementById('lineUserId').value,
+                age_over_75: document.getElementById('age_over_75').checked,
+                immunocompromised: document.getElementById('immunocompromised').checked,
+                has_catheter: document.getElementById('has_catheter').checked,
+                recent_surgery: document.getElementById('recent_surgery').checked,
+                infection_respiratory: false,
+                infection_urinary: false,
+                infection_skin: false,
+                infection_device: false,
+                infection_brain: false,
+                infection_surgery: false,
+                infection_other: ''
+            };
+            sendScreeningPayload(payload);
+        }
+
+        function validateAndGoStep3() {
+            const hasCheck = Array.from(document.querySelectorAll('.step2-check')).some(c => c.checked);
+            if (!hasCheck) {
+                Swal.fire('กรุณาเลือกแหล่งติดเชื้อ', 'โปรดเลือกแหล่งติดเชื้ออย่างน้อย 1 รายการ หรือกดปุ่ม "ไม่มีการติดเชื้อ"', 'info');
+                return;
+            }
+            showStepPage(3, 'next');
+        }
+
+        function triggerRedFlagAlert() {
+            const hasRedChecked = Array.from(document.querySelectorAll('.step3-check')).some(c => c.checked);
+            if (!hasRedChecked) {
+                Swal.fire('กรุณาเลือกสัญญาณ Red Flag', 'หากพบสัญญาณอันตราย โปรดเลือกอย่างน้อย 1 ข้อ หรือหากไม่มี ให้กดปุ่ม "ไม่มี Red Flag (ไปข้อ 4)"', 'info');
+                return;
+            }
+
+            const payload = buildFullPayload();
+            sendScreeningPayload(payload);
+        }
+
+        function goStep4() {
+            showStepPage(4, 'next');
+        }
+
+        function buildFullPayload() {
+            return {
+                line_user_id: document.getElementById('lineUserId').value,
+                age_over_75: document.getElementById('age_over_75').checked,
+                immunocompromised: document.getElementById('immunocompromised').checked,
+                has_catheter: document.getElementById('has_catheter').checked,
+                recent_surgery: document.getElementById('recent_surgery').checked,
+
+                infection_respiratory: document.getElementById('infection_respiratory').checked,
+                infection_urinary: document.getElementById('infection_urinary').checked,
+                infection_skin: document.getElementById('infection_skin').checked,
+                infection_device: document.getElementById('infection_device').checked,
+                infection_brain: document.getElementById('infection_brain').checked,
+                infection_surgery: document.getElementById('infection_surgery').checked,
+                infection_other: document.getElementById('infection_other_check').checked ? document.getElementById('infection_other_text').value : '',
+
+                red_flag_mental: document.getElementById('red_flag_mental').checked,
+                red_flag_rr_ge25: document.getElementById('red_flag_rr_ge25').checked,
+                red_flag_o2_need: document.getElementById('red_flag_o2_need').checked,
+                red_flag_sbp_le90: document.getElementById('red_flag_sbp_le90').checked,
+                red_flag_hr_gt130: document.getElementById('red_flag_hr_gt130').checked,
+                red_flag_no_urine_18h: document.getElementById('red_flag_no_urine_18h').checked,
+                red_flag_skin_change: document.getElementById('red_flag_skin_change').checked,
+
+                amber_flag_behavior: document.getElementById('amber_flag_behavior').checked,
+                amber_flag_activity_down: document.getElementById('amber_flag_activity_down').checked,
+                amber_flag_rr_21_24: document.getElementById('amber_flag_rr_21_24').checked,
+                amber_flag_sbp_91_100: document.getElementById('amber_flag_sbp_91_100').checked,
+                amber_flag_hr_91_120: document.getElementById('amber_flag_hr_91_120').checked,
+                amber_flag_spo2_lt92: document.getElementById('amber_flag_spo2_lt92').checked,
+                amber_flag_no_urine_12_18h: document.getElementById('amber_flag_no_urine_12_18h').checked,
+                amber_flag_immuno: document.getElementById('amber_flag_immuno').checked,
+                amber_flag_infection_sign: document.getElementById('amber_flag_infection_sign').checked,
+                amber_flag_temp_lt36: document.getElementById('amber_flag_temp_lt36').checked
+            };
+        }
+
+        // Initialize LIFF and Load Stored Registered User ID
+        window.onload = function () {
+            const storedUid = localStorage.getItem('sepbot_line_user_id');
+            if (storedUid) {
+                document.getElementById('lineUserId').value = storedUid;
+            }
+
+            if (typeof liff !== 'undefined') {
+                liff.init({ liffId: "2011343821-EueojT3K" }).then(() => {
+                    if (liff.isLoggedIn()) {
+                        liff.getProfile().then(profile => {
+                            document.getElementById('lineUserId').value = profile.userId;
+                            localStorage.setItem('sepbot_line_user_id', profile.userId);
+                        });
+                    }
+                }).catch(err => {
+                    console.log("LIFF Init Fallback:", err);
+                });
+            }
+        };
+
+        document.getElementById('screeningForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const payload = buildFullPayload();
+            sendScreeningPayload(payload);
+        });
+    </script>
+</body>
+
+</html>

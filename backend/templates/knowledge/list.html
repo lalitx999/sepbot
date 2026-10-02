@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คลังความรู้การดูแลสุขภาพ - Sepsis Care</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@200..900&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sarabun', 'Noto Serif Thai', sans-serif;
+            background: linear-gradient(145deg, #eef1fb 0%, #f6e8f2 100%);
+            min-height: 100vh;
+            padding: 0 0 40px 0;
+            position: relative;
+        }
+
+        /* Decorative background circles */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            z-index: 0;
+            opacity: 0.15;
+        }
+
+        body::before {
+            width: 350px;
+            height: 350px;
+            background: #64B5F6;
+            top: -80px;
+            right: -80px;
+        }
+
+        body::after {
+            width: 450px;
+            height: 450px;
+            background: #F06292;
+            bottom: -150px;
+            left: -120px;
+        }
+
+        .container {
+            max-width: 720px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(21, 101, 192, 0.92) 0%, rgba(123, 63, 158, 0.92) 55%, rgba(214, 0, 108, 0.92) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 0 0 32px 32px;
+            padding: 32px 20px 28px;
+            text-align: center;
+            color: #ffffff;
+            box-shadow: 0 8px 32px rgba(123, 63, 158, 0.2);
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .hero-banner::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -15%;
+            width: 250px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 50%;
+        }
+
+        .hero-banner .logo-icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #fff;
+            margin-bottom: 12px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .hero-banner .logo-icon:hover {
+            transform: scale(1.05) rotate(-3deg);
+        }
+
+        .hero-banner h2 {
+            font-weight: 700;
+            font-size: 26px;
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-banner h2 .bi {
+            font-size: 28px;
+        }
+
+        .hero-banner p {
+            opacity: 0.85;
+            font-size: 15px;
+            font-weight: 400;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Category Pills */
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px 10px;
+            margin-bottom: 24px;
+        }
+
+        .category-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 8px 18px;
+            transition: all 0.25s ease;
+            border: 2px solid #7B3F9E;
+            color: #7B3F9E;
+            background: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+        }
+
+        .category-pill .bi {
+            font-size: 16px;
+        }
+
+        .category-pill:hover {
+            background: #7B3F9E;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(123, 63, 158, 0.2);
+            border-color: #7B3F9E;
+        }
+
+        .category-pill.active {
+            background: #7B3F9E;
+            color: #ffffff;
+            border-color: #7B3F9E;
+            box-shadow: 0 6px 16px rgba(123, 63, 158, 0.25);
+        }
+
+        .category-pill.active:hover {
+            background: #4A1D6B;
+            border-color: #4A1D6B;
+            box-shadow: 0 8px 20px rgba(123, 63, 158, 0.3);
+        }
+
+        /* Article Card */
+        .article-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 24px rgba(123, 63, 158, 0.06), 0 2px 8px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+            padding: 20px 22px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #7B3F9E, #D6006C, #7B3F9E);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .article-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(123, 63, 158, 0.12), 0 4px 12px rgba(0, 0, 0, 0.03);
+            border-color: rgba(123, 63, 158, 0.15);
+        }
+
+        .article-card:hover::before {
+            opacity: 1;
+        }
+
+        .article-card .card-body {
+            padding: 0;
+        }
+
+        /* Article Header */
+        .article-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        /* Category Badge */
+        .badge-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            background: rgba(123, 63, 158, 0.10);
+            color: #7B3F9E;
+            border: 1.5px solid rgba(123, 63, 158, 0.20);
+        }
+
+        .badge-category .bi {
+            font-size: 14px;
+        }
+
+        /* Date */
+        .article-date {
+            font-size: 13px;
+            color: #8A6FA0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .article-date .bi {
+            font-size: 14px;
+        }
+
+        /* Article Title */
+        .article-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: #2A1B3D;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        /* Article Summary */
+        .article-summary {
+            font-size: 15px;
+            color: #4A3A5A;
+            margin-bottom: 14px;
+            line-height: 1.6;
+        }
+
+        /* Read More Button */
+        .btn-read-more {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #7B3F9E;
+            background: rgba(123, 63, 158, 0.08);
+            border: 2px solid rgba(123, 63, 158, 0.20);
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+
+        .btn-read-more:hover {
+            background: #7B3F9E;
+            color: #ffffff;
+            border-color: #7B3F9E;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(123, 63, 158, 0.2);
+        }
+
+        .btn-read-more .bi {
+            font-size: 16px;
+            transition: transform 0.25s ease;
+        }
+
+        .btn-read-more:hover .bi {
+            transform: translateX(2px);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
+            border: 2px dashed rgba(123, 63, 158, 0.2);
+        }
+
+        .empty-state .bi {
+            font-size: 56px;
+            color: #CE93D8;
+        }
+
+        .empty-state p {
+            color: #4a6f4a;
+            font-size: 16px;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .hero-banner {
+                padding: 24px 16px 20px;
+                border-radius: 0 0 24px 24px;
+            }
+
+            .hero-banner h2 {
+                font-size: 20px;
+            }
+
+            .hero-banner .logo-icon {
+                width: 52px;
+                height: 52px;
+                font-size: 26px;
+            }
+
+            .hero-banner p {
+                font-size: 14px;
+            }
+
+            .article-card {
+                padding: 16px 18px;
+                border-radius: 16px;
+            }
+
+            .article-title {
+                font-size: 16px;
+            }
+
+            .article-summary {
+                font-size: 14px;
+            }
+
+            .category-pill {
+                font-size: 13px;
+                padding: 6px 14px;
+            }
+
+            .category-pill .bi {
+                font-size: 14px;
+            }
+
+            .btn-read-more {
+                font-size: 13px;
+                padding: 6px 16px;
+            }
+
+            .badge-category {
+                font-size: 11px;
+                padding: 4px 12px;
+            }
+
+            .article-date {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hero Header -->
+    <div class="hero-banner">
+        <div class="logo-icon">
+            <i class="bi bi-journal-medical"></i>
+        </div>
+        <h2>
+            <i class="bi bi-journal-medical me-2"></i>คลังความรู้ Sepsis Care
+        </h2>
+        <p>ความรู้การดูแลตนเองและอินโฟกราฟิกสำหรับผู้ป่วยและผู้ดูแล</p>
+    </div>
+
+    <div class="container">
+        <!-- Category Filter Pills -->
+        <div class="category-filter">
+            <a href="?" class="category-pill {% if not selected_category %}active{% endif %}">
+                <i class="bi bi-grid-fill"></i> ทั้งหมด
+            </a>
+            {% for cat in categories %}
+                <a href="?category={{ cat.slug }}" class="category-pill {% if selected_category == cat.slug %}active{% endif %}">
+                    <i class="{{ cat.icon }}"></i> {{ cat.name }}
+                </a>
+            {% endfor %}
+        </div>
+
+        <!-- Article Cards List -->
+        <div class="row g-0">
+            {% for article in articles %}
+                <div class="col-12">
+                    <div class="article-card">
+                        <div class="card-body">
+                            <div class="article-header">
+                                <span class="badge-category">
+                                    <i class="{{ article.category.icon }}"></i> {{ article.category.name }}
+                                </span>
+                                <span class="article-date">
+                                    <i class="bi bi-calendar3"></i> {{ article.created_at|date:"d M Y" }}
+                                </span>
+                            </div>
+                            <h5 class="article-title">{{ article.title }}</h5>
+                            <p class="article-summary">{{ article.summary }}</p>
+                            <a href="{% url 'knowledge-web-detail' article.id %}" class="btn-read-more">
+                                อ่านบทความ & ดูรูปภาพ <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="empty-state">
+                        <i class="bi bi-folder2-open"></i>
+                        <p>ยังไม่มีบทความในหมวดหมู่นี้</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+
+</html>
