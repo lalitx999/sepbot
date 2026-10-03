@@ -1,9 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q, Max, Prefetch, Count
+from django.core.paginator import Paginator
 from django.utils import timezone
 from datetime import timedelta
 import json
@@ -11,7 +12,7 @@ import json
 from accounts.models import LineUser, FamilyGroup
 from assessment.models import DailyCheck, SepsisScreening
 from health.models import VitalSign
-from knowledge.models import KnowledgeArticle
+from knowledge.models import KnowledgeArticle, KnowledgeCategory
 from faq.models import FAQ
 from notification.models import NotificationLog
 
@@ -123,28 +124,41 @@ def doctor_dashboard(request):
 
 @login_required(login_url='doctor-login')
 def doctor_vitals(request):
-    """Vital Signs Tracker Management View"""
-    vitals = VitalSign.objects.select_related('user', 'family').order_by('-date', '-recorded_at')
-    return render(request, 'doctor/vitals.html', {'vitals': vitals})
+    """Vital Signs Tracker Management View with Pagination"""
+    vitals_qs = VitalSign.objects.select_related('user', 'family').order_by('-date', '-recorded_at')
+    paginator = Paginator(vitals_qs, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'doctor/vitals.html', {'page_obj': page_obj, 'total_count': vitals_qs.count()})
 
 @login_required(login_url='doctor-login')
 def doctor_screenings(request):
-    """Sepsis Screening Management View"""
-    screenings = SepsisScreening.objects.select_related('user', 'family').order_by('-date')
-    return render(request, 'doctor/screenings.html', {'screenings': screenings})
+    """Sepsis Screening Management View with Pagination"""
+    screenings_qs = SepsisScreening.objects.select_related('user', 'family').order_by('-date')
+    paginator = Paginator(screenings_qs, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'doctor/screenings.html', {'page_obj': page_obj, 'total_count': screenings_qs.count()})
 
 @login_required(login_url='doctor-login')
 def doctor_daily_checks(request):
-    """Daily Symptom Checks Log View"""
-    checks = DailyCheck.objects.select_related('user', 'family').order_by('-date', '-responded_at')
-    return render(request, 'doctor/daily_checks.html', {'checks': checks})
+    """Daily Symptom Checks Log View with Pagination"""
+    checks_qs = DailyCheck.objects.select_related('user', 'family').order_by('-date', '-responded_at')
+    paginator = Paginator(checks_qs, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'doctor/daily_checks.html', {'page_obj': page_obj, 'total_count': checks_qs.count()})
 
 @login_required(login_url='doctor-login')
 def doctor_families(request):
-    """Family Groups Management View"""
-    families = FamilyGroup.objects.annotate(member_count=Count('members')).order_by('-created_at')
+    """Family Groups Management View with Pagination"""
+    families_qs = FamilyGroup.objects.annotate(member_count=Count('members')).order_by('-created_at')
+    paginator = Paginator(families_qs, 12)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
     family_list = []
-    for f in families:
+    for f in page_obj:
         members = LineUser.objects.filter(family=f)
         patient = members.filter(role='patient').first()
         caregivers = members.filter(role='caregiver')
@@ -154,31 +168,166 @@ def doctor_families(request):
             'caregivers': caregivers,
             'count': members.count()
         })
-    return render(request, 'doctor/families.html', {'families': family_list})
+    return render(request, 'doctor/families.html', {'family_list': family_list, 'page_obj': page_obj, 'total_count': families_qs.count()})
 
 @login_required(login_url='doctor-login')
 def doctor_users(request):
-    """LINE Users List & Role Management View"""
-    users = LineUser.objects.select_related('family').order_by('-registered_at')
-    return render(request, 'doctor/users.html', {'users': users})
+    """LINE Users List & Role Management View with Pagination"""
+    users_qs = LineUser.objects.select_related('family').order_by('-registered_at')
+    paginator = Paginator(users_qs, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    families = FamilyGroup.objects.order_by('-created_at')
+    return render(request, 'doctor/users.html', {'page_obj': page_obj, 'total_count': users_qs.count(), 'families': families})
 
 @login_required(login_url='doctor-login')
 def doctor_knowledge(request):
-    """Knowledge Articles Management View"""
-    articles = KnowledgeArticle.objects.select_related('category').order_by('order')
-    return render(request, 'doctor/knowledge.html', {'articles': articles})
+    """Knowledge Articles Management View (Fixed & Paginator added)"""
+    articles_qs = KnowledgeArticle.objects.select_related('category').order_by('category__order', 'id')
+    paginator = Paginator(articles_qs, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    categories = KnowledgeCategory.objects.all()
+    return render(request, 'doctor/knowledge.html', {'page_obj': page_obj, 'total_count': articles_qs.count(), 'categories': categories})
 
 @login_required(login_url='doctor-login')
 def doctor_faq(request):
-    """FAQ Management View"""
-    faqs = FAQ.objects.order_by('order')
-    return render(request, 'doctor/faq.html', {'faqs': faqs})
+    """FAQ Management View with Pagination"""
+    faqs_qs = FAQ.objects.order_by('order', 'id')
+    paginator = Paginator(faqs_qs, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'doctor/faq.html', {'page_obj': page_obj, 'total_count': faqs_qs.count()})
 
 @login_required(login_url='doctor-login')
 def doctor_notifications(request):
-    """Notification Logs View"""
-    logs = NotificationLog.objects.select_related('user').order_by('-created_at')[:100]
-    return render(request, 'doctor/notifications.html', {'logs': logs})
+    """Notification Logs View with Pagination"""
+    logs_qs = NotificationLog.objects.select_related('user').order_by('-created_at')
+    paginator = Paginator(logs_qs, 20)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'doctor/notifications.html', {'page_obj': page_obj, 'total_count': logs_qs.count()})
+
+# --- CRUD APIs for Clinical Portal ---
+
+@login_required(login_url='doctor-login')
+def api_knowledge_save(request):
+    """Create or Update Knowledge Article"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            article_id = data.get('id')
+            title = data.get('title')
+            content = data.get('content')
+            summary = data.get('summary', '')
+            category_id = data.get('category_id')
+            
+            category = get_object_or_404(KnowledgeCategory, id=category_id)
+            
+            if article_id:
+                article = get_object_or_404(KnowledgeArticle, id=article_id)
+                article.title = title
+                article.content = content
+                article.summary = summary
+                article.category = category
+                article.save()
+            else:
+                article = KnowledgeArticle.objects.create(
+                    title=title, content=content, summary=summary, category=category
+                )
+            return JsonResponse({'status': 'success', 'message': 'บันทึกบทความความรู้สำเร็จ'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+
+@login_required(login_url='doctor-login')
+def api_knowledge_delete(request, article_id):
+    """Delete Knowledge Article"""
+    if request.method == 'POST':
+        try:
+            article = get_object_or_404(KnowledgeArticle, id=article_id)
+            article.delete()
+            return JsonResponse({'status': 'success', 'message': 'ลบบทความเรียบร้อยแล้ว'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+
+@login_required(login_url='doctor-login')
+def api_faq_save(request):
+    """Create or Update FAQ Item"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            faq_id = data.get('id')
+            question = data.get('question')
+            answer = data.get('answer')
+            category = data.get('category', 'general')
+            order = data.get('order', 0)
+            
+            if faq_id:
+                faq = get_object_or_404(FAQ, id=faq_id)
+                faq.question = question
+                faq.answer = answer
+                faq.category = category
+                faq.order = order
+                faq.save()
+            else:
+                faq = FAQ.objects.create(
+                    question=question, answer=answer, category=category, order=order
+                )
+            return JsonResponse({'status': 'success', 'message': 'บันทึกข้อมูล FAQ สำเร็จ'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+
+@login_required(login_url='doctor-login')
+def api_faq_delete(request, faq_id):
+    """Delete FAQ Item"""
+    if request.method == 'POST':
+        try:
+            faq = get_object_or_404(FAQ, id=faq_id)
+            faq.delete()
+            return JsonResponse({'status': 'success', 'message': 'ลบ FAQ เรียบร้อยแล้ว'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+
+@login_required(login_url='doctor-login')
+def api_family_create(request):
+    """Generate a new Family Group code"""
+    if request.method == 'POST':
+        try:
+            code = FamilyGroup.generate_unique_code()
+            family = FamilyGroup.objects.create(code=code)
+            return JsonResponse({'status': 'success', 'message': f'สร้างกลุ่มครอบครัวรหัส {code} สำเร็จ', 'code': code})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+
+@login_required(login_url='doctor-login')
+def api_user_update(request, user_id):
+    """Update LINE User Profile & Family Assignment"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user = get_object_or_404(LineUser, id=user_id)
+            user.name = data.get('name', user.name)
+            user.phone_number = data.get('phone_number', user.phone_number)
+            user.role = data.get('role', user.role)
+            user.underlying_disease = data.get('underlying_disease', user.underlying_disease)
+            user.allergy = data.get('allergy', user.allergy)
+            
+            family_id = data.get('family_id')
+            if family_id:
+                user.family = FamilyGroup.objects.get(id=family_id)
+            elif family_id == '':
+                user.family = None
+                
+            user.save()
+            return JsonResponse({'status': 'success', 'message': 'อัปเดตข้อมูลผู้ใช้สำเร็จ'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
 
 @login_required(login_url='doctor-login')
 def api_patient_detail(request, user_id):

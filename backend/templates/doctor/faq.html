@@ -1,11 +1,18 @@
 {% extends 'doctor/base.html' %}
 
 {% block title %}คำถามพบบ่อย FAQ - Doctor Portal{% endblock %}
-{% block header_title %}❓ คลังคำถามพบบ่อย 33 ข้อ (FAQ Management & Keyword Search){% endblock %}
+{% block header_title %}❓ คลังคำถามพบบ่อย (FAQ Management & Keyword Search){% endblock %}
 
 {% block content %}
 <div class="card-custom p-3 mb-4">
-    <input type="text" id="faqSearch" class="form-control" placeholder="ค้นหาคำถาม, คำตอบ, Keyword..." onkeyup="filterFaqTable()">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <span class="badge bg-primary-subtle text-primary p-2 fs-6">รวม {{ total_count }} คำถาม</span>
+        </div>
+        <button class="btn btn-primary rounded-2" onclick="openFaqModal()">
+            <i class="bi bi-plus-lg me-1"></i> เพิ่ม FAQ ใหม่
+        </button>
+    </div>
 </div>
 
 <div class="card-custom overflow-hidden">
@@ -13,36 +20,170 @@
         <table class="table table-custom mb-0">
             <thead>
                 <tr>
-                    <th style="width: 70px;">ลำดับ</th>
+                    <th style="width: 70px;">ID</th>
                     <th>คำถาม (Question)</th>
                     <th>คำตอบที่ระบบตอบกลับ (Answer)</th>
-                    <th>Keywords (คำค้นหาอัตโนมัติ)</th>
+                    <th>หมวดหมู่</th>
+                    <th class="text-end">การกระทำ</th>
                 </tr>
             </thead>
             <tbody>
-                {% for f in faqs %}
-                <tr class="faq-row" data-search="{{ f.question }} {{ f.answer }} {{ f.keywords }}">
-                    <td class="fw-bold text-muted">{{ f.order }}</td>
+                {% for f in page_obj %}
+                <tr>
+                    <td class="fw-bold text-muted">#{{ f.id }}</td>
                     <td class="fw-bold text-dark">{{ f.question }}</td>
                     <td class="small text-muted">{{ f.answer }}</td>
-                    <td><span class="badge bg-light text-primary border small">{{ f.keywords }}</span></td>
+                    <td><span class="badge bg-light text-dark border">{{ f.get_category_display }}</span></td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick='editFaq({{ f.id }}, {{ f.question|tojson }}, {{ f.answer|tojson }}, {{ f.category|tojson }}, {{ f.order }})'>
+                            <i class="bi bi-pencil"></i> แก้ไข
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteFaq({{ f.id }})">
+                            <i class="bi bi-trash"></i> ลบ
+                        </button>
+                    </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="4" class="text-center py-4 text-muted">ไม่พบข้อมูล FAQ</td></tr>
+                <tr><td colspan="5" class="text-center py-4 text-muted">ไม่พบข้อมูล FAQ</td></tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- Pagination Bar -->
+{% if page_obj.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center mb-0">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1">&laquo; หน้าแรก</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">ก่อนหน้า</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link text-dark fw-bold">หน้า {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">ถัดไป</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">หน้าสุดท้าย &raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<!-- Add/Edit Modal -->
+<div class="modal fade" id="faqModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="faqModalTitle">เพิ่ม FAQ ใหม่</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="faqForm">
+                    <input type="hidden" id="faqId">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">หมวดหมู่</label>
+                        <select class="form-select" id="faqCategory">
+                            <option value="general">ความรู้ทั่วไป (General)</option>
+                            <option value="medication">การใช้ยาและการดูแล (Medication)</option>
+                            <option value="emergency">อาการฉุกเฉิน (Emergency)</option>
+                            <option value="recovery">การฟื้นฟูร่างกาย (Recovery)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">คำถาม (Question)</label>
+                        <input type="text" class="form-control" id="faqQuestion" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">คำตอบที่ระบบตอบกลับ (Answer)</label>
+                        <textarea class="form-control" id="faqAnswer" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">ลำดับการแสดงผล (Order)</label>
+                        <input type="number" class="form-control" id="faqOrder" value="0">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="button" class="btn btn-primary" onclick="saveFaq()">บันทึก FAQ</button>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_script %}
 <script>
-    function filterFaqTable() {
-        const query = document.getElementById('faqSearch').value.toLowerCase();
-        document.querySelectorAll('.faq-row').forEach(row => {
-            const text = row.getAttribute('data-search').toLowerCase();
-            row.style.display = text.includes(query) ? '' : 'none';
+    let faqModalObj = null;
+    document.addEventListener('DOMContentLoaded', () => {
+        faqModalObj = new bootstrap.Modal(document.getElementById('faqModal'));
+    });
+
+    function openFaqModal() {
+        document.getElementById('faqId').value = '';
+        document.getElementById('faqQuestion').value = '';
+        document.getElementById('faqAnswer').value = '';
+        document.getElementById('faqOrder').value = '0';
+        document.getElementById('faqModalTitle').innerText = 'เพิ่ม FAQ ใหม่';
+        faqModalObj.show();
+    }
+
+    function editFaq(id, question, answer, category, order) {
+        document.getElementById('faqId').value = id;
+        document.getElementById('faqQuestion').value = question;
+        document.getElementById('faqAnswer').value = answer;
+        document.getElementById('faqCategory').value = category;
+        document.getElementById('faqOrder').value = order;
+        document.getElementById('faqModalTitle').innerText = 'แก้ไข FAQ';
+        faqModalObj.show();
+    }
+
+    function saveFaq() {
+        const payload = {
+            id: document.getElementById('faqId').value,
+            question: document.getElementById('faqQuestion').value,
+            answer: document.getElementById('faqAnswer').value,
+            category: document.getElementById('faqCategory').value,
+            order: document.getElementById('faqOrder').value,
+        };
+
+        fetch('{% url "doctor-api-faq-save" %}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire('สำเร็จ', data.message, 'success').then(() => location.reload());
+            } else {
+                Swal.fire('ข้อผิดพลาด', data.message, 'error');
+            }
+        });
+    }
+
+    function deleteFaq(id) {
+        Swal.fire({
+            title: 'ยืนยันการลบ?',
+            text: "คุณต้องการลบ FAQ ข้อนี้ใช่หรือไม่?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'ใช่, ลบเลย',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/doctor/api/faq/delete/${id}/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire('ลบสำเร็จ', data.message, 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('ข้อผิดพลาด', data.message, 'error');
+                    }
+                });
+            }
         });
     }
 </script>

@@ -5,12 +5,9 @@
 
 {% block content %}
 <div class="card-custom p-3 mb-4">
-    <div class="row g-3 align-items-center">
-        <div class="col-12 col-md-6">
-            <input type="text" id="userSearch" class="form-control" placeholder="ค้นหาชื่อ, เลขบัตรประชาชน, รหัสครอบครัว, บทบาท..." onkeyup="filterUsersTable()">
-        </div>
-        <div class="col-12 col-md-6 text-md-end">
-            <span class="badge bg-primary-subtle text-primary p-2 fs-6">รวม {{ users.count }} บัญชี</span>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <span class="badge bg-primary-subtle text-primary p-2 fs-6">รวม {{ total_count }} บัญชี</span>
         </div>
     </div>
 </div>
@@ -24,13 +21,14 @@
                     <th>ชื่อจริง / LINE Name</th>
                     <th>บทบาท (Role)</th>
                     <th>กลุ่มครอบครัว</th>
-                    <th>เลขบัตรประชาชน / เบอร์โทร</th>
+                    <th>เบอร์โทรศัพท์</th>
                     <th>โรคประจำตัว / แพ้ยา</th>
+                    <th class="text-end">การกระทำ</th>
                 </tr>
             </thead>
             <tbody>
-                {% for u in users %}
-                <tr class="user-row" data-search="{{ u.name }} {{ u.id_card }} {{ u.family.code|default:'' }} {{ u.get_role_display }}">
+                {% for u in page_obj %}
+                <tr>
                     <td class="small text-muted">{{ u.registered_at|date:"d/m/Y H:i" }}</td>
                     <td>
                         <div class="fw-bold text-dark">{{ u.name }}</div>
@@ -51,7 +49,6 @@
                         {% else %}-{% endif %}
                     </td>
                     <td>
-                        <div class="small fw-semibold">{{ u.id_card }}</div>
                         <div class="small text-muted"><i class="bi bi-telephone"></i> {{ u.phone_number|default:"-" }}</div>
                     </td>
                     <td class="small">
@@ -59,23 +56,135 @@
                         {% if u.allergy %}<span class="text-danger"><strong>แพ้ยา:</strong> {{ u.allergy }}</span><br>{% endif %}
                         {% if not u.underlying_disease and not u.allergy %}<span class="text-muted">-</span>{% endif %}
                     </td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-primary" onclick='editUser({{ u.id }}, {{ u.name|tojson }}, {{ u.phone_number|default:""|tojson }}, {{ u.role|tojson }}, {{ u.family.id|default:""|tojson }}, {{ u.underlying_disease|default:""|tojson }}, {{ u.allergy|default:""|tojson }})'>
+                            <i class="bi bi-pencil"></i> แก้ไขข้อมูล
+                        </button>
+                    </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="6" class="text-center py-4 text-muted">ไม่พบข้อมูลผู้ใช้งาน LINE</td></tr>
+                <tr><td colspan="7" class="text-center py-4 text-muted">ไม่พบข้อมูลผู้ใช้งาน LINE</td></tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- Pagination Bar -->
+{% if page_obj.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center mb-0">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1">&laquo; หน้าแรก</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">ก่อนหน้า</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link text-dark fw-bold">หน้า {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">ถัดไป</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">หน้าสุดท้าย &raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="userModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">แก้ไขข้อมูลผู้ใช้งาน LINE</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="usrId">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">ชื่อ-นามสกุลจริง</label>
+                            <input type="text" class="form-control" id="usrName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">เบอร์โทรศัพท์</label>
+                            <input type="text" class="form-control" id="usrPhone">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">บทบาท (Role)</label>
+                            <select class="form-select" id="usrRole">
+                                <option value="patient">ผู้ป่วย (Patient)</option>
+                                <option value="caregiver">ผู้ดูแล (Caregiver)</option>
+                                <option value="nurse">พยาบาล / ทีมงาน (Nurse)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">กลุ่มครอบครัว (Family Group)</label>
+                            <select class="form-select" id="usrFamily">
+                                <option value="">-- ไม่สังกัดกลุ่ม --</option>
+                                {% for f in families %}
+                                    <option value="{{ f.id }}">{{ f.code }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">โรคประจำตัว</label>
+                            <textarea class="form-control" id="usrUnderlying" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">ประวัติแพ้ยา</label>
+                            <textarea class="form-control" id="usrAllergy" rows="2"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="button" class="btn btn-primary" onclick="saveUser()">บันทึกข้อมูล</button>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_script %}
 <script>
-    function filterUsersTable() {
-        const query = document.getElementById('userSearch').value.toLowerCase();
-        document.querySelectorAll('.user-row').forEach(row => {
-            const text = row.getAttribute('data-search').toLowerCase();
-            row.style.display = text.includes(query) ? '' : 'none';
+    let userModalObj = null;
+    document.addEventListener('DOMContentLoaded', () => {
+        userModalObj = new bootstrap.Modal(document.getElementById('userModal'));
+    });
+
+    function editUser(id, name, phone, role, familyId, underlying, allergy) {
+        document.getElementById('usrId').value = id;
+        document.getElementById('usrName').value = name;
+        document.getElementById('usrPhone').value = phone;
+        document.getElementById('usrRole').value = role;
+        document.getElementById('usrFamily').value = familyId;
+        document.getElementById('usrUnderlying').value = underlying;
+        document.getElementById('usrAllergy').value = allergy;
+        userModalObj.show();
+    }
+
+    function saveUser() {
+        const userId = document.getElementById('usrId').value;
+        const payload = {
+            name: document.getElementById('usrName').value,
+            phone_number: document.getElementById('usrPhone').value,
+            role: document.getElementById('usrRole').value,
+            family_id: document.getElementById('usrFamily').value,
+            underlying_disease: document.getElementById('usrUnderlying').value,
+            allergy: document.getElementById('usrAllergy').value,
+        };
+
+        fetch(`/doctor/api/user/update/${userId}/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire('สำเร็จ', data.message, 'success').then(() => location.reload());
+            } else {
+                Swal.fire('ข้อผิดพลาด', data.message, 'error');
+            }
         });
     }
 </script>

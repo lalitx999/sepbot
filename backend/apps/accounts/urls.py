@@ -5,7 +5,10 @@ from .doctor_views import (
     doctor_vitals, doctor_screenings, doctor_daily_checks,
     doctor_families, doctor_users, doctor_knowledge,
     doctor_faq, doctor_notifications,
-    api_patient_detail, api_update_patient_notes
+    api_patient_detail, api_update_patient_notes,
+    api_knowledge_save, api_knowledge_delete,
+    api_faq_save, api_faq_delete,
+    api_family_create, api_user_update
 )
 
 urlpatterns = [
@@ -28,6 +31,13 @@ urlpatterns = [
     # Doctor API Endpoints
     path('doctor/patient/<int:user_id>/', api_patient_detail, name='doctor-api-patient-detail'),
     path('doctor/patient/<int:user_id>/notes/', api_update_patient_notes, name='doctor-api-patient-notes'),
+    path('doctor/api/knowledge/save/', api_knowledge_save, name='doctor-api-knowledge-save'),
+    path('doctor/api/knowledge/delete/<int:article_id>/', api_knowledge_delete, name='doctor-api-knowledge-delete'),
+    path('doctor/api/faq/save/', api_faq_save, name='doctor-api-faq-save'),
+    path('doctor/api/faq/delete/<int:faq_id>/', api_faq_delete, name='doctor-api-faq-delete'),
+    path('doctor/api/family/create/', api_family_create, name='doctor-api-family-create'),
+    path('doctor/api/user/update/<int:user_id>/', api_user_update, name='doctor-api-user-update'),
 ]
+
 
 

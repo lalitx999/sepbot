@@ -10,7 +10,7 @@
             <input type="text" id="screeningSearch" class="form-control" placeholder="ค้นหาชื่อผู้ป่วย, รหัสครอบครัว..." onkeyup="filterScreeningTable()">
         </div>
         <div class="col-12 col-md-6 text-md-end">
-            <span class="badge bg-danger-subtle text-danger p-2 fs-6">รวม {{ screenings.count }} รายการ</span>
+            <span class="badge bg-danger-subtle text-danger p-2 fs-6">รวม {{ total_count }} รายการ</span>
         </div>
     </div>
 </div>
@@ -28,7 +28,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for s in screenings %}
+                {% for s in page_obj %}
                 <tr class="screening-row" data-search="{{ s.user.name }} {{ s.family.code }}">
                     <td class="fw-semibold text-dark">{{ s.date|date:"d/m/Y" }}</td>
                     <td>
@@ -58,6 +58,23 @@
         </table>
     </div>
 </div>
+
+<!-- Pagination Bar -->
+{% if page_obj.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center mb-0">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1">&laquo; หน้าแรก</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">ก่อนหน้า</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link text-dark fw-bold">หน้า {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">ถัดไป</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">หน้าสุดท้าย &raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
 {% endblock %}
 
 {% block extra_script %}

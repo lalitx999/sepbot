@@ -5,19 +5,19 @@
 
 {% block content %}
 <div class="card-custom p-3 mb-4">
-    <div class="row g-3 align-items-center">
-        <div class="col-12 col-md-6">
-            <input type="text" id="familySearch" class="form-control" placeholder="ค้นหารหัสครอบครัว (FGxxxxx), ชื่อผู้ป่วย..." onkeyup="filterFamilyTable()">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <span class="badge bg-primary-subtle text-primary p-2 fs-6">รวม {{ total_count }} กลุ่มครอบครัว</span>
         </div>
-        <div class="col-12 col-md-6 text-md-end">
-            <span class="badge bg-primary-subtle text-primary p-2 fs-6">รวม {{ families|length }} กลุ่มครอบครัว</span>
-        </div>
+        <button class="btn btn-primary rounded-2" onclick="createNewFamilyGroup()">
+            <i class="bi bi-plus-circle me-1"></i> สร้างรหัสกลุ่มครอบครัวใหม่ (FG)
+        </button>
     </div>
 </div>
 
 <div class="row g-3">
-    {% for item in families %}
-    <div class="col-12 col-md-6 col-lg-4 family-card-col" data-search="{{ item.group.code }} {{ item.patient.name|default:'' }}">
+    {% for item in family_list %}
+    <div class="col-12 col-md-6 col-lg-4">
         <div class="card-custom p-3 h-100">
             <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                 <span class="badge bg-primary fs-6">{{ item.group.code }}</span>
@@ -58,15 +58,50 @@
     <div class="col-12 text-center py-4 text-muted card-custom">ไม่พบข้อมูลกลุ่มครอบครัว</div>
     {% endfor %}
 </div>
+
+<!-- Pagination Bar -->
+{% if page_obj.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center mb-0">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1">&laquo; หน้าแรก</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">ก่อนหน้า</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link text-dark fw-bold">หน้า {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">ถัดไป</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">หน้าสุดท้าย &raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
 {% endblock %}
 
 {% block extra_script %}
 <script>
-    function filterFamilyTable() {
-        const query = document.getElementById('familySearch').value.toLowerCase();
-        document.querySelectorAll('.family-card-col').forEach(card => {
-            const text = card.getAttribute('data-search').toLowerCase();
-            card.style.display = text.includes(query) ? '' : 'none';
+    function createNewFamilyGroup() {
+        Swal.fire({
+            title: 'สร้างกลุ่มครอบครัวใหม่?',
+            text: "ระบบจะสุ่มรหัส FGxxxxx ให้อัตโนมัติ",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'สร้างรหัสเลย',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('{% url "doctor-api-family-create" %}', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire('สำเร็จ', data.message, 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('ข้อผิดพลาด', data.message, 'error');
+                    }
+                });
+            }
         });
     }
 </script>
