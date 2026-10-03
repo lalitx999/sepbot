@@ -37,7 +37,7 @@
                     <td class="small text-muted">{{ a.summary|default:a.content|truncatewords:15 }}</td>
                     <td class="small text-muted">{{ a.created_at|date:"d/m/Y" }}</td>
                     <td class="text-end">
-                        <button class="btn btn-sm btn-outline-primary me-1" onclick='editArticle({{ a.id }}, {{ a.title|tojson }}, {{ a.summary|default:""|tojson }}, {{ a.content|tojson }}, {{ a.category.id }})'>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editArticle({{ a.id }}, '{{ a.title|escapejs }}', '{{ a.summary|default:''|escapejs }}', '{{ a.content|escapejs }}', {{ a.category.id }})">
                             <i class="bi bi-pencil"></i> แก้ไข
                         </button>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteArticle({{ a.id }})">

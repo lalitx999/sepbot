@@ -35,7 +35,7 @@
                     <td class="small text-muted">{{ f.answer }}</td>
                     <td><span class="badge bg-light text-dark border">{{ f.get_category_display }}</span></td>
                     <td class="text-end">
-                        <button class="btn btn-sm btn-outline-primary me-1" onclick='editFaq({{ f.id }}, {{ f.question|tojson }}, {{ f.answer|tojson }}, {{ f.category|tojson }}, {{ f.order }})'>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editFaq({{ f.id }}, '{{ f.question|escapejs }}', '{{ f.answer|escapejs }}', '{{ f.category }}', {{ f.order }})">
                             <i class="bi bi-pencil"></i> แก้ไข
                         </button>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteFaq({{ f.id }})">

@@ -57,7 +57,7 @@
                         {% if not u.underlying_disease and not u.allergy %}<span class="text-muted">-</span>{% endif %}
                     </td>
                     <td class="text-end">
-                        <button class="btn btn-sm btn-outline-primary" onclick='editUser({{ u.id }}, {{ u.name|tojson }}, {{ u.phone_number|default:""|tojson }}, {{ u.role|tojson }}, {{ u.family.id|default:""|tojson }}, {{ u.underlying_disease|default:""|tojson }}, {{ u.allergy|default:""|tojson }})'>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editUser({{ u.id }}, '{{ u.name|escapejs }}', '{{ u.phone_number|default:''|escapejs }}', '{{ u.role }}', '{{ u.family.id|default:'' }}', '{{ u.underlying_disease|default:''|escapejs }}', '{{ u.allergy|default:''|escapejs }}')">
                             <i class="bi bi-pencil"></i> แก้ไขข้อมูล
                         </button>
                     </td>
