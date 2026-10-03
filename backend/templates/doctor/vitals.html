@@ -1,0 +1,83 @@
+{% extends 'doctor/base.html' %}
+
+{% block title %}บันทึกสัญญาณชีพ - Doctor Portal{% endblock %}
+{% block header_title %}🩺 บันทึกสัญญาณชีพผู้ป่วย (Vital Signs Tracker){% endblock %}
+
+{% block content %}
+<div class="card-custom p-3 mb-4">
+    <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-6">
+            <input type="text" id="vitalsSearch" class="form-control" placeholder="ค้นหาชื่อผู้ป่วย, รหัสครอบครัว..." onkeyup="filterVitalsTable()">
+        </div>
+        <div class="col-12 col-md-6 text-md-end">
+            <span class="badge bg-primary-subtle text-primary p-2 fs-6">รวม {{ vitals.count }} รายการ</span>
+        </div>
+    </div>
+</div>
+
+<div class="card-custom overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-custom mb-0" id="vitalsTable">
+            <thead>
+                <tr>
+                    <th>วันที่บันทึก</th>
+                    <th>ผู้ป่วย / ครอบครัว</th>
+                    <th>ความดันโลหิต (BP)</th>
+                    <th>อัตราการเต้นหัวใจ (HR)</th>
+                    <th>อัตราการหายใจ (RR)</th>
+                    <th>ออกซิเจน (SpO₂)</th>
+                    <th>อุณหภูมิกาย (Temp)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in vitals %}
+                <tr class="vital-row" data-search="{{ v.user.name }} {{ v.family.code }}">
+                    <td class="fw-semibold text-dark">{{ v.date|date:"d/m/Y" }}</td>
+                    <td>
+                        <div class="fw-bold text-dark">{{ v.user.name }}</div>
+                        <div class="text-muted small">รหัสครอบครัว: {{ v.family.code }}</div>
+                    </td>
+                    <td>
+                        {% if v.systolic_bp %}
+                            <span class="{% if v.systolic_bp <= 90 %}text-danger fw-bold{% else %}text-dark{% endif %}">
+                                {{ v.systolic_bp }}/{{ v.diastolic_bp }} mmHg
+                            </span>
+                        {% else %}-{% endif %}
+                    </td>
+                    <td>{% if v.heart_rate %}{{ v.heart_rate }} bpm{% else %}-{% endif %}</td>
+                    <td>{% if v.respiratory_rate %}{{ v.respiratory_rate }} /min{% else %}-{% endif %}</td>
+                    <td>
+                        {% if v.spo2 %}
+                            <span class="badge {% if v.spo2 < 95 %}bg-danger{% else %}bg-success{% endif %}">
+                                {{ v.spo2 }}%
+                            </span>
+                        {% else %}-{% endif %}
+                    </td>
+                    <td>
+                        {% if v.temperature %}
+                            <span class="{% if v.temperature >= 38.0 %}text-danger fw-bold{% else %}text-dark{% endif %}">
+                                {{ v.temperature }} °C
+                            </span>
+                        {% else %}-{% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center py-4 text-muted">ไม่พบข้อมูลสัญญาณชีพ</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    function filterVitalsTable() {
+        const query = document.getElementById('vitalsSearch').value.toLowerCase();
+        document.querySelectorAll('.vital-row').forEach(row => {
+            const text = row.getAttribute('data-search').toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+</script>
+{% endblock %}

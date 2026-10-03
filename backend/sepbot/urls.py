@@ -4,7 +4,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from linebot.liff_views import liff_register, liff_select_type, liff_daily_check, liff_screening, liff_vitals
-from accounts.doctor_views import doctor_login, doctor_logout, doctor_dashboard
+from accounts.doctor_views import (
+    doctor_login, doctor_logout, doctor_dashboard,
+    doctor_vitals, doctor_screenings, doctor_daily_checks,
+    doctor_families, doctor_users, doctor_knowledge,
+    doctor_faq, doctor_notifications
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -19,6 +24,15 @@ urlpatterns = [
     path('doctor/login/', doctor_login, name='doctor-login'),
     path('doctor/logout/', doctor_logout, name='doctor-logout'),
     path('doctor/dashboard/', doctor_dashboard, name='doctor-dashboard'),
+    path('doctor/vitals/', doctor_vitals, name='doctor-vitals'),
+    path('doctor/screenings/', doctor_screenings, name='doctor-screenings'),
+    path('doctor/daily-checks/', doctor_daily_checks, name='doctor-daily-checks'),
+    path('doctor/families/', doctor_families, name='doctor-families'),
+    path('doctor/users/', doctor_users, name='doctor-users'),
+    path('doctor/knowledge/', doctor_knowledge, name='doctor-knowledge'),
+    path('doctor/faq/', doctor_faq, name='doctor-faq'),
+    path('doctor/notifications/', doctor_notifications, name='doctor-notifications'),
+
 
     # LIFF Web Page Views
     path('liff/register/', liff_register, name='liff-register'),

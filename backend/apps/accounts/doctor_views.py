@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q, Max, Prefetch
+from django.db.models import Q, Max, Prefetch, Count
 from django.utils import timezone
 from datetime import timedelta
 import json
@@ -11,6 +11,9 @@ import json
 from accounts.models import LineUser, FamilyGroup
 from assessment.models import DailyCheck, SepsisScreening
 from health.models import VitalSign
+from knowledge.models import KnowledgeArticle
+from faq.models import FAQ
+from notification.models import NotificationLog
 
 def doctor_login(request):
     """Render Doctor & Nurse Portal Login Page"""
@@ -42,23 +45,17 @@ def doctor_logout(request):
 def doctor_dashboard(request):
     """Main Doctor Dashboard Page with Live Patient Triage Context Data"""
     today = timezone.now().date()
-    yesterday = today - timedelta(days=1)
     
-    # Get all registered patients
     patients = LineUser.objects.filter(role='patient', is_registered=True).select_related('family')
-    
-    # Calculate key metrics
     today_checks = DailyCheck.objects.filter(date=today)
     red_today_count = today_checks.filter(result_level='red').count()
     yellow_today_count = today_checks.filter(result_level='yellow').count()
     green_today_count = today_checks.filter(result_level='green').count()
     
-    # Patients who haven't submitted daily check today
     checked_user_ids = today_checks.values_list('user_id', flat=True)
     overdue_patients = patients.exclude(id__in=checked_user_ids)
     overdue_count = overdue_patients.count()
     
-    # Prepare patient triage list with latest checks and vitals
     patient_list = []
     for p in patients:
         latest_check = DailyCheck.objects.filter(user=p).order_by('-responded_at').first()
@@ -67,7 +64,6 @@ def doctor_dashboard(request):
         caregivers = LineUser.objects.filter(family=p.family, role='caregiver') if p.family else []
         primary_caregiver = caregivers.first()
         
-        # Determine status priority (Red > Amber > Overdue > Green)
         status_code = 'green'
         status_label = 'ปกติ'
         priority = 4
@@ -113,7 +109,6 @@ def doctor_dashboard(request):
             'primary_caregiver': primary_caregiver,
         })
         
-    # Sort by priority (1 -> 2 -> 3 -> 4)
     patient_list.sort(key=lambda x: x['priority'])
     
     context = {
@@ -123,10 +118,67 @@ def doctor_dashboard(request):
         'green_count': green_today_count,
         'overdue_count': overdue_count,
         'patient_list': patient_list,
-        'doctor_name': request.user.get_full_name() or request.user.username,
-        'doctor_role': request.session.get('doctor_role', 'doctor'),
     }
     return render(request, 'doctor/dashboard.html', context)
+
+@login_required(login_url='doctor-login')
+def doctor_vitals(request):
+    """Vital Signs Tracker Management View"""
+    vitals = VitalSign.objects.select_related('user', 'family').order_by('-date', '-recorded_at')
+    return render(request, 'doctor/vitals.html', {'vitals': vitals})
+
+@login_required(login_url='doctor-login')
+def doctor_screenings(request):
+    """Sepsis Screening Management View"""
+    screenings = SepsisScreening.objects.select_related('user', 'family').order_by('-date')
+    return render(request, 'doctor/screenings.html', {'screenings': screenings})
+
+@login_required(login_url='doctor-login')
+def doctor_daily_checks(request):
+    """Daily Symptom Checks Log View"""
+    checks = DailyCheck.objects.select_related('user', 'family').order_by('-date', '-responded_at')
+    return render(request, 'doctor/daily_checks.html', {'checks': checks})
+
+@login_required(login_url='doctor-login')
+def doctor_families(request):
+    """Family Groups Management View"""
+    families = FamilyGroup.objects.annotate(member_count=Count('members')).order_by('-created_at')
+    family_list = []
+    for f in families:
+        members = LineUser.objects.filter(family=f)
+        patient = members.filter(role='patient').first()
+        caregivers = members.filter(role='caregiver')
+        family_list.append({
+            'group': f,
+            'patient': patient,
+            'caregivers': caregivers,
+            'count': members.count()
+        })
+    return render(request, 'doctor/families.html', {'families': family_list})
+
+@login_required(login_url='doctor-login')
+def doctor_users(request):
+    """LINE Users List & Role Management View"""
+    users = LineUser.objects.select_related('family').order_by('-registered_at')
+    return render(request, 'doctor/users.html', {'users': users})
+
+@login_required(login_url='doctor-login')
+def doctor_knowledge(request):
+    """Knowledge Articles Management View"""
+    articles = KnowledgeArticle.objects.select_related('category').order_by('order')
+    return render(request, 'doctor/knowledge.html', {'articles': articles})
+
+@login_required(login_url='doctor-login')
+def doctor_faq(request):
+    """FAQ Management View"""
+    faqs = FAQ.objects.order_by('order')
+    return render(request, 'doctor/faq.html', {'faqs': faqs})
+
+@login_required(login_url='doctor-login')
+def doctor_notifications(request):
+    """Notification Logs View"""
+    logs = NotificationLog.objects.select_related('user').order_by('-created_at')[:100]
+    return render(request, 'doctor/notifications.html', {'logs': logs})
 
 @login_required(login_url='doctor-login')
 def api_patient_detail(request, user_id):
@@ -136,7 +188,6 @@ def api_patient_detail(request, user_id):
     except LineUser.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'ไม่พบข้อมูลผู้ป่วย'}, status=404)
         
-    # Family members
     family_members = []
     if patient.family:
         members = LineUser.objects.filter(family=patient.family)
@@ -148,7 +199,6 @@ def api_patient_detail(request, user_id):
                 'line_display': m.display_name
             })
             
-    # Daily Check history (last 10 entries)
     daily_checks = DailyCheck.objects.filter(user=patient).order_by('-date')[:10]
     checks_data = []
     for dc in daily_checks:
@@ -169,7 +219,6 @@ def api_patient_detail(request, user_id):
             'responder': dc.get_responder_display(),
         })
         
-    # Vital signs history (last 10 entries)
     vitals = VitalSign.objects.filter(user=patient).order_by('date')[:10]
     vitals_data = []
     for v in vitals:
@@ -183,7 +232,6 @@ def api_patient_detail(request, user_id):
             'spo2': v.spo2,
         })
         
-    # Latest Sepsis Screening
     screening = SepsisScreening.objects.filter(user=patient).order_by('-date').first()
     screening_data = None
     if screening:

@@ -1,0 +1,41 @@
+{% extends 'doctor/base.html' %}
+
+{% block title %}ประวัติแจ้งเตือน - Doctor Portal{% endblock %}
+{% block header_title %}🔔 ประวัติการส่งแจ้งเตือนผ่าน LINE (Notification Logs){% endblock %}
+
+{% block content %}
+<div class="card-custom overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th>เวลาส่ง</th>
+                    <th>ผู้รับแจ้งเตือน (User)</th>
+                    <th>ประเภทการแจ้งเตือน (Notification Type)</th>
+                    <th>ข้อความแจ้งเตือน</th>
+                    <th>สถานะการส่ง</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td class="small text-muted">{{ log.created_at|date:"d/m/Y H:i:s" }}</td>
+                    <td><div class="fw-bold text-dark">{{ log.user.name }}</div></td>
+                    <td><span class="badge bg-light text-dark border">{{ log.notification_type }}</span></td>
+                    <td class="small text-muted">{{ log.message|truncatewords:15 }}</td>
+                    <td>
+                        {% if log.is_success %}
+                            <span class="badge bg-success">สำเร็จ</span>
+                        {% else %}
+                            <span class="badge bg-danger">ล้มเหลว</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-4 text-muted">ไม่พบประวัติการแจ้งเตือน</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

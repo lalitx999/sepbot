@@ -1,0 +1,73 @@
+{% extends 'doctor/base.html' %}
+
+{% block title %}กลุ่มครอบครัว (FG) - Doctor Portal{% endblock %}
+{% block header_title %}👨‍👩‍👧‍👦 กลุ่มครอบครัวผู้ป่วยและผู้ดูแล (Family Groups Management){% endblock %}
+
+{% block content %}
+<div class="card-custom p-3 mb-4">
+    <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-6">
+            <input type="text" id="familySearch" class="form-control" placeholder="ค้นหารหัสครอบครัว (FGxxxxx), ชื่อผู้ป่วย..." onkeyup="filterFamilyTable()">
+        </div>
+        <div class="col-12 col-md-6 text-md-end">
+            <span class="badge bg-primary-subtle text-primary p-2 fs-6">รวม {{ families|length }} กลุ่มครอบครัว</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    {% for item in families %}
+    <div class="col-12 col-md-6 col-lg-4 family-card-col" data-search="{{ item.group.code }} {{ item.patient.name|default:'' }}">
+        <div class="card-custom p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                <span class="badge bg-primary fs-6">{{ item.group.code }}</span>
+                <span class="text-muted small">สร้างเมื่อ: {{ item.group.created_at|date:"d/m/Y" }}</span>
+            </div>
+
+            <!-- Patient -->
+            <div class="mb-3">
+                <div class="small text-muted fw-bold">🏥 ผู้ป่วยหลัก (Patient)</div>
+                {% if item.patient %}
+                    <div class="fw-bold text-dark fs-6">{{ item.patient.name }}</div>
+                    <div class="small text-muted">อายุ: {{ item.patient.age }} ปี | เบอร์: {{ item.patient.phone_number|default:"-" }}</div>
+                {% else %}
+                    <div class="text-muted small">ยังไม่มีผู้ป่วยผูกรหัสนี้</div>
+                {% endif %}
+            </div>
+
+            <!-- Caregivers -->
+            <div>
+                <div class="small text-muted fw-bold mb-1">🤝 ผู้ดูแลในครอบครัว (Caregivers)</div>
+                {% for c in item.caregivers %}
+                    <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded mb-1">
+                        <div>
+                            <div class="fw-semibold text-dark small">{{ c.name }}</div>
+                            <div class="text-muted" style="font-size:0.75rem;">LINE: {{ c.display_name }}</div>
+                        </div>
+                        {% if c.phone_number %}
+                            <a href="tel:{{ c.phone_number }}" class="btn btn-outline-primary btn-sm py-0 px-2 small"><i class="bi bi-telephone"></i></a>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <div class="text-muted small">ไม่มีผู้ดูแลผูกกับกลุ่มนี้</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-4 text-muted card-custom">ไม่พบข้อมูลกลุ่มครอบครัว</div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    function filterFamilyTable() {
+        const query = document.getElementById('familySearch').value.toLowerCase();
+        document.querySelectorAll('.family-card-col').forEach(card => {
+            const text = card.getAttribute('data-search').toLowerCase();
+            card.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+</script>
+{% endblock %}

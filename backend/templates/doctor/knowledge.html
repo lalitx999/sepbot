@@ -1,0 +1,35 @@
+{% extends 'doctor/base.html' %}
+
+{% block title %}บทความคลังความรู้ - Doctor Portal{% endblock %}
+{% block header_title %}📖 จัดการบทความความรู้ 8 บทเรียน (Knowledge Management){% endblock %}
+
+{% block content %}
+<div class="card-custom overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">ลำดับบท</th>
+                    <th>ชื่อบทเรียน (Title)</th>
+                    <th>หมวดหมู่ (Category)</th>
+                    <th>สรุปเนื้อหาสำคัญ</th>
+                    <th>รูปภาพ Infographic</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in articles %}
+                <tr>
+                    <td><span class="badge bg-primary fs-6">บทที่ {{ a.order }}</span></td>
+                    <td class="fw-bold text-dark">{{ a.title }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ a.category.name }}</span></td>
+                    <td class="small text-muted">{{ a.content|truncatewords:20 }}</td>
+                    <td><span class="badge bg-info-subtle text-info border">มีรูปภาพประกอบ</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-4 text-muted">ไม่พบข้อมูลบทความความรู้</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

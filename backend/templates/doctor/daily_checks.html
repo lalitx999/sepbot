@@ -1,0 +1,78 @@
+{% extends 'doctor/base.html' %}
+
+{% block title %}เช็คอาการรายวัน - Doctor Portal{% endblock %}
+{% block header_title %}📅 ประวัติการเช็คอาการรายวัน (Daily Symptom Checks Log){% endblock %}
+
+{% block content %}
+<div class="card-custom p-3 mb-4">
+    <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-6">
+            <input type="text" id="dailySearch" class="form-control" placeholder="ค้นหาชื่อผู้ป่วย, รหัสครอบครัว..." onkeyup="filterDailyTable()">
+        </div>
+        <div class="col-12 col-md-6 text-md-end">
+            <span class="badge bg-primary-subtle text-primary p-2 fs-6">รวม {{ checks.count }} รายการ</span>
+        </div>
+    </div>
+</div>
+
+<div class="card-custom overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th>วันที่ประเมิน</th>
+                    <th>ผู้ป่วย / ครอบครัว</th>
+                    <th>ผลประเมิน</th>
+                    <th>ผู้ตอบ</th>
+                    <th>รายละเอียดอาการสำคัญ (5 ข้อ)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in checks %}
+                <tr class="daily-row" data-search="{{ c.user.name }} {{ c.family.code }}">
+                    <td class="fw-semibold text-dark">{{ c.date|date:"d/m/Y" }}<br><span class="text-muted small">{{ c.responded_at|date:"H:i" }} น.</span></td>
+                    <td>
+                        <div class="fw-bold text-dark">{{ c.user.name }}</div>
+                        <div class="text-muted small">รหัสครอบครัว: {{ c.family.code }}</div>
+                    </td>
+                    <td>
+                        {% if c.result_level == 'red' %}
+                            <span class="badge bg-danger p-2">🔴 อาการรุนแรง (Red)</span>
+                        {% elif c.result_level == 'yellow' %}
+                            <span class="badge bg-warning text-dark p-2">🟡 เฝ้าระวัง (Yellow)</span>
+                        {% else %}
+                            <span class="badge bg-success p-2">🟢 ปกติ (Green)</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="badge bg-light text-dark border">{{ c.get_responder_display }}</span></td>
+                    <td class="small">
+                        {% if c.has_fever %}<span class="text-danger">• มีไข้/หนาวสั่น ({{ c.fever_detail|default:"-" }})</span><br>{% endif %}
+                        {% if c.has_wound %}<span class="text-danger">• แผลบวมแดง ({{ c.wound_detail|default:"-" }})</span><br>{% endif %}
+                        {% if c.has_breathless %}<span class="text-danger">• หายใจเหนื่อย ({{ c.breathless_detail|default:"-" }})</span><br>{% endif %}
+                        {% if c.has_confused %}<span class="text-danger">• ซึม/สับสน ({{ c.confused_detail|default:"-" }})</span><br>{% endif %}
+                        {% if c.has_less_eat %}<span class="text-warning text-dark">• ทานได้ลดลง ({{ c.less_eat_detail|default:"-" }})</span><br>{% endif %}
+                        {% if not c.has_fever and not c.has_wound and not c.has_breathless and not c.has_confused and not c.has_less_eat %}
+                            <span class="text-muted">ไม่มีอาการผิดปกติ</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-4 text-muted">ไม่พบข้อมูลการประเมินอาการรายวัน</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    function filterDailyTable() {
+        const query = document.getElementById('dailySearch').value.toLowerCase();
+        document.querySelectorAll('.daily-row').forEach(row => {
+            const text = row.getAttribute('data-search').toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+</script>
+{% endblock %}

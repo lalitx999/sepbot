@@ -1,0 +1,73 @@
+{% extends 'doctor/base.html' %}
+
+{% block title %}ผลคัดกรอง Sepsis - Doctor Portal{% endblock %}
+{% block header_title %}🚨 ผลประเมินและคัดกรองภาวะ Sepsis{% endblock %}
+
+{% block content %}
+<div class="card-custom p-3 mb-4">
+    <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-6">
+            <input type="text" id="screeningSearch" class="form-control" placeholder="ค้นหาชื่อผู้ป่วย, รหัสครอบครัว..." onkeyup="filterScreeningTable()">
+        </div>
+        <div class="col-12 col-md-6 text-md-end">
+            <span class="badge bg-danger-subtle text-danger p-2 fs-6">รวม {{ screenings.count }} รายการ</span>
+        </div>
+    </div>
+</div>
+
+<div class="card-custom overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th>วันที่คัดกรอง</th>
+                    <th>ผู้ป่วย / ครอบครัว</th>
+                    <th>สถานะ Red Flag (7 ข้อ)</th>
+                    <th>สถานะ Amber Flag (10 ข้อ)</th>
+                    <th>ข้อสรุป / คำแนะนำ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in screenings %}
+                <tr class="screening-row" data-search="{{ s.user.name }} {{ s.family.code }}">
+                    <td class="fw-semibold text-dark">{{ s.date|date:"d/m/Y" }}</td>
+                    <td>
+                        <div class="fw-bold text-dark">{{ s.user.name }}</div>
+                        <div class="text-muted small">รหัสครอบครัว: {{ s.family.code }}</div>
+                    </td>
+                    <td>
+                        {% if s.has_red_flag %}
+                            <span class="badge bg-danger p-2"><i class="bi bi-exclamation-triangle-fill"></i> พบ Red Flag</span>
+                        {% else %}
+                            <span class="badge bg-light text-secondary border">ไม่พบ</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if s.has_amber_flag %}
+                            <span class="badge bg-warning text-dark p-2"><i class="bi bi-exclamation-circle-fill"></i> พบ Amber Flag</span>
+                        {% else %}
+                            <span class="badge bg-light text-secondary border">ไม่พบ</span>
+                        {% endif %}
+                    </td>
+                    <td class="small text-muted">{{ s.result|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-4 text-muted">ไม่พบข้อมูลการคัดกรอง Sepsis</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    function filterScreeningTable() {
+        const query = document.getElementById('screeningSearch').value.toLowerCase();
+        document.querySelectorAll('.screening-row').forEach(row => {
+            const text = row.getAttribute('data-search').toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+</script>
+{% endblock %}
