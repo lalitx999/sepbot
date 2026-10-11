@@ -32,6 +32,9 @@ class VitalSign(models.Model):
 
     recorded_at = models.DateTimeField(default=timezone.now, verbose_name="เวลาที่บันทึก")
 
+    mews_score = models.IntegerField(default=0, blank=True, null=True, verbose_name="คะแนน MEWS")
+    mews_level = models.CharField(max_length=10, default='green', blank=True, null=True, verbose_name="ระดับความเสี่ยง MEWS")
+
     class Meta:
         db_table = 'health_vitalsign'
         verbose_name = 'บันทึกสัญญาณชีพ'

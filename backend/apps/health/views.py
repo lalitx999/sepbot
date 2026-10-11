@@ -38,7 +38,24 @@ class VitalSignView(APIView):
         if serializer.is_valid():
             vitals = serializer.save()
 
-            # Push summary LINE message to user
+            # Calculate MEWS (Modified Early Warning Score)
+            try:
+                from .services import calculate_mews
+                mews_score, mews_level, mews_breakdown = calculate_mews(
+                    temperature=vitals.temperature,
+                    systolic_bp=vitals.systolic_bp,
+                    heart_rate=vitals.heart_rate,
+                    respiratory_rate=vitals.respiratory_rate,
+                    consciousness=vitals.consciousness,
+                    urine_output=vitals.urine_output,
+                )
+                vitals.mews_score = mews_score
+                vitals.mews_level = mews_level
+                vitals.save(update_fields=['mews_score', 'mews_level'])
+            except Exception as e:
+                print(f"MEWS Calculation Error: {e}")
+
+            # Push summary LINE message to user (Encouragement only, NO nurse emergency alarm)
             try:
                 from linebot.handlers import push_line_message
 

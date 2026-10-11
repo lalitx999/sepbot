@@ -7,7 +7,7 @@ class VitalSignSerializer(serializers.ModelSerializer):
     class Meta:
         model = VitalSign
         fields = '__all__'
-        read_only_fields = ['id', 'recorded_at']
+        read_only_fields = ['id', 'recorded_at', 'mews_score', 'mews_level']
 
     def validate(self, attrs):
         required_fields = ['temperature', 'systolic_bp', 'diastolic_bp', 'heart_rate', 'respiratory_rate', 'consciousness', 'urine_output']

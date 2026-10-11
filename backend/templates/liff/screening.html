@@ -359,6 +359,40 @@
             cursor: pointer;
             box-shadow: 0 4px 16px rgba(233, 30, 99, 0.25);
         }
+
+        .status-badge {
+            font-size: 1.15rem;
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .status-badge.bg-success {
+            background: linear-gradient(135deg, #d4edda, #b7dfc9) !important;
+            color: #0a3a1a !important;
+            border: 2px solid #8fcf9f;
+        }
+
+        .status-badge.bg-warning {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c) !important;
+            color: #5a3a0a !important;
+            border: 2px solid #f5c842;
+        }
+
+        .status-badge.bg-danger {
+            background: linear-gradient(135deg, #f8d7da, #f5c2c7) !important;
+            color: #5a0a0a !important;
+            border: 2px solid #e07a7a;
+        }
+
+        .status-badge .bi {
+            font-size: 26px;
+        }
     </style>
 </head>
 
@@ -385,9 +419,9 @@
                 <div class="medical-card">
                     <div class="card-header-clean">
                         <div class="step-badge-clean">1</div>
-                        <h2 class="card-title-clean">ปัจจัยเสี่ยงภาวะเซพซิส (Risk Factors)</h2>
+                        <h2 class="card-title-clean">1. ผู้ป่วยมีปัจจัยเสี่ยงต่อภาวะเซพซิสหรือไม่?</h2>
                     </div>
-                    <p class="small text-muted mb-3"><i class="bi bi-info-circle me-1"></i> เริ่มทำหากคนไข้มีอาการไม่สบาย หรือมีปัจจัยเสี่ยงดังต่อไปนี้:</p>
+                    <p class="small text-muted mb-3"><i class="bi bi-info-circle me-1"></i> คำชี้แจง: โปรดเริ่มทำแบบประเมินนี้เมื่อผู้ป่วยรู้สึกไม่สบาย มีอาการผิดปกติ หรือพบว่าสัญญาณชีพผิดปกติ</p>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="age_over_75" class="step1-check">
@@ -396,25 +430,25 @@
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="immunocompromised" class="step1-check">
-                        <span class="check-tile-label">2. ระบบภูมิคุ้มกันบกพร่อง (เช่น เบาหวาน, ทานยาสเตียรอยด์, รับเคมีบำบัด)</span>
+                        <span class="check-tile-label">2. ระบบภูมิคุ้มกันบกพร่อง เช่น มีโรคเบาหวาน มีการใช้ยาประเภทสเตียรอยด์ หรือรับการรักษาด้วยเคมีบำบัด <small class="d-block text-muted mt-1">(พิจารณาคำสั่งล่วงหน้าเกี่ยวกับการรักษา/แผนการดูแลผู้ป่วย)</small></span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="has_catheter" class="step1-check">
-                        <span class="check-tile-label">3. มีสายสวนหรือสายต่าง ๆ ค้างในร่างกาย / IVDU / ผิวหนังแตกหรือมีแผล</span>
+                        <span class="check-tile-label">3. มีสายสวนหรือสายต่าง ๆ ค้างอยู่ในร่างกาย / มีประวัติการใช้ยาเสพติดโดยการฉีดเข้าหลอดเลือดดำ (IVDU) / มีผิวหนังแตกหรือมีบาดแผล</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="recent_surgery" class="step1-check">
-                        <span class="check-tile-label">4. มีประวัติได้รับบาดเจ็บ / ผ่าตัด / ทำหัตถการรุกรานร่างกายเมื่อไม่นานมานี้</span>
+                        <span class="check-tile-label">4. มีประวัติได้รับบาดเจ็บ / การผ่าตัด / การทำหัตถการที่มีการสอดใส่เครื่องมือทางการแพทย์เข้าสู่ร่างกายเมื่อไม่นานมานี้</span>
                     </label>
 
                     <div class="step-actions">
                         <button type="button" class="btn-wizard-stop" onclick="finishNoRisk()">
-                            <i class="bi bi-x-circle me-1"></i> ไม่มีปัจจัยเสี่ยงเลย
+                            <i class="bi bi-x-circle me-1"></i> ไม่มีปัจจัยเสี่ยง
                         </button>
                         <button type="button" class="btn-wizard-next" onclick="validateAndGoStep2()">
-                            ไปต่อข้อ 2 <i class="bi bi-arrow-right"></i>
+                            มีปัจจัยเสี่ยง (ไปข้อ 2 ต่อ) <i class="bi bi-arrow-right"></i>
                         </button>
                     </div>
                 </div>
@@ -425,38 +459,38 @@
                 <div class="medical-card">
                     <div class="card-header-clean">
                         <div class="step-badge-clean" style="background: #7B3F9E;">2</div>
-                        <h2 class="card-title-clean">แหล่งที่มาของการติดเชื้อที่น่าจะเป็น (Infection Source)</h2>
+                        <h2 class="card-title-clean">2. อาการดังกล่าวอาจมีสาเหตุมาจากการติดเชื้อหรือไม่ แหล่งที่มาของการติดเชื้อที่น่าจะเป็น</h2>
                     </div>
-                    <p class="small text-muted mb-3"><i class="bi bi-question-circle me-1"></i> อาการดังกล่าวอาจมีสาเหตุมาจากการติดเชื้อหรือไม่?</p>
+                    <p class="small text-muted mb-3"><i class="bi bi-question-circle me-1"></i> โปรดเลือกแหล่งที่มาของการติดเชื้อที่น่าจะเป็น:</p>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="infection_respiratory" class="step2-check">
-                        <span class="check-tile-label">1. ระบบหายใจ (เช่น ปอดอักเสบ, ไอหนัก, เสมหะ)</span>
+                        <span class="check-tile-label">1. ระบบหายใจ</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="infection_urinary" class="step2-check">
-                        <span class="check-tile-label">2. ระบบปัสสาวะ (เช่น ปัสสาวะแสบขัด, ปัสสาวะขุ่น)</span>
-                    </label>
-
-                    <label class="check-tile-item">
-                        <input type="checkbox" id="infection_skin" class="step2-check">
-                        <span class="check-tile-label">3. ผิวหนัง / ข้อต่อ / บาดแผล</span>
+                        <span class="check-tile-label">2. ระบบปัสสาวะ</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="infection_device" class="step2-check">
-                        <span class="check-tile-label">4. วัตถุหรือสายค้างในร่างกาย</span>
+                        <span class="check-tile-label">3. วัตถุที่ค้างอยู่ในร่างกาย เช่น สายสวนปัสสาวะ สายให้อาหาร ท่อเจาะคอ หรือสายสวนหลอดเลือดส่วนกลาง</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="infection_skin" class="step2-check">
+                        <span class="check-tile-label">4. ผิวหนัง / ข้อต่อ / บาดแผล</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="infection_brain" class="step2-check">
-                        <span class="check-tile-label">5. สมอง / เยื่อหุ้มสมอง</span>
+                        <span class="check-tile-label">5. สมอง</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="infection_surgery" class="step2-check">
-                        <span class="check-tile-label">6. การผ่าตัด / แผลผ่าตัด</span>
+                        <span class="check-tile-label">6. การผ่าตัด</span>
                     </label>
 
                     <label class="check-tile-item mb-1">
@@ -467,10 +501,10 @@
 
                     <div class="step-actions">
                         <button type="button" class="btn-wizard-stop" onclick="finishNoInfection()">
-                            <i class="bi bi-x-circle me-1"></i> ไม่มีการติดเชื้อ
+                            <i class="bi bi-x-circle me-1"></i> ไม่มีสาเหตุของติดเชื้อ
                         </button>
                         <button type="button" class="btn-wizard-next" style="background: linear-gradient(135deg, #7B3F9E, #5B2E82);" onclick="validateAndGoStep3()">
-                            ไปต่อข้อ 3 <i class="bi bi-arrow-right"></i>
+                            มีสาเหตุติดเชื้อ (ไปข้อ 3 ต่อ) <i class="bi bi-arrow-right"></i>
                         </button>
                     </div>
                 </div>
@@ -481,51 +515,51 @@
                 <div class="medical-card card-red">
                     <div class="card-header-clean">
                         <div class="step-badge-clean"><i class="bi bi-exclamation-triangle-fill"></i></div>
-                        <h2 class="card-title-clean">สัญญาณเตือนระดับสีแดง (Red Flags - วิกฤต)</h2>
+                        <h2 class="card-title-clean">3. พบสัญญาณเตือนระดับสีแดง (Red Flags) ใด ๆ หรือไม่</h2>
                     </div>
-                    <p class="small text-muted mb-3"><i class="bi bi-exclamation-octagon me-1"></i> หากมีสัญญาณวิกฤตข้อใดข้อหนึ่ง ให้เริ่มชุดการดูแลผู้ป่วยทันที:</p>
+                    <p class="small text-muted mb-3"><i class="bi bi-exclamation-octagon me-1"></i> หากพบสัญญาณข้อใดข้อหนึ่ง ให้เริ่มชุดการดูแลผู้ป่วยระดับสีแดงทันที:</p>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="red_flag_mental" class="step3-check">
-                        <span class="check-tile-label">1. สภาพจิตใจเปลี่ยนแปลงหรือเกิดขึ้นใหม่ (ซึม/สับสน)</span>
+                        <span class="check-tile-label">1. มีหลักฐานบ่งชี้ว่ามีสภาพจิตใจที่เปลี่ยนแปลงหรือเกิดขึ้นใหม่</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="red_flag_rr_ge25" class="step3-check">
-                        <span class="check-tile-label">2. อัตราการหายใจ ≥ 25 ครั้ง/นาที</span>
+                        <span class="check-tile-label">2. อัตราการหายใจมากกว่าหรือเท่ากับ 25 ครั้งต่อนาที</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="red_flag_o2_need" class="step3-check">
-                        <span class="check-tile-label">3. ให้ออกซิเจนใหม่ (≥ 40%) เพื่อรักษาระดับ SpO2 > 92%</span>
+                        <span class="check-tile-label">3. จำเป็นต้องให้ออกซิเจนใหม่ (40% หรือมากกว่า) เพื่อรักษาระดับความอิ่มตัวของออกซิเจนในเลือด (SpO₂) ให้มากกว่า 92% (มากกว่า 88% ในผู้ป่วยโรคปอดอุดกั้นเรื้อรัง)</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="red_flag_sbp_le90" class="step3-check">
-                        <span class="check-tile-label">4. ความดันตัวบน (Systolic BP) ≤ 90 mmHg (หรือลดลง > 40)</span>
+                        <span class="check-tile-label">4. ความดันโลหิตตัวบน (Systolic BP) ต่ำกว่าหรือเท่ากับ 90 มม.ปรอท (หรือลดลงมากกว่า 40 จากระดับปกติ)</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="red_flag_hr_gt130" class="step3-check">
-                        <span class="check-tile-label">5. อัตราการเต้นหัวใจ > 130 ครั้ง/นาที</span>
+                        <span class="check-tile-label">5. อัตราการเต้นของหัวใจมากกว่า 130 ครั้งต่อนาที</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="red_flag_no_urine_18h" class="step3-check">
-                        <span class="check-tile-label">6. ไม่ได้ปัสสาวะออกเป็นเวลา 18 ชั่วโมง</span>
+                        <span class="check-tile-label">6. ไม่มีปัสสาวะออกเป็นเวลา 18 ชั่วโมง (&lt; 0.5 มล./กก./ชม. ในกรณีที่ใส่สายสวนปัสสาวะ)</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="red_flag_skin_change" class="step3-check">
-                        <span class="check-tile-label">7. ผื่นกดแล้วสีไม่จาง / ผิวหนังลายด่างเป็นปื้น / ผิวซีดเทาหรือเขียวคล้ำ</span>
+                        <span class="check-tile-label">7. มีผื่นที่กดแล้วสีไม่จาง / ผิวหนังมีลักษณะด่างเป็นปื้น / ผิวซีดเทาหรือมีสีคล้ำผิดปกติ / มีอาการเขียวคล้ำ ที่เปลี่ยนไปจากเดิมหรือรอยโรคเดิม</span>
                     </label>
 
                     <div class="step-actions">
                         <button type="button" class="btn-wizard-danger" onclick="triggerRedFlagAlert()">
-                            <i class="bi bi-telephone-outbound-fill me-1"></i> พบ Red Flag (โทร 1669)
+                            <i class="bi bi-telephone-outbound-fill me-1"></i> พบสัญญาณสีแดง
                         </button>
                         <button type="button" class="btn-wizard-next" style="background: linear-gradient(135deg, #F57C00, #E65100);" onclick="goStep4()">
-                            ไม่มี Red Flag (ไปข้อ 4) <i class="bi bi-arrow-right"></i>
+                            ไม่พบสัญญาณเตือน (ไปข้อ 4) <i class="bi bi-arrow-right"></i>
                         </button>
                     </div>
                 </div>
@@ -536,9 +570,9 @@
                 <div class="medical-card card-amber">
                     <div class="card-header-clean">
                         <div class="step-badge-clean"><i class="bi bi-exclamation-circle-fill"></i></div>
-                        <h2 class="card-title-clean">สัญญาณเตือนระดับสีเหลือง (Amber Flags - เฝ้าระวัง)</h2>
+                        <h2 class="card-title-clean">4. พบสัญญาณเตือนระดับสีเหลือง (Amber Flags) ใด ๆ หรือไม่</h2>
                     </div>
-                    <p class="small text-muted mb-3"><i class="bi bi-info-square me-1"></i> สัญญาณผิดปกติที่ต้องได้รับการประเมินภายในวันเดียวกัน:</p>
+                    <p class="small text-muted mb-3"><i class="bi bi-info-square me-1"></i> หากพบสัญญาณเตือนระดับสีเหลือง ให้รับการประเมินภายในวันเดียวกัน:</p>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="amber_flag_behavior">
@@ -552,27 +586,27 @@
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="amber_flag_rr_21_24">
-                        <span class="check-tile-label">3. อัตราการหายใจอยู่ระหว่าง 21-24 ครั้ง/นาที</span>
+                        <span class="check-tile-label">3. อัตราการหายใจอยู่ระหว่าง 21-24 ครั้งต่อนาที</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="amber_flag_sbp_91_100">
-                        <span class="check-tile-label">4. ความดันตัวบน (Systolic BP) อยู่ระหว่าง 91-100 mmHg</span>
+                        <span class="check-tile-label">4. ความดันโลหิตตัวบน (Systolic BP) อยู่ระหว่าง 91-100 มม.ปรอท</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="amber_flag_hr_91_120">
-                        <span class="check-tile-label">5. อัตราการเต้นหัวใจอยู่ระหว่าง 91–120 ครั้ง/นาที</span>
+                        <span class="check-tile-label">5. อัตราการเต้นของหัวใจอยู่ระหว่าง 91–120 ครั้งต่อนาที หรือมีภาวะหัวใจเต้นผิดจังหวะที่เกิดขึ้นใหม่</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="amber_flag_spo2_lt92">
-                        <span class="check-tile-label">6. ค่า SpO2 < 92% ขณะหายใจอากาศปกติ หรือต้องการออกซิเจนเพิ่มขึ้น</span>
+                        <span class="check-tile-label">6. ค่าความอิ่มตัวของออกซิเจนในเลือด (SpO₂) ต่ำกว่า 92% ขณะหายใจอากาศปกติ หรือมีความต้องการออกซิเจนเพิ่มขึ้น</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="amber_flag_no_urine_12_18h">
-                        <span class="check-tile-label">7. ไม่ได้ปัสสาวะออกเป็นเวลา 12-18 ชั่วโมง</span>
+                        <span class="check-tile-label">7. ไม่ได้ปัสสาวะออกเป็นเวลา 12-18 ชั่วโมง (0.5 มล./กก./ชม. ในกรณีที่ใส่สายสวนปัสสาวะ)</span>
                     </label>
 
                     <label class="check-tile-item">
@@ -587,7 +621,7 @@
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="amber_flag_temp_lt36">
-                        <span class="check-tile-label">10. มีอุณหภูมิร่างกายน้อยกว่า 36.0 องศาเซลเซียส</span>
+                        <span class="check-tile-label">10. มีอุณหภูมิร่างกายน้อยกว่า 36 องศาเซลเซียส</span>
                     </label>
                 </div>
             </div>
@@ -602,11 +636,28 @@
                 </div>
             </div>
         </form>
-        <section id="resultCard" class="d-none alert mt-4" role="status" aria-live="polite" tabindex="-1" style="margin-bottom:100px; overflow-wrap:anywhere;">
-            <h5>ผลการประเมิน</h5>
-            <div id="resultLevel" class="status-badge"></div>
-            <p id="resultAdvice"></p>
-        </section>
+
+        <!-- Inline Result Display Card -->
+        <div id="resultCard" class="medical-card d-none mt-4" style="margin-bottom: 80px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-clipboard2-pulse fs-4 text-primary"></i>
+                <h4 class="mb-0 fw-bold">ผลการคัดกรองภาวะเซพซิส</h4>
+            </div>
+            <div id="resultBadge" class="status-badge mb-3"></div>
+            <div id="resultAdvice" class="p-3 rounded-3 mb-3" style="font-size: 15px; line-height: 1.6; background-color: #f8fafc; border: 1.5px solid #e2e8f0; color: #1e293b;"></div>
+            <div class="p-3 rounded-3 text-center mb-3" style="background-color: #f0f7fc; border: 1.5px solid #d0e5f2; color: #1e3a5f;">
+                <p class="mb-1 fw-bold text-primary" style="font-size: 15px;">ระบบได้ส่งผลการประเมินไปยังห้องแชท LINE เรียบร้อยแล้วค่ะ 💙</p>
+                <small class="text-muted d-block" style="line-height: 1.5;">หากผู้ป่วยมีอาการทรุดลงหรือสงสัยภาวะเซพซิส กรุณาติดต่อผู้วิจัยหรือโทร 1669 ทันที</small>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary w-50" onclick="window.location.reload()">
+                    <i class="bi bi-arrow-clockwise me-1"></i> ประเมินใหม่
+                </button>
+                <button type="button" class="btn btn-primary w-50" onclick="closeLiffWindow()">
+                    <i class="bi bi-x-circle me-1"></i> ปิดหน้านี้
+                </button>
+            </div>
+        </div>
 
     </div>
 
@@ -704,13 +755,27 @@
 
                 if (response.ok) {
                     const screening = data.screening;
-                    const color = screening.has_red_flag ? 'danger' : screening.has_amber_flag ? 'warning' : 'success';
-                    document.getElementById('resultLevel').textContent = screening.has_red_flag ? 'สีแดง' : screening.has_amber_flag ? 'สีเหลือง' : 'สีเขียว';
-                    document.getElementById('resultAdvice').textContent = screening.result;
                     const card = document.getElementById('resultCard');
-                    card.className = 'alert alert-' + color + ' mt-4';
-                    card.focus({preventScroll: true});
-                    card.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    const badge = document.getElementById('resultBadge');
+                    const advice = document.getElementById('resultAdvice');
+                    const bottomBar = document.getElementById('bottomSubmitBar');
+                    if (bottomBar) bottomBar.classList.add('d-none');
+
+                    card.classList.remove('d-none');
+
+                    if (screening.has_red_flag) {
+                        badge.className = 'status-badge bg-danger';
+                        badge.innerHTML = '<i class="bi bi-exclamation-octagon-fill"></i> สัญญาณเตือนระดับสีแดง (Red Flags)';
+                    } else if (screening.has_amber_flag) {
+                        badge.className = 'status-badge bg-warning';
+                        badge.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> สัญญาณเตือนระดับสีเหลือง (Amber Flags)';
+                    } else {
+                        badge.className = 'status-badge bg-success';
+                        badge.innerHTML = '<i class="bi bi-check-circle-fill"></i> ไม่พบสัญญาณอันตราย (สีเขียว)';
+                    }
+
+                    advice.innerText = screening.result;
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return;
                 } else {
                     Swal.fire('ข้อผิดพลาด', data.error || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');

@@ -563,8 +563,13 @@
 
             if (!e.target.reportValidity()) return;
             if (!temp || !sbp || !dbp || !hr || !rr || !consciousness || !urine_output) {
-                errorText.innerText = 'กรุณากรอกข้อมูลสัญญาณชีพให้ครบทุกช่อง';
-                errorDiv.classList.add('show');
+                Swal.fire({
+                    title: 'ระบุข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกข้อมูลสัญญาณชีพให้ครบทุกช่องก่อนบันทึกนะคะ',
+                    icon: 'warning',
+                    confirmButtonText: 'เข้าใจแล้ว',
+                    confirmButtonColor: '#0b69a3'
+                });
                 return;
             }
 
@@ -582,7 +587,6 @@
                 urine_output: urine_output || null,
             };
 
-
             try {
                 const response = await fetch('/api/v1/health/vitals/', {
                     method: 'POST',
@@ -593,7 +597,17 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    closeLiffWindow();
+                    Swal.fire({
+                        title: 'บันทึกสัญญาณชีพเรียบร้อยค่ะ 💙',
+                        text: 'ระบบได้ส่งสรุปข้อมูลไปยังห้องแชท LINE แล้วค่ะ',
+                        icon: 'success',
+                        confirmButtonText: 'ปิดหน้านี้',
+                        confirmButtonColor: '#0b69a3',
+                        timer: 2500,
+                        timerProgressBar: true
+                    }).then(() => {
+                        closeLiffWindow();
+                    });
                     return;
                 } else {
                     const errorMsg = data.error || data.message || Object.values(data).flat().join('\n') || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';

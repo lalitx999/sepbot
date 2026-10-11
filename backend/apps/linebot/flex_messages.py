@@ -74,54 +74,40 @@ def build_greeting_flex(display_name=""):
 def build_emergency_flex():
     """
     Flex Message sent when user clicks Emergency contact in Rich Menu.
-    Ordered as:
-    1) ผู้วิจัย ณัฏฐณิชา สิงห์จาน
-    2) สายด่วนการแพทย์ฉุกเฉิน 1669
-    3) รพใกล้บ้าน
-    4) รพจุฬาลงกรณ์ 022564000
+    Displays emergency infographic image and direct 1669 call button below.
     """
+    base_url = os.getenv('BASE_URL', 'https://app11.tanchonhomserverxxx.online').rstrip('/')
     emergency_phone = os.getenv('EMERGENCY_PHONE_1669', '1669')
-    hospital_phone = os.getenv('HOSPITAL_CHULA_PHONE', '022564000')
-    nurse_phone = os.getenv('NURSE_CONTACT_PHONE', '0996244555')
+    img_url = f"{base_url}/media/infographics/emergency_contact.jpg"
 
     return {
         "type": "flex",
-        "altText": "🚨 รายชื่อติดต่อฉุกเฉิน",
+        "altText": "🚨 ติดต่อฉุกเฉิน 1669",
         "contents": {
             "type": "bubble",
-            "header": {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [
-                    {
-                        "type": "text",
-                        "text": "🚨 ช่องทางติดต่อฉุกเฉิน",
-                        "weight": "bold",
-                        "color": "#FFFFFF",
-                        "size": "lg"
-                    }
-                ],
-                "backgroundColor": "#D32F2F",
-                "paddingAll": "15px"
+            "hero": {
+                "type": "image",
+                "url": img_url,
+                "size": "full",
+                "aspectRatio": "682:1024",
+                "aspectMode": "cover",
+                "action": {
+                    "type": "uri",
+                    "uri": img_url
+                }
             },
             "body": {
                 "type": "box",
                 "layout": "vertical",
+                "paddingAll": "16px",
                 "contents": [
-                    {
-                        "type": "text",
-                        "text": "กรุณาเลือกช่องทางติดต่อด้านล่างทันที:",
-                        "weight": "bold",
-                        "color": "#D32F2F",
-                        "size": "sm"
-                    },
                     {
                         "type": "text",
                         "text": "หากมีอาการทรุดลงหรือสงสัยภาวะเซพซิส กรุณาติดต่อผู้วิจัยหรือโทร 1669 ทันที",
                         "wrap": True,
-                        "size": "xs",
-                        "color": "#555555",
-                        "margin": "sm"
+                        "weight": "bold",
+                        "size": "sm",
+                        "color": "#D32F2F"
                     }
                 ]
             },
@@ -129,44 +115,17 @@ def build_emergency_flex():
                 "type": "box",
                 "layout": "vertical",
                 "spacing": "sm",
+                "paddingAll": "16px",
                 "contents": [
                     {
                         "type": "button",
                         "action": {
                             "type": "uri",
-                            "label": "1) ผู้วิจัย ณัฏฐณิชา สิงห์จาน",
-                            "uri": f"tel:{nurse_phone}"
-                        },
-                        "style": "primary",
-                        "color": "#7B3F9E"
-                    },
-                    {
-                        "type": "button",
-                        "action": {
-                            "type": "uri",
-                            "label": "2) สายด่วนการแพทย์ฉุกเฉิน 1669",
+                            "label": "📞 โทร 1669 ทันที",
                             "uri": f"tel:{emergency_phone}"
                         },
                         "style": "primary",
                         "color": "#D32F2F"
-                    },
-                    {
-                        "type": "button",
-                        "action": {
-                            "type": "uri",
-                            "label": "3) โรงพยาบาลใกล้บ้าน",
-                            "uri": "https://www.google.com/maps/search/โรงพยาบาลใกล้ฉัน"
-                        },
-                        "style": "secondary"
-                    },
-                    {
-                        "type": "button",
-                        "action": {
-                            "type": "uri",
-                            "label": f"4) รพ.จุฬาลงกรณ์ 022564000",
-                            "uri": f"tel:{hospital_phone}"
-                        },
-                        "style": "secondary"
                     }
                 ]
             }

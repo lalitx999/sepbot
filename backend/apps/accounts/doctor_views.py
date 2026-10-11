@@ -77,6 +77,10 @@ def doctor_dashboard(request):
             status_code = 'red'
             status_label = '🔴 อาการรุนแรง (Red)'
             priority = 1
+        elif latest_vitals and latest_vitals.mews_level == 'red':
+            status_code = 'red'
+            status_label = f'🔴 วิกฤต (MEWS {latest_vitals.mews_score})'
+            priority = 1
         elif latest_screening and latest_screening.has_amber_flag:
             status_code = 'yellow'
             status_label = '🟡 เฝ้าระวัง (Amber)'
@@ -84,6 +88,10 @@ def doctor_dashboard(request):
         elif latest_check and latest_check.result_level == 'yellow':
             status_code = 'yellow'
             status_label = '🟡 เฝ้าระวัง (Yellow)'
+            priority = 2
+        elif latest_vitals and latest_vitals.mews_level == 'yellow':
+            status_code = 'yellow'
+            status_label = f'🟡 เฝ้าระวัง (MEWS {latest_vitals.mews_score})'
             priority = 2
         elif not latest_check or latest_check.date < today:
             status_code = 'overdue'
@@ -381,6 +389,8 @@ def api_patient_detail(request, user_id):
             'spo2': v.spo2,
             'consciousness': v.get_consciousness_display() if v.consciousness else '-',
             'urine_output': v.get_urine_output_display() if v.urine_output else '-',
+            'mews_score': v.mews_score or 0,
+            'mews_level': v.mews_level or 'green',
         })
         
     screening = SepsisScreening.objects.filter(user=patient).order_by('-date').first()

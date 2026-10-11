@@ -119,22 +119,25 @@
         }
 
         .topic-item {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             text-decoration: none;
             background: #ffffff;
-            border-radius: 16px;
+            border-radius: 14px;
             border: 1.5px solid #e1ebf2;
-            padding: 18px 20px;
+            padding: 16px 18px;
+            margin-bottom: 10px;
             transition: all 0.2s ease;
             box-shadow: 0 2px 6px rgba(0, 30, 60, 0.03);
-            color: inherit;
+            color: #102a3a;
         }
 
         .topic-item:hover {
             transform: translateY(-2px);
             border-color: #0b69a3;
             box-shadow: 0 6px 18px rgba(11, 105, 163, 0.1);
-            color: inherit;
+            color: #0b69a3;
         }
 
         .topic-header-row {
@@ -271,7 +274,8 @@
         <div class="topics-list">
             {% for article in articles %}
                 <a href="{% url 'knowledge-web-detail' article.id %}" class="topic-item">
-                    <h2 class="topic-title mb-0">{{ article.title }}</h2>
+                    <span class="topic-title mb-0" style="font-size: 15.5px; font-weight: 600;">{{ article.title }}</span>
+                    <i class="bi bi-chevron-right text-muted ms-2"></i>
                 </a>
             {% empty %}
                 <div class="empty-state">
