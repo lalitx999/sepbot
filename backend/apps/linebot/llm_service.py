@@ -1,24 +1,48 @@
 import os
 import json
+import re
 import requests
 from django.conf import settings
 
+def clean_think_tags(text):
+    """
+    Strips internal reasoning / <think>...</think> tags emitted by DeepSeek-R1 models
+    so the end patient receives only the concise final medical advice.
+    """
+    if not text:
+        return ""
+    # Strip <think> ... </think> including multiline
+    cleaned = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+    # Strip any dangling </think> or <think> if opened without close
+    cleaned = re.sub(r'</?think>', '', cleaned)
+    return cleaned.strip()
+
 def query_deepseek_ai(user_question, user_context=None):
     """
-    Queries DeepSeek API (deepseek-chat) for sepsis post-discharge Q&A.
+    Queries Groq (DeepSeek-R1) or direct DeepSeek API for sepsis post-discharge Q&A.
     Strictly grounded to 33 reference Q&A items. No hallucination, no emojis.
+    Configurable parameters:
+      - Temperature: 0 - 2 (Default: 0.2 for precise medical advice)
+      - Top_p: 0.5 (Controls diversity as requested)
+      - Reasoning effort: None (Stripped <think> tags)
     """
-    api_key = getattr(settings, 'DEEPSEEK_API_KEY', None) or os.getenv('DEEPSEEK_API_KEY') or 'sk-31dee1a18fa94d609b57e767e71ccd71'
-    
-    if not api_key or api_key == 'your_deepseek_api_key_here':
-        print("[DeepSeek AI Warning] No DEEPSEEK_API_KEY configured.")
-        return None
+    groq_api_key = getattr(settings, 'GROQ_API_KEY', None) or os.getenv('GROQ_API_KEY')
+    deepseek_api_key = getattr(settings, 'DEEPSEEK_API_KEY', None) or os.getenv('DEEPSEEK_API_KEY')
 
-    url = "https://api.deepseek.com/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
+    # Determine provider (Prefer Groq if available)
+    if groq_api_key and groq_api_key != 'your_groq_api_key_here':
+        api_key = groq_api_key
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        model = os.getenv('GROQ_MODEL', 'deepseek-r1-distill-llama-70b')
+        provider = "Groq"
+    elif deepseek_api_key and deepseek_api_key != 'your_deepseek_api_key_here':
+        api_key = deepseek_api_key
+        url = "https://api.deepseek.com/v1/chat/completions"
+        model = os.getenv('DEEPSEEK_MODEL', 'deepseek-chat')
+        provider = "DeepSeek"
+    else:
+        print("[AI Service Warning] Neither GROQ_API_KEY nor DEEPSEEK_API_KEY is configured.")
+        return None
 
     system_prompt = (
         "คุณคือ 'SepCare AI' ผู้ช่วยตอบคำถามการดูแลผู้ป่วยหลังภาวะเซพซิส (Sepsis)\n\n"
@@ -73,24 +97,40 @@ def query_deepseek_ai(user_question, user_context=None):
         {"role": "user", "content": user_question}
     ]
 
+    try:
+        temp_val = float(os.getenv('GROQ_TEMPERATURE', '0.2'))
+    except ValueError:
+        temp_val = 0.2
+
+    try:
+        top_p_val = float(os.getenv('GROQ_TOP_P', '0.5'))
+    except ValueError:
+        top_p_val = 0.5
+
     payload = {
-        "model": "deepseek-chat",
+        "model": model,
         "messages": messages,
-        "temperature": 0.1,
-        "top_p": 0.9,
-        "max_tokens": 500
+        "temperature": temp_val,
+        "top_p": top_p_val,
+        "max_tokens": 800
+    }
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
     }
 
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        response = requests.post(url, headers=headers, json=payload, timeout=12)
         if response.status_code == 200:
             res_data = response.json()
-            answer = res_data['choices'][0]['message']['content'].strip()
-            return answer
+            raw_answer = res_data['choices'][0]['message']['content'].strip()
+            # Clean <think> tags for DeepSeek-R1 / Reasoning models
+            clean_answer = clean_think_tags(raw_answer)
+            return clean_answer
         else:
-            print(f"[DeepSeek API Error] Status: {response.status_code} | Response: {response.text}")
+            print(f"[{provider} API Error] Status: {response.status_code} | Response: {response.text}")
             return None
     except Exception as e:
-        print(f"[DeepSeek API Exception]: {e}")
+        print(f"[{provider} API Exception]: {e}")
         return None
-
