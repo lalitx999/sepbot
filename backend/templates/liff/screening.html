@@ -697,19 +697,20 @@
                 }
 
                 if (response.ok) {
-                    // Automatically close LIFF webview after 600ms so user sees the Bot message in LINE chat
+                    Swal.fire({
+                        title: 'ประเมินคัดกรองเรียบร้อยค่ะ 💙',
+                        text: 'กำลังกลับไปยังห้องแชท LINE เพื่อดูผลสรุป...',
+                        icon: 'success',
+                        timer: 1200,
+                        timerProgressBar: true,
+                        showConfirmButton: false
+                    }).then(() => {
+                        closeLiffWindow();
+                    });
+
                     setTimeout(() => {
-                        if (typeof liff !== 'undefined' && liff.isInClient()) {
-                            liff.closeWindow();
-                        } else {
-                            Swal.fire({
-                                title: 'บันทึกเรียบร้อย',
-                                text: 'ระบบได้ส่งผลการประเมินทาง LINE เรียบร้อยแล้วค่ะ 💙',
-                                icon: 'success',
-                                confirmButtonText: 'ตกลง'
-                            });
-                        }
-                    }, 600);
+                        closeLiffWindow();
+                    }, 1400);
                 } else {
                     Swal.fire('ข้อผิดพลาด', data.error || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
                 }
@@ -847,6 +848,19 @@
             const payload = buildFullPayload();
             sendScreeningPayload(payload);
         });
+
+        function closeLiffWindow() {
+            try {
+                if (typeof liff !== 'undefined' && liff.closeWindow) {
+                    liff.closeWindow();
+                }
+            } catch (e) {
+                console.log("LIFF close error:", e);
+            }
+            try {
+                window.close();
+            } catch (e) {}
+        }
     </script>
 </body>
 

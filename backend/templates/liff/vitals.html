@@ -503,6 +503,9 @@
             <div id="vitalsMsg" class="d-none">
                 <i class="bi bi-check-circle-fill"></i>
                 <span id="vitalsMsgText"></span>
+                <button type="button" class="btn btn-outline-success btn-sm w-100 mt-2" onclick="closeLiffWindow()">
+                    <i class="bi bi-x-circle me-1"></i> ปิดหน้านี้กลับไปที่ LINE
+                </button>
             </div>
 
             <!-- Error Message -->
@@ -601,6 +604,22 @@
                     document.getElementById('vitalsForm').reset();
                     // Scroll to message
                     msgDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    // Auto close LIFF window so user returns directly to LINE chat
+                    Swal.fire({
+                        title: 'บันทึกสุขภาพเรียบร้อยค่ะ 💙',
+                        text: 'กำลังกลับไปยังห้องแชท LINE...',
+                        icon: 'success',
+                        timer: 1200,
+                        timerProgressBar: true,
+                        showConfirmButton: false
+                    }).then(() => {
+                        closeLiffWindow();
+                    });
+
+                    setTimeout(() => {
+                        closeLiffWindow();
+                    }, 1400);
                 } else {
                     const errorMsg = data.error || data.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
                     if (errorMsg.includes("ไม่พบผู้ใช้ในระบบ")) {
@@ -630,6 +649,19 @@
                 submitBtn.innerHTML = '<i class="bi bi-save me-2"></i> บันทึกสัญญาณชีพ';
             }
         });
+
+        function closeLiffWindow() {
+            try {
+                if (typeof liff !== 'undefined' && liff.closeWindow) {
+                    liff.closeWindow();
+                }
+            } catch (e) {
+                console.log("LIFF close error:", e);
+            }
+            try {
+                window.close();
+            } catch (e) {}
+        }
     </script>
 </body>
 
