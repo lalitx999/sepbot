@@ -651,16 +651,33 @@
         });
 
         function closeLiffWindow() {
+            // 1. LIFF SDK native close
             try {
-                if (typeof liff !== 'undefined' && liff.closeWindow) {
-                    liff.closeWindow();
+                if (typeof liff !== 'undefined') {
+                    if (typeof liff.isInClient === 'function' && liff.isInClient()) {
+                        liff.closeWindow();
+                        return;
+                    } else if (typeof liff.closeWindow === 'function') {
+                        liff.closeWindow();
+                    }
                 }
             } catch (e) {
-                console.log("LIFF close error:", e);
+                console.warn("LIFF close error:", e);
             }
+
+            // 2. Standard window.close
             try {
                 window.close();
             } catch (e) {}
+
+            // 3. LINE In-App Browser fallback: Return to chat via LINE internal scheme
+            setTimeout(() => {
+                try {
+                    window.location.replace("https://line.me/R/nv/chat");
+                } catch (e) {
+                    window.location.href = "line://nv/chat";
+                }
+            }, 300);
         }
     </script>
 </body>
