@@ -422,3 +422,71 @@ def build_ai_response_flex(ai_answer, user_question=None):
         }
     }
 
+
+def build_ebook_flex():
+    """
+    Flex Message Card for opening SepCare Interactive E-Book.
+    """
+    base_url = os.getenv('BASE_URL', 'https://app11.tanchonhomserverxxx.online').rstrip('/')
+    ebook_url = f"{base_url}/ebook/"
+
+    return {
+        "type": "flex",
+        "altText": "📖 SepCare E-Book คู่มือการดูแลตนเองหลังภาวะเซพซิส",
+        "contents": {
+            "type": "bubble",
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "📖 SepCare E-Book",
+                        "weight": "bold",
+                        "color": "#FFFFFF",
+                        "size": "lg"
+                    }
+                ],
+                "backgroundColor": "#0B69A3",
+                "paddingAll": "15px"
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "คู่มือการดูแลตนเองหลังภาวะเซพซิส (ฉบับสมบูรณ์)",
+                        "weight": "bold",
+                        "size": "sm",
+                        "color": "#0B69A3"
+                    },
+                    {
+                        "type": "text",
+                        "text": "เปิดอ่านเสมือนเปิดหนังสือจริง พลิกหน้าได้ทั้งบนมือถือและคอมพิวเตอร์ รวม 48 หน้า พร้อมภาพอินโฟกราฟิกและสารบัญแยกตามบท",
+                        "wrap": True,
+                        "size": "xs",
+                        "color": "#555555",
+                        "margin": "sm"
+                    }
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "button",
+                        "action": {
+                            "type": "uri",
+                            "label": "📖 เปิดอ่าน E-Book ตอนนี้",
+                            "uri": ebook_url
+                        },
+                        "style": "primary",
+                        "color": "#0B69A3"
+                    }
+                ]
+            }
+        }
+    }
+

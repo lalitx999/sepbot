@@ -23,3 +23,6 @@ Thumbs.db
 # IDE settings
 .vscode/
 .idea/
+
+# Local raw media assets (served from backend/media)
+data/10Oct.Ebook/

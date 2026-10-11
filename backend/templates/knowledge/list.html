@@ -239,6 +239,22 @@
     </div>
 
     <div class="container">
+        <!-- E-Book Quick Access Banner -->
+        <a href="{% url 'knowledge-ebook' %}" class="d-flex align-items-center justify-content-between p-3 mb-3 text-decoration-none rounded-4 text-white shadow-sm" style="background: linear-gradient(135deg, #0b69a3, #0288d1); border: 1.5px solid rgba(255,255,255,0.2);">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                    <i class="bi bi-book-half"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold">E-Book คู่มือผู้ป่วยฉบับสมบูรณ์</h6>
+                    <small style="opacity: 0.9; font-size: 12.5px;">เปิดอ่านแบบพลิกหน้า (Interactive Page-Flip)</small>
+                </div>
+            </div>
+            <div class="btn btn-sm btn-light rounded-pill px-3 fw-bold text-primary">
+                เปิดอ่าน <i class="bi bi-arrow-right"></i>
+            </div>
+        </a>
+
         <!-- Category Filter Pills -->
         <div class="category-filter">
             <a href="?" class="category-pill {% if not selected_category %}active{% endif %}">

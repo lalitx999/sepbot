@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from linebot.liff_views import liff_register, liff_select_type, liff_daily_check, liff_screening, liff_vitals
+from knowledge.views import ebook_viewer
 from accounts.doctor_views import (
     doctor_login, doctor_logout, doctor_dashboard,
     doctor_vitals, doctor_screenings, doctor_daily_checks,
@@ -40,9 +41,19 @@ urlpatterns = [
     path('liff/daily-check/', liff_daily_check, name='liff-daily-check'),
     path('liff/screening/', liff_screening, name='liff-screening'),
     path('liff/vitals/', liff_vitals, name='liff-vitals'),
+
+    # Interactive E-Book Viewer
+    path('ebook/', ebook_viewer, name='ebook-direct'),
+    path('liff/ebook/', ebook_viewer, name='liff-ebook'),
+]
+
+from django.views.static import serve
+from django.urls import re_path
+
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

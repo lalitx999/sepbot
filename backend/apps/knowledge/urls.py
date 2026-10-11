@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     CategoryListView, ArticleListView, ArticleDetailView,
-    web_article_list, web_article_detail
+    web_article_list, web_article_detail, ebook_viewer
 )
 
 urlpatterns = [
@@ -13,4 +13,5 @@ urlpatterns = [
     # Web Base HTML Views
     path('web/', web_article_list, name='knowledge-web-list'),
     path('web/<int:pk>/', web_article_detail, name='knowledge-web-detail'),
+    path('ebook/', ebook_viewer, name='knowledge-ebook'),
 ]

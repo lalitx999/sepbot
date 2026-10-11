@@ -1,6 +1,10 @@
 from django.conf import settings
 from faq.models import FAQ
-from .flex_messages import build_greeting_flex, build_emergency_flex, build_emergency_symptoms_info_flex, build_ask_nurse_flex
+from .flex_messages import (
+    build_greeting_flex, build_emergency_flex,
+    build_emergency_symptoms_info_flex, build_ask_nurse_flex,
+    build_ebook_flex
+)
 
 import requests
 
@@ -197,6 +201,9 @@ def handle_incoming_text(line_user_id, text_content):
     if text in ['ถามพยาบาล', 'พยาบาล', 'ติดต่อพยาบาล']:
         notify_nurse_emergency(line_user_id, alert_type="ask_nurse")
         return build_ask_nurse_flex()
+
+    if text.lower() in ['ebook', 'e-book', 'อีบุ๊ค', 'คู่มือ', 'สมุดคู่มือ', 'เปิดหนังสือ', 'อ่านหนังสือ', 'หนังสือ']:
+        return build_ebook_flex()
 
     # 1. FAQ Search Engine match
     matched_faq = FAQ.objects.filter(question__icontains=text).first()
