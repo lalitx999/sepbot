@@ -569,10 +569,7 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    if (typeof liff !== 'undefined' && liff.closeWindow) {
-                        liff.closeWindow();
-                    }
-                    window.close();
+                    closeLiffWindow();
                     return;
                 } else {
                     const errorMsg = data.error || data.message || JSON.stringify(data);
