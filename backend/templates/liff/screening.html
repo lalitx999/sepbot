@@ -663,13 +663,6 @@
 
         // Helper to submit payload, trigger LINE Bot notification, and auto-close LIFF window
         async function sendScreeningPayload(payloadData) {
-            Swal.fire({
-                title: 'กำลังบันทึกข้อมูล...',
-                text: 'ระบบกำลังประมวลผลและส่งข้อมูลทาง LINE ค่ะ',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
-
             try {
                 const response = await fetch('/api/v1/assessment/screening/', {
                     method: 'POST',
