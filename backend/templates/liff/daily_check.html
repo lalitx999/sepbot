@@ -501,6 +501,12 @@
                     <i class="bi bi-send me-2"></i> ส่งผลประเมินอาการ
                 </button>
             </form>
+        <section id="resultCard" class="d-none alert mt-4" role="status" aria-live="polite" tabindex="-1" style="margin-bottom:100px; overflow-wrap:anywhere;">
+            <h5>ผลการประเมิน</h5>
+            <div id="resultLevel" class="status-badge"></div>
+            <p id="resultAdvice"></p>
+        </section>
+
         </div>
 
     </div>
@@ -546,6 +552,8 @@
             e.preventDefault();
 
             const submitBtn = e.target.querySelector('button[type="submit"]');
+            if (submitBtn.disabled) return;
+            document.getElementById('resultCard').classList.add('d-none');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> กำลังประมวลผล...';
 
@@ -569,7 +577,14 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    closeLiffWindow();
+                    const levels = {green: ['success', 'สีเขียว — ปกติ / ดูแลตนเอง'], yellow: ['warning', 'สีเหลือง — มีอาการเสี่ยง / ติดตาม'], red: ['danger', 'สีแดง — อาการรุนแรง / พบแพทย์ด่วน']};
+                    const [color, label] = levels[data.daily_check.result_level];
+                    document.getElementById('resultLevel').textContent = label;
+                    document.getElementById('resultAdvice').textContent = data.message;
+                    const card = document.getElementById('resultCard');
+                    card.className = 'alert alert-' + color + ' mt-4';
+                    card.focus({preventScroll: true});
+                    card.scrollIntoView({behavior: 'smooth', block: 'center'});
                     return;
                 } else {
                     const errorMsg = data.error || data.message || JSON.stringify(data);

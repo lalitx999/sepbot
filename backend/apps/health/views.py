@@ -40,7 +40,7 @@ class VitalSignView(APIView):
 
             # Push summary LINE message to user
             try:
-                from linebot.handlers import push_line_message, notify_nurse_emergency
+                from linebot.handlers import push_line_message
 
                 v_details = []
                 if vitals.temperature:
@@ -66,20 +66,6 @@ class VitalSignView(APIView):
                     f"SepCare จะคอยติดตามและดูแลสุขภาพของคุณอย่างต่อเนื่องนะคะ 😊"
                 )
                 push_line_message(user.line_user_id, noti_msg)
-
-                # Check if any vital sign is critically abnormal -> Alert Nurse Sai
-                is_abnormal = False
-                if vitals.temperature and (vitals.temperature >= 38.0 or vitals.temperature <= 35.5):
-                    is_abnormal = True
-                if vitals.systolic_bp and (vitals.systolic_bp < 90 or vitals.systolic_bp > 140):
-                    is_abnormal = True
-                if vitals.consciousness in ['confused', 'stupor', 'unconscious']:
-                    is_abnormal = True
-                if vitals.urine_output == 'le_500':
-                    is_abnormal = True
-
-                if is_abnormal:
-                    notify_nurse_emergency(user.line_user_id, alert_type="emergency")
 
             except Exception as e:
                 print(f"Vital Signs LINE Push Warning: {e}")

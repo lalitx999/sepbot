@@ -117,7 +117,7 @@ def build_emergency_flex():
                     },
                     {
                         "type": "text",
-                        "text": "หากมีอาการทรุดลงหรือสงสัยภาวะติดเชื้อในกระแสเลือด กรุณาติดต่อผู้วิจัยหรือโทร 1669 ทันที",
+                        "text": "หากมีอาการทรุดลงหรือสงสัยภาวะเซพซิส กรุณาติดต่อผู้วิจัยหรือโทร 1669 ทันที",
                         "wrap": True,
                         "size": "xs",
                         "color": "#555555",
@@ -432,7 +432,7 @@ def build_ebook_flex():
 
     return {
         "type": "flex",
-        "altText": "📖 SepCare E-Book คู่มือการดูแลตนเองหลังภาวะเซพซิส",
+        "altText": "📖 SepCare E-book คู่มือการจัดการตนเองสำหรับผู้ป่วยสูงอายุหลังภาวะเซพซิส",
         "contents": {
             "type": "bubble",
             "header": {
@@ -441,7 +441,8 @@ def build_ebook_flex():
                 "contents": [
                     {
                         "type": "text",
-                        "text": "📖 SepCare E-Book",
+                        "text": "E-book คู่มือการจัดการตนเองสำหรับผู้ป่วยสูงอายุหลังภาวะเซพซิส",
+                        "wrap": True,
                         "weight": "bold",
                         "color": "#FFFFFF",
                         "size": "lg"
@@ -456,7 +457,8 @@ def build_ebook_flex():
                 "contents": [
                     {
                         "type": "text",
-                        "text": "คู่มือการดูแลตนเองหลังภาวะเซพซิส (ฉบับสมบูรณ์)",
+                        "text": "E-book คู่มือการจัดการตนเองสำหรับผู้ป่วยสูงอายุหลังภาวะเซพซิส",
+                        "wrap": True,
                         "weight": "bold",
                         "size": "sm",
                         "color": "#0B69A3"

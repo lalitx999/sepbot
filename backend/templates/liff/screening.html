@@ -602,6 +602,12 @@
                 </div>
             </div>
         </form>
+        <section id="resultCard" class="d-none alert mt-4" role="status" aria-live="polite" tabindex="-1" style="margin-bottom:100px; overflow-wrap:anywhere;">
+            <h5>ผลการประเมิน</h5>
+            <div id="resultLevel" class="status-badge"></div>
+            <p id="resultAdvice"></p>
+        </section>
+
     </div>
 
     <script>
@@ -661,8 +667,15 @@
             }
         }
 
-        // Helper to submit payload, trigger LINE Bot notification, and auto-close LIFF window
+        // Helper to submit payload, trigger LINE Bot notification, and display the result inline
+        let screeningPending = false;
         async function sendScreeningPayload(payloadData) {
+            if (screeningPending) return;
+            screeningPending = true;
+            document.getElementById('resultCard').classList.add('d-none');
+            const buttons = Array.from(document.querySelectorAll('#screeningForm button'));
+            const previousDisabled = buttons.map(button => button.disabled);
+            buttons.forEach(button => button.disabled = true);
             try {
                 const response = await fetch('/api/v1/assessment/screening/', {
                     method: 'POST',
@@ -690,17 +703,27 @@
                 }
 
                 if (response.ok) {
-                    closeLiffWindow();
+                    const screening = data.screening;
+                    const color = screening.has_red_flag ? 'danger' : screening.has_amber_flag ? 'warning' : 'success';
+                    document.getElementById('resultLevel').textContent = screening.has_red_flag ? 'สีแดง' : screening.has_amber_flag ? 'สีเหลือง' : 'สีเขียว';
+                    document.getElementById('resultAdvice').textContent = screening.result;
+                    const card = document.getElementById('resultCard');
+                    card.className = 'alert alert-' + color + ' mt-4';
+                    card.focus({preventScroll: true});
+                    card.scrollIntoView({behavior: 'smooth', block: 'center'});
                     return;
                 } else {
                     Swal.fire('ข้อผิดพลาด', data.error || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
                 }
             } catch (err) {
                 Swal.fire('ข้อผิดพลาดเครือข่าย', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้: ' + (err.message || err), 'error');
+            } finally {
+                screeningPending = false;
+                buttons.forEach((button, index) => button.disabled = previousDisabled[index]);
             }
         }
 
-        // Branching Wizards with API submit + Auto Close
+        // Branching wizard with API submission and inline results
         function finishNoRisk() {
             document.querySelectorAll('.step1-check').forEach(c => c.checked = false);
             const payload = {

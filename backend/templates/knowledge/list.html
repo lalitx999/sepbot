@@ -240,17 +240,17 @@
 
     <div class="container">
         <!-- E-Book Quick Access Banner -->
-        <a href="{% url 'knowledge-ebook' %}" class="d-flex align-items-center justify-content-between p-3 mb-3 text-decoration-none rounded-4 text-white shadow-sm" style="background: linear-gradient(135deg, #0b69a3, #0288d1); border: 1.5px solid rgba(255,255,255,0.2);">
-            <div class="d-flex align-items-center gap-3">
-                <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+        <a href="{% url 'knowledge-ebook' %}" class="d-flex flex-wrap gap-3 align-items-center justify-content-between p-3 mb-3 text-decoration-none rounded-4 text-white shadow-sm" style="background: linear-gradient(135deg, #0b69a3, #0288d1); border: 1.5px solid rgba(255,255,255,0.2);">
+            <div class="d-flex align-items-center gap-3" style="flex: 1 1 240px; min-width: 0;">
+                <div style="flex-shrink: 0; width: 44px; height: 44px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px;">
                     <i class="bi bi-book-half"></i>
                 </div>
                 <div>
-                    <h6 class="mb-0 fw-bold">E-Book คู่มือผู้ป่วยฉบับสมบูรณ์</h6>
+                    <h6 class="mb-0 fw-bold">E-book คู่มือการจัดการตนเองสำหรับผู้ป่วยสูงอายุหลังภาวะเซพซิส</h6>
                     <small style="opacity: 0.9; font-size: 12.5px;">เปิดอ่านแบบพลิกหน้า (Interactive Page-Flip)</small>
                 </div>
             </div>
-            <div class="btn btn-sm btn-light rounded-pill px-3 fw-bold text-primary">
+            <div class="btn btn-sm btn-light rounded-pill px-3 fw-bold text-primary text-nowrap">
                 เปิดอ่าน <i class="bi bi-arrow-right"></i>
             </div>
         </a>
@@ -271,29 +271,7 @@
         <div class="topics-list">
             {% for article in articles %}
                 <a href="{% url 'knowledge-web-detail' article.id %}" class="topic-item">
-                    <div class="topic-header-row">
-                        <div class="d-flex align-items-center">
-                            <span class="topic-order-badge">{{ forloop.counter }}</span>
-                            <span class="topic-category-tag">
-                                <i class="{{ article.category.icon }}"></i> {{ article.category.name }}
-                            </span>
-                        </div>
-                        <span style="font-size: 12px; color: #839cae;">
-                            <i class="bi bi-calendar3"></i> {{ article.created_at|date:"d M Y" }}
-                        </span>
-                    </div>
-                    
-                    <h2 class="topic-title">{{ article.title }}</h2>
-                    {% if article.summary %}
-                        <p class="topic-summary">{{ article.summary }}</p>
-                    {% endif %}
-
-                    <div class="topic-footer">
-                        <span><i class="bi bi-book me-1"></i> บทเรียนแนะนำ</span>
-                        <span class="topic-footer-action">
-                            อ่านบทความ & ดูภาพ <i class="bi bi-chevron-right"></i>
-                        </span>
-                    </div>
+                    <h2 class="topic-title mb-0">{{ article.title }}</h2>
                 </a>
             {% empty %}
                 <div class="empty-state">
