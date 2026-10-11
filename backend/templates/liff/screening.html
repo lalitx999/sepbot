@@ -697,20 +697,18 @@
                 }
 
                 if (response.ok) {
-                    Swal.fire({
-                        title: 'ประเมินคัดกรองเรียบร้อยค่ะ 💙',
-                        text: 'กำลังกลับไปยังห้องแชท LINE เพื่อดูผลสรุป...',
-                        icon: 'success',
-                        timer: 1200,
-                        timerProgressBar: true,
-                        showConfirmButton: false
-                    }).then(() => {
-                        closeLiffWindow();
-                    });
-
+                    closeLiffWindow();
                     setTimeout(() => {
-                        closeLiffWindow();
-                    }, 1400);
+                        Swal.fire({
+                            title: 'ประเมินคัดกรองเรียบร้อยค่ะ 💙',
+                            text: 'ระบบได้ส่งผลประเมินไปยังห้องแชท LINE แล้วค่ะ',
+                            icon: 'success',
+                            confirmButtonText: 'ปิดหน้านี้',
+                            confirmButtonColor: '#0288D1'
+                        }).then(() => {
+                            closeLiffWindow();
+                        });
+                    }, 500);
                 } else {
                     Swal.fire('ข้อผิดพลาด', data.error || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
                 }
@@ -850,33 +848,23 @@
         });
 
         function closeLiffWindow() {
-            // 1. LIFF SDK native close
             try {
                 if (typeof liff !== 'undefined') {
-                    if (typeof liff.isInClient === 'function' && liff.isInClient()) {
-                        liff.closeWindow();
-                        return;
-                    } else if (typeof liff.closeWindow === 'function') {
+                    if (liff.ready && typeof liff.ready.then === 'function') {
+                        liff.ready.then(() => {
+                            try { liff.closeWindow(); } catch (e) {}
+                        });
+                    }
+                    if (typeof liff.closeWindow === 'function') {
                         liff.closeWindow();
                     }
                 }
             } catch (e) {
                 console.warn("LIFF close error:", e);
             }
-
-            // 2. Standard window.close
             try {
                 window.close();
             } catch (e) {}
-
-            // 3. LINE In-App Browser fallback: Return to chat via LINE internal scheme
-            setTimeout(() => {
-                try {
-                    window.location.replace("https://line.me/R/nv/chat");
-                } catch (e) {
-                    window.location.href = "line://nv/chat";
-                }
-            }, 300);
         }
     </script>
 </body>
