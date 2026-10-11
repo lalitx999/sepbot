@@ -597,13 +597,55 @@
                 const data = await response.json();
 
                 if (response.ok) {
+                    const score = (data.mews_score !== undefined && data.mews_score !== null) ? data.mews_score : 0;
+                    const interpretation = data.mews_interpretation || (
+                        score <= 1 ? 'ผู้ป่วยอาการปกติ' :
+                        score <= 3 ? 'ผู้ป่วยเริ่มมีความผิดปกติ เฝ้าระวังอย่างใกล้ชิด' :
+                        'ผู้ป่วยเข้าสู่ภาวะวิกฤต ให้ผู้ป่วยรีบมาโรงพยาบาล'
+                    );
+
+                    let badgeColor = '#10b981';
+                    let badgeBg = '#ecfdf5';
+                    let alertIcon = 'success';
+                    if (score >= 4 || data.mews_level === 'red') {
+                        badgeColor = '#ef4444';
+                        badgeBg = '#fef2f2';
+                        alertIcon = 'warning';
+                    } else if (score >= 2 || data.mews_level === 'yellow') {
+                        badgeColor = '#f59e0b';
+                        badgeBg = '#fffbeb';
+                        alertIcon = 'info';
+                    }
+
                     Swal.fire({
-                        title: 'บันทึกสัญญาณชีพเรียบร้อยค่ะ 💙',
-                        text: 'ระบบได้ส่งสรุปข้อมูลไปยังห้องแชท LINE แล้วค่ะ',
-                        icon: 'success',
-                        confirmButtonText: 'ปิดหน้านี้',
+                        title: `<span style="color: ${badgeColor}; font-weight: 700; font-size: 22px;">รวมคะแนน: ${score} คะแนน</span>`,
+                        html: `
+                            <div class="p-3 my-2 rounded-3 text-start" style="background-color: ${badgeBg}; border: 1.5px solid ${badgeColor};">
+                                <div class="fw-bold mb-1" style="color: ${badgeColor}; font-size: 14.5px;">
+                                    📋 ผลการประเมิน:
+                                </div>
+                                <div class="fw-bold" style="color: #1f2937; font-size: 15.5px;">
+                                    ${interpretation}
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-3 text-start small mt-3" style="background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; font-size: 12.5px;">
+                                <div class="fw-bold mb-2 text-dark">📌 เกณฑ์การแปลผล:</div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="badge bg-success me-2" style="font-size: 10.5px;">คะแนน 0-1</span> ผู้ป่วยอาการปกติ
+                                </div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="badge bg-warning text-dark me-2" style="font-size: 10.5px;">คะแนน 2-3</span> ผู้ป่วยเริ่มมีความผิดปกติ เฝ้าระวังอย่างใกล้ชิด
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-danger me-2" style="font-size: 10.5px;">คะแนน ≥ 4</span> ผู้ป่วยเข้าสู่ภาวะวิกฤต ให้ผู้ป่วยรีบมาโรงพยาบาล
+                                </div>
+                            </div>
+                            <div class="mt-2 text-muted" style="font-size: 12px;">ระบบได้ส่งสรุปข้อมูลไปยังห้องแชท LINE แล้วค่ะ</div>
+                        `,
+                        icon: alertIcon,
+                        confirmButtonText: 'รับทราบและปิด',
                         confirmButtonColor: '#0b69a3',
-                        timer: 2500,
+                        timer: 7000,
                         timerProgressBar: true
                     }).then(() => {
                         closeLiffWindow();

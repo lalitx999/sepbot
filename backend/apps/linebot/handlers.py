@@ -196,7 +196,7 @@ def handle_incoming_text(line_user_id, text_content):
 
     if text in ['ติดต่อฉุกเฉิน', 'ฉุกเฉิน', '1669', '🚨']:
         notify_nurse_emergency(line_user_id, alert_type="emergency")
-        return [build_emergency_flex(), build_emergency_symptoms_info_flex()]
+        return [build_emergency_flex()]
 
     if text in ['ถามพยาบาล', 'พยาบาล', 'ติดต่อพยาบาล']:
         notify_nurse_emergency(line_user_id, alert_type="ask_nurse")

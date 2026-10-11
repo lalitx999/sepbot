@@ -105,9 +105,9 @@
             height: calc(100% - 116px);
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             position: relative;
-            padding: 4px;
+            padding: 8px;
             overflow: hidden;
         }
 
@@ -116,12 +116,55 @@
             height: 100%;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
+        }
+
+        /* Scroll Reading Container */
+        .scroll-reading-container {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px 8px 60px;
+            background: #0d1b28;
+        }
+
+        .scroll-inner {
+            max-width: 580px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .scroll-page-item {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .scroll-page-header {
+            background: #0a1926;
+            color: #94a3b8;
+            font-size: 12px;
+            padding: 6px 14px;
+            text-align: right;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-weight: 500;
+        }
+
+        .scroll-page-item img {
+            width: 100%;
+            height: auto;
+            display: block;
         }
 
         #flipbook {
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
             display: none; /* will show once initialized */
+            margin: 0 auto;
         }
 
         .page {
@@ -368,6 +411,10 @@
         </div>
 
         <div class="topbar-right">
+            <button class="btn-topbar" id="btnToggleMode" onclick="toggleViewMode()" title="สลับโหมดเปิดหน้า / เลื่อนอ่าน">
+                <i class="bi bi-file-earmark-text" id="viewModeIcon"></i>
+                <span id="viewModeText" class="d-none d-sm-inline">เลื่อนอ่าน</span>
+            </button>
             <button class="btn-topbar" data-bs-toggle="offcanvas" data-bs-target="#tocDrawer" title="สารบัญ">
                 <i class="bi bi-list-ul"></i>
                 <span>สารบัญ</span>
@@ -401,11 +448,23 @@
             <i class="bi bi-chevron-right"></i>
         </button>
 
-        <!-- The Book HTML element -->
-        <div class="flipbook-container">
+        <!-- The Book HTML element (Flipbook Mode) -->
+        <div class="flipbook-container" id="flipContainer">
             <div id="flipbook">
                 {% for p in pages %}
                     <div class="page" data-density="{% if forloop.first or forloop.last %}hard{% else %}soft{% endif %}">
+                        <img src="{{ p.url }}" alt="{{ p.title }}" loading="lazy">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Vertical Scroll View (Alternative Reading Mode) -->
+        <div id="scrollContainer" class="scroll-reading-container" style="display: none;">
+            <div class="scroll-inner">
+                {% for p in pages %}
+                    <div class="scroll-page-item" id="scrollPage{{ forloop.counter }}">
+                        <div class="scroll-page-header">หน้า {{ forloop.counter }} / {{ total_pages }} - {{ p.title }}</div>
                         <img src="{{ p.url }}" alt="{{ p.title }}" loading="lazy">
                     </div>
                 {% endfor %}
@@ -545,32 +604,57 @@
             }
         }
 
+        function calcOptimalDimensions() {
+            const viewport = document.getElementById('viewport');
+            const vW = viewport ? viewport.clientWidth : window.innerWidth;
+            const vH = viewport ? viewport.clientHeight : window.innerHeight;
+            const isMobile = window.innerWidth <= 768;
+            const padX = isMobile ? 16 : 48;
+            const padY = 16;
+
+            const maxW = Math.max(260, vW - padX);
+            const maxH = Math.max(360, vH - padY);
+
+            // Aspect ratio of standard page: width / height = 1 / 1.414 (0.707)
+            const ratio = 1.414;
+            let w = maxW;
+            let h = Math.round(w * ratio);
+
+            if (h > maxH) {
+                h = maxH;
+                w = Math.round(h / ratio);
+            }
+
+            if (w > 540) {
+                w = 540;
+                h = Math.round(w * ratio);
+            }
+
+            return { width: Math.round(w), height: Math.round(h) };
+        }
+
         // Initialize PageFlip Book
         window.addEventListener('DOMContentLoaded', () => {
-            const viewport = document.getElementById('viewport');
             const flipEl = document.getElementById('flipbook');
             const loading = document.getElementById('loadingOverlay');
 
-            // Responsive dimensions calculation
-            const isMobile = window.innerWidth <= 768;
-            const bookWidth = isMobile ? Math.min(window.innerWidth - 20, 480) : 480;
-            const bookHeight = Math.round(bookWidth * 1.5); // 2:3 aspect ratio
+            const optSize = calcOptimalDimensions();
 
             pageFlip = new St.PageFlip(flipEl, {
-                width: bookWidth,
-                height: bookHeight,
-                size: "stretch",
-                minWidth: 280,
-                maxWidth: 600,
-                minHeight: 420,
-                maxHeight: 900,
-                maxShadowOpacity: 0.6,
+                width: optSize.width,
+                height: optSize.height,
+                size: "fixed",
+                minWidth: optSize.width,
+                maxWidth: optSize.width,
+                minHeight: optSize.height,
+                maxHeight: optSize.height,
+                maxShadowOpacity: 0.5,
                 showCover: true,
                 mobileScrollSupport: false,
                 usePortrait: true,
                 startPage: 0,
                 drawShadow: true,
-                flippingTime: 650
+                flippingTime: 450
             });
 
             // Load existing DOM pages
@@ -590,6 +674,37 @@
             });
         });
 
+        let currentMode = 'flip';
+        function toggleViewMode() {
+            const flipContainer = document.getElementById('flipContainer');
+            const scrollContainer = document.getElementById('scrollContainer');
+            const bottomBar = document.querySelector('.ebook-bottombar');
+            const prevArrow = document.getElementById('arrowPrev');
+            const nextArrow = document.getElementById('arrowNext');
+            const modeText = document.getElementById('viewModeText');
+            const modeIcon = document.getElementById('viewModeIcon');
+
+            if (currentMode === 'flip') {
+                currentMode = 'scroll';
+                if (flipContainer) flipContainer.style.display = 'none';
+                if (scrollContainer) scrollContainer.style.display = 'block';
+                if (bottomBar) bottomBar.style.display = 'none';
+                if (prevArrow) prevArrow.style.display = 'none';
+                if (nextArrow) nextArrow.style.display = 'none';
+                if (modeText) modeText.textContent = 'พลิกหน้า';
+                if (modeIcon) modeIcon.className = 'bi bi-book-half';
+            } else {
+                currentMode = 'flip';
+                if (flipContainer) flipContainer.style.display = 'flex';
+                if (scrollContainer) scrollContainer.style.display = 'none';
+                if (bottomBar) bottomBar.style.display = 'flex';
+                if (prevArrow) prevArrow.style.display = 'flex';
+                if (nextArrow) nextArrow.style.display = 'flex';
+                if (modeText) modeText.textContent = 'เลื่อนอ่าน';
+                if (modeIcon) modeIcon.className = 'bi bi-file-earmark-text';
+            }
+        }
+
         function updatePageUI(pageIndex) {
             const indicator = document.getElementById('pageIndicator');
             const slider = document.getElementById('pageSlider');
@@ -598,14 +713,19 @@
         }
 
         function jumpToPage(pageIndex) {
-            if (pageFlip) {
+            if (currentMode === 'scroll') {
+                const target = document.getElementById('scrollPage' + pageIndex);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (pageFlip) {
                 pageFlip.turnToPage(pageIndex - 1);
-                // Close open offcanvas
-                const tocEl = document.getElementById('tocDrawer');
-                const thumbsEl = document.getElementById('thumbsDrawer');
-                bootstrap.Offcanvas.getInstance(tocEl)?.hide();
-                bootstrap.Offcanvas.getInstance(thumbsEl)?.hide();
             }
+            // Close open offcanvas
+            const tocEl = document.getElementById('tocDrawer');
+            const thumbsEl = document.getElementById('thumbsDrawer');
+            bootstrap.Offcanvas.getInstance(tocEl)?.hide();
+            bootstrap.Offcanvas.getInstance(thumbsEl)?.hide();
         }
 
         function jumpToSlider(val) {

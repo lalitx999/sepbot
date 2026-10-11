@@ -39,9 +39,12 @@ class VitalSignView(APIView):
             vitals = serializer.save()
 
             # Calculate MEWS (Modified Early Warning Score)
+            mews_score = None
+            mews_level = 'green'
+            mews_interp = 'ผู้ป่วยอาการปกติ'
             try:
                 from .services import calculate_mews
-                mews_score, mews_level, mews_breakdown = calculate_mews(
+                mews_score, mews_level, mews_breakdown, mews_interp = calculate_mews(
                     temperature=vitals.temperature,
                     systolic_bp=vitals.systolic_bp,
                     heart_rate=vitals.heart_rate,
@@ -55,7 +58,7 @@ class VitalSignView(APIView):
             except Exception as e:
                 print(f"MEWS Calculation Error: {e}")
 
-            # Push summary LINE message to user (Encouragement only, NO nurse emergency alarm)
+            # Push summary LINE message to user
             try:
                 from linebot.handlers import push_line_message
 
@@ -76,8 +79,15 @@ class VitalSignView(APIView):
                     v_details.append(f"• ปริมาณปัสสาวะต่อวัน: {vitals.get_urine_output_display()}")
 
                 detail_str = "\n".join(v_details) if v_details else "• บันทึกสำเร็จ"
+                score_display = mews_score if mews_score is not None else 0
                 noti_msg = (
                     f"🩺 ขอบคุณที่บันทึกสุขภาพประจำวันค่ะ 💙\n\n"
+                    f"📊 รวมคะแนน: {score_display} คะแนน\n"
+                    f"📋 แปลผล: {mews_interp}\n\n"
+                    f"📌 เกณฑ์การแปลผล:\n"
+                    f"• คะแนน 0-1: ผู้ป่วยอาการปกติ\n"
+                    f"• คะแนน 2-3: ผู้ป่วยเริ่มมีความผิดปกติ เฝ้าระวังอย่างใกล้ชิด\n"
+                    f"• คะแนน ≥ 4: ผู้ป่วยเข้าสู่ภาวะวิกฤต ให้ผู้ป่วยรีบมาโรงพยาบาล\n\n"
                     f"📊 ค่าสัญญาณชีพที่คุณบันทึก:\n"
                     f"{detail_str}\n\n"
                     f"SepCare จะคอยติดตามและดูแลสุขภาพของคุณอย่างต่อเนื่องนะคะ 😊"
@@ -89,7 +99,10 @@ class VitalSignView(APIView):
 
             return Response({
                 'message': 'บันทึกสัญญาณชีพเรียบร้อยแล้ว',
-                'vitals': VitalSignSerializer(vitals).data
+                'vitals': VitalSignSerializer(vitals).data,
+                'mews_score': mews_score if mews_score is not None else 0,
+                'mews_level': mews_level,
+                'mews_interpretation': mews_interp
             }, status=status.HTTP_201_CREATED)
 
         

@@ -120,11 +120,16 @@ def doctor_dashboard(request):
         
     patient_list.sort(key=lambda x: x['priority'])
     
+    red_count = sum(1 for p in patient_list if p['status_code'] == 'red')
+    yellow_count = sum(1 for p in patient_list if p['status_code'] == 'yellow')
+    green_count = sum(1 for p in patient_list if p['status_code'] == 'green')
+    overdue_count = sum(1 for p in patient_list if p['status_code'] == 'overdue')
+
     context = {
         'total_patients': patients.count(),
-        'red_count': red_today_count,
-        'yellow_count': yellow_today_count,
-        'green_count': green_today_count,
+        'red_count': red_count,
+        'yellow_count': yellow_count,
+        'green_count': green_count,
         'overdue_count': overdue_count,
         'patient_list': patient_list,
     }

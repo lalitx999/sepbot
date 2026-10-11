@@ -118,9 +118,12 @@ def calculate_mews(temperature=None, systolic_bp=None, heart_rate=None,
     has_single_3 = any(s >= 3 for s in scores.values())
     if total_score >= 4 or has_single_3:
         risk_level = 'red'
+        interpretation = 'ผู้ป่วยเข้าสู่ภาวะวิกฤต ให้ผู้ป่วยรีบมาโรงพยาบาล'
     elif total_score >= 2:
         risk_level = 'yellow'
+        interpretation = 'ผู้ป่วยเริ่มมีความผิดปกติ เฝ้าระวังอย่างใกล้ชิด'
     else:
         risk_level = 'green'
+        interpretation = 'ผู้ป่วยอาการปกติ'
 
-    return total_score, risk_level, scores
+    return total_score, risk_level, scores, interpretation
