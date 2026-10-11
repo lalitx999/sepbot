@@ -1,12 +1,33 @@
+import re
+import threading
+import requests
 from django.conf import settings
 from faq.models import FAQ
 from .flex_messages import (
-    build_greeting_flex, build_emergency_flex,
-    build_emergency_symptoms_info_flex, build_ask_nurse_flex,
-    build_ebook_flex
+    build_greeting_flex,
+    build_greeting_chat_flex,
+    build_all_questions_flex,
+    build_thanks_flex,
+    build_faq_flex,
+    build_emergency_flex,
+    build_ask_nurse_flex,
+    build_ebook_flex,
+    build_ai_response_flex,
 )
 
-import requests
+GREETING_REGEX = re.compile(
+    r'^(สวัสดี|หวัดดี|ดีครับ|ดีค่ะ|ดีจ้า|ว่าไง|hello|hi|hey|good\s*(morning|afternoon|evening))'
+    r'(\s*(ครับ|ค่ะ|คับ|จ้า|นะ|คะ|นะคะ|นะครับ))?\s*[!?.]*\s*$',
+    re.IGNORECASE
+)
+
+THANKS_REGEX = re.compile(
+    r'^(ขอบคุณ|ขอบใจ|thanks|thank\s*you|thx)'
+    r'(\s*(มาก|มากๆ|หลายๆ))?'
+    r'(\s*(ครับ|ค่ะ|คับ|จ้า|นะ|คะ|นะคะ|นะครับ))?\s*[!?.]*\s*$',
+    re.IGNORECASE
+)
+
 
 def push_line_message(line_user_id, text_message):
     """
@@ -70,17 +91,16 @@ def get_line_profile_name(line_user_id):
 
 def reply_line_message(reply_token, message_dict):
     """
-    Utility function to reply a message back to LINE using replyToken.
-    Supports single or multiple FlexMessage/TextMessage dicts with direct HTTP fallback.
+    Utility function to reply with Flex Message or Text using LINE Messaging API.
+    Supports single message dict or a list of messages.
     """
     access_token = settings.LINE_CHANNEL_ACCESS_TOKEN
     if not access_token or access_token == 'your_line_channel_access_token_here':
-        print(f"[Mock Reply Message] Token: {reply_token} | Message: {message_dict}")
+        print(f"[Mock Reply Message] Token: {reply_token}")
         return True
 
     msg_list = message_dict if isinstance(message_dict, list) else [message_dict]
 
-    # 1. Try SDK first
     try:
         from linebot.v3.messaging import (
             Configuration, ApiClient, MessagingApi,
@@ -107,11 +127,11 @@ def reply_line_message(reply_token, message_dict):
                 messages=msg_objs
             )
             line_bot_api.reply_message(request)
+            print(f"[LINE Reply OK via SDK] {len(msg_objs)} msgs")
             return True
     except Exception as sdk_e:
         print(f"SDK Reply Warning, trying direct HTTP: {sdk_e}")
 
-    # 2. Fallback to Direct HTTP API
     try:
         url = "https://api.line.me/v2/bot/message/reply"
         headers = {
@@ -163,7 +183,6 @@ def notify_nurse_emergency(line_user_id, alert_type="ask_nurse"):
             f"กรุณาติดต่อกลับผู้ป่วยโดยเร็วที่สุดค่ะ 💙"
         )
 
-        # Save Notification Log if user and family exist
         if user and user.family:
             NotificationLog.objects.create(
                 user=user,
@@ -174,7 +193,6 @@ def notify_nurse_emergency(line_user_id, alert_type="ask_nurse"):
                 sent_at=timezone.now()
             )
 
-        # Find all registered nurses or nurse contact in .env
         nurse_uids = set(LineUser.objects.filter(role='nurse').values_list('line_user_id', flat=True))
         env_nurse_uid = getattr(settings, 'NURSE_LINE_USER_ID', '').strip()
         if env_nurse_uid:
@@ -191,32 +209,61 @@ def notify_nurse_emergency(line_user_id, alert_type="ask_nurse"):
 def handle_incoming_text(line_user_id, text_content):
     """
     Processes incoming text messages from LINE webhook.
+    Features:
+      - Interactive greeting and thanks recognition
+      - Magic keyword '__SHOW_ALL_QUESTIONS__' for 33 FAQ carousel
+      - Emergency contact (single infographic card + 1669)
+      - Direct nurse hand-off
+      - E-book quick access
+      - FAQ database matching
+      - OpenAI Medical AI (self-care & healthcare advisor, strict diagnosis guardrails, topic lock)
     """
-    text = text_content.strip()
+    text = (text_content or '').strip()
 
+    # 1. Magic keyword: ดูคำถามทั้งหมด 33 ข้อ (Carousel)
+    if text == '__SHOW_ALL_QUESTIONS__':
+        return build_all_questions_flex()
+
+    # 2. Greetings Recognition (สวัสดี, สวัสดีค่ะ, สวัสดีครับ, ดีจ้า, etc.)
+    if GREETING_REGEX.match(text):
+        try:
+            from accounts.models import LineUser
+            user = LineUser.objects.filter(line_user_id=line_user_id).first()
+            display_name = user.name if (user and user.name) else ""
+        except Exception:
+            display_name = ""
+        return build_greeting_chat_flex(display_name=display_name)
+
+    # 3. Thanks Recognition (ขอบคุณ, ขอบคุณค่ะ, ขอบคุณครับ, thanks)
+    if THANKS_REGEX.match(text):
+        return build_thanks_flex()
+
+    # 4. Emergency (Single Infographic card + call 1669, async nurse alert)
     if text in ['ติดต่อฉุกเฉิน', 'ฉุกเฉิน', '1669', '🚨']:
-        notify_nurse_emergency(line_user_id, alert_type="emergency")
+        threading.Thread(target=notify_nurse_emergency, args=(line_user_id, "emergency"), daemon=True).start()
         return [build_emergency_flex()]
 
+    # 5. Ask Nurse (Async nurse alert)
     if text in ['ถามพยาบาล', 'พยาบาล', 'ติดต่อพยาบาล']:
-        notify_nurse_emergency(line_user_id, alert_type="ask_nurse")
+        threading.Thread(target=notify_nurse_emergency, args=(line_user_id, "ask_nurse"), daemon=True).start()
         return build_ask_nurse_flex()
 
+    # 6. E-Book quick link
     if text.lower() in ['ebook', 'e-book', 'อีบุ๊ค', 'คู่มือ', 'สมุดคู่มือ', 'เปิดหนังสือ', 'อ่านหนังสือ', 'หนังสือ']:
         return build_ebook_flex()
 
-    # 1. FAQ Search Engine match
-    matched_faq = FAQ.objects.filter(question__icontains=text).first()
+    # 7. FAQ exact / high similarity match
+    matched_faq = FAQ.objects.filter(question__iexact=text).first()
+    if not matched_faq and len(text) >= 8:
+        candidate = FAQ.objects.filter(question__icontains=text).first()
+        if candidate and len(text) >= len(candidate.question) * 0.6:
+            matched_faq = candidate
     if matched_faq:
-        return {
-            'type': 'text',
-            'text': f"❓ **คำถาม**: {matched_faq.question}\n\n💡 **คำตอบ**: {matched_faq.answer}"
-        }
+        return build_faq_flex(matched_faq.question, matched_faq.answer)
 
-    # 2. Medical AI LLM Query (Self-care & healthcare advisor with medical guardrails)
+    # 8. Medical AI LLM Query (Self-care & healthcare advisor with medical guardrails)
     try:
         from .llm_service import query_medical_ai
-        from .flex_messages import build_ai_response_flex
         from accounts.models import LineUser
         
         user = LineUser.objects.filter(line_user_id=line_user_id).first()
@@ -228,5 +275,5 @@ def handle_incoming_text(line_user_id, text_content):
     except Exception as e:
         print(f"Medical AI Query Error: {e}")
 
-    # 3. Fallback to Nurse hand-off
+    # 9. Fallback to Nurse hand-off
     return build_ask_nurse_flex()

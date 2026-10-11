@@ -451,3 +451,253 @@ def build_ebook_flex():
         }
     }
 
+
+def build_greeting_chat_flex(display_name=""):
+    """Flex Message สำหรับ greeting (ทักทายในแชท)"""
+    name_text = f"สวัสดีคุณ {display_name} 🙏" if display_name else "สวัสดีค่ะ 🙏"
+
+    return {
+        "type": "flex",
+        "altText": "สวัสดีค่ะ SepCare AI พร้อมช่วยเหลือ",
+        "contents": {
+            "type": "bubble",
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {"type": "text", "text": "SepCare AI", "weight": "bold", "color": "#FFFFFF", "size": "lg"},
+                    {"type": "text", "text": "ผู้ช่วยดูแลผู้ป่วยหลังภาวะเซพซิส", "color": "#E0F2F1", "size": "xs", "margin": "xs"}
+                ],
+                "backgroundColor": "#00897B",
+                "paddingAll": "15px"
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {"type": "text", "text": name_text, "weight": "bold", "size": "md", "color": "#00897B", "wrap": True},
+                    {"type": "text", "text": "ยินดีให้คำปรึกษาเรื่องการดูแลสุขภาพและการดูแลผู้ป่วยหลังภาวะเซพซิสค่ะ 💙", "size": "sm", "color": "#444444", "wrap": True, "margin": "md"},
+                    {"type": "separator", "margin": "lg"},
+                    {"type": "text", "text": "ตัวอย่างคำถามที่สอบถามได้:", "weight": "bold", "size": "sm", "color": "#00897B", "margin": "lg"},
+                    {"type": "text", "text": "• ภาวะเซพซิสคืออะไร", "size": "sm", "color": "#333333", "wrap": True, "margin": "md"},
+                    {"type": "text", "text": "• ควรตรวจสัญญาณชีพอะไรทุกวัน", "size": "sm", "color": "#333333", "wrap": True, "margin": "xs"},
+                    {"type": "text", "text": "• การดูแลแผลและสายสวนปัสสาวะ", "size": "sm", "color": "#333333", "wrap": True, "margin": "xs"},
+                    {"type": "text", "text": "• ลืมกินยาตามเวลาควรทำอย่างไร", "size": "sm", "color": "#333333", "wrap": True, "margin": "xs"}
+                ],
+                "paddingAll": "15px"
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "button",
+                        "action": {"type": "message", "label": "💬 ตัวอย่าง: ควรตรวจอะไรทุกวัน", "text": "ควรตรวจอะไรทุกวัน"},
+                        "style": "primary", "color": "#00897B", "height": "sm"
+                    },
+                    {
+                        "type": "button",
+                        "action": {"type": "message", "label": "📚 ดูคำถามยอดนิยม (33 ข้อ)", "text": "__SHOW_ALL_QUESTIONS__"},
+                        "style": "secondary", "height": "sm"
+                    }
+                ]
+            }
+        }
+    }
+
+
+def build_all_questions_flex():
+    """Flex Message แสดงรายการคำถามทั้งหมด 33 ข้อ (carousel 4 กลุ่ม)"""
+    group1 = {
+        "type": "bubble", "size": "kilo",
+        "header": {
+            "type": "box", "layout": "vertical",
+            "contents": [{"type": "text", "text": "🩺 อาการและความเสี่ยง", "weight": "bold", "color": "#FFFFFF", "size": "md"}],
+            "backgroundColor": "#00897B", "paddingAll": "12px"
+        },
+        "body": {
+            "type": "box", "layout": "vertical", "spacing": "sm",
+            "contents": [
+                {"type": "button", "action": {"type": "message", "label": "1. ภาวะเซพซิสคืออะไร", "text": "ภาวะเซพซิสคืออะไร"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "2. เป็นซ้ำได้ไหม", "text": "หลังออกจากโรงพยาบาล ยังมีโอกาสเกิดเซพซิสซ้ำหรือไม่"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "3. ฟื้นตัวนานไหม", "text": "ต้องใช้เวลานานเท่าใดจึงจะฟื้นตัว"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "4. อาการที่พบบ่อย", "text": "อาการหลังภาวะเซพซิสที่พบบ่อยมีอะไรบ้าง"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "9. ไม่มีไข้ = ไม่ติดเชื้อ?", "text": "ถ้าไม่มีไข้ แสดงว่าไม่มีการติดเชื้อใช่หรือไม่"}, "style": "secondary", "height": "sm"}
+            ],
+            "paddingAll": "12px"
+        }
+    }
+
+    group2 = {
+        "type": "bubble", "size": "kilo",
+        "header": {
+            "type": "box", "layout": "vertical",
+            "contents": [{"type": "text", "text": "🌡️ การติดตามอาการ", "weight": "bold", "color": "#FFFFFF", "size": "md"}],
+            "backgroundColor": "#0277BD", "paddingAll": "12px"
+        },
+        "body": {
+            "type": "box", "layout": "vertical", "spacing": "sm",
+            "contents": [
+                {"type": "button", "action": {"type": "message", "label": "5. ตรวจอะไรทุกวัน", "text": "ควรตรวจอะไรทุกวัน"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "6. อุณหภูมิเท่าไหร่แจ้ง", "text": "อุณหภูมิเท่าใดควรแจ้งพยาบาล"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "7. เมื่อไหร่ติดต่อหน่วยบริการ", "text": "เมื่อใดควรติดต่อหน่วยบริการสุขภาพ"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "🚨 8. อาการไหนโทร 1669", "text": "อาการใดต้องโทร 1669 ทันที"}, "style": "primary", "color": "#D32F2F", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "22. วัดออกซิเจนปลายนิ้ว", "text": "ควรวัดค่าออกซิเจนปลายนิ้วหรือไม่"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "23. ปัสสาวะน้อยลง", "text": "ปัสสาวะน้อยลงควรทำอย่างไร"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "24. ติดเชื้อทางเดินปัสสาวะ", "text": "อาการใดอาจบ่งชี้การติดเชื้อทางเดินปัสสาวะ"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "32. ติดตามอาการหลังออก รพ.", "text": "หลังออกจากโรงพยาบาล ควรติดตามอาการอะไรบ้าง"}, "style": "secondary", "height": "sm"}
+            ],
+            "paddingAll": "12px"
+        }
+    }
+
+    group3 = {
+        "type": "bubble", "size": "kilo",
+        "header": {
+            "type": "box", "layout": "vertical",
+            "contents": [{"type": "text", "text": "💊 ยาและการรักษา", "weight": "bold", "color": "#FFFFFF", "size": "md"}],
+            "backgroundColor": "#7B3F9E", "paddingAll": "12px"
+        },
+        "body": {
+            "type": "box", "layout": "vertical", "spacing": "sm",
+            "contents": [
+                {"type": "button", "action": {"type": "message", "label": "10. ดูแลบาดแผล", "text": "ควรดูแลบาดแผลอย่างไร"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "13. ใช้ยาปฏิชีวนะ", "text": "ควรใช้ยาปฏิชีวนะอย่างไร"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "14. ลืมกินยา", "text": "ถ้าลืมรับประทานยาควรทำอย่างไร"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "15. ป้องกันการติดเชื้อซ้ำ", "text": "ป้องกันการติดเชื้อซ้ำได้อย่างไร"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "16. ไปพบแพทย์ตามนัด", "text": "ต้องไปพบแพทย์ตามนัดหรือไม่"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "28. วัคซีนที่ควรได้รับ", "text": "ควรได้รับวัคซีนอะไรบ้าง"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "30. โรคประจำตัว", "text": "หากมีโรคประจำตัวต้องดูแลอย่างไร"}, "style": "secondary", "height": "sm"}
+            ],
+            "paddingAll": "12px"
+        }
+    }
+
+    group4 = {
+        "type": "bubble", "size": "kilo",
+        "header": {
+            "type": "box", "layout": "vertical",
+            "contents": [{"type": "text", "text": "🍲 การดูแลตัวเอง", "weight": "bold", "color": "#FFFFFF", "size": "md"}],
+            "backgroundColor": "#F57C00", "paddingAll": "12px"
+        },
+        "body": {
+            "type": "box", "layout": "vertical", "spacing": "sm",
+            "contents": [
+                {"type": "button", "action": {"type": "message", "label": "11. รับประทานอาหาร", "text": "ควรรับประทานอาหารอย่างไร"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "12. ออกกำลังกาย", "text": "สามารถออกกำลังกายได้หรือไม่"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "17. ผู้ดูแลช่วยอะไรได้", "text": "ผู้ดูแลสามารถช่วยอะไรได้บ้าง"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "18. ผลสีเขียวปลอดภัยไหม", "text": "ผลประเมินสีเขียวหมายความว่าปลอดภัยแน่นอนหรือไม่"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "19. แชตบอตแทนแพทย์ได้ไหม", "text": "แชตบอตใช้แทนแพทย์ได้หรือไม่"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "20. อ่อนเพลีย", "text": "ทำไมยังรู้สึกอ่อนเพลียหลังกลับบ้าน"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "21. ความจำ/สมาธิลดลง", "text": "ความจำหรือสมาธิลดลงเป็นเรื่องปกติหรือไม่"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "25. ดูแลช่องปาก", "text": "ทำไมต้องดูแลความสะอาดช่องปาก"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "26. พบญาติ/ออกนอกบ้าน", "text": "สามารถพบญาติหรือออกไปนอกบ้านได้หรือไม่"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "27. สวมหน้ากาก", "text": "จำเป็นต้องสวมหน้ากากหรือไม่"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "29. เดินทางไกล", "text": "สามารถเดินทางไกลได้เมื่อใด"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "31. กินข้าวได้น้อย", "text": "หากรับประทานอาหารได้น้อยควรทำอย่างไร"}, "style": "secondary", "height": "sm"},
+                {"type": "button", "action": {"type": "message", "label": "33. กลับไปทำงาน", "text": "สามารถกลับไปทำงานหรือทำกิจกรรมตามปกติได้หรือไม่"}, "style": "secondary", "height": "sm"}
+            ],
+            "paddingAll": "12px"
+        }
+    }
+
+    return {
+        "type": "flex",
+        "altText": "📚 คำถามที่ถามได้ทั้งหมด (33 ข้อ)",
+        "contents": {
+            "type": "carousel",
+            "contents": [group1, group2, group3, group4]
+        }
+    }
+
+
+def build_thanks_flex():
+    """Flex Message สำหรับตอบคำขอบคุณ"""
+    nurse_line_link = os.getenv('NURSE_LINE_PERSONAL_LINK', 'https://line.me/ti/p/~Siine8')
+    return {
+        "type": "flex",
+        "altText": "ยินดีให้คำปรึกษาค่ะ",
+        "contents": {
+            "type": "bubble",
+            "header": {
+                "type": "box", "layout": "vertical",
+                "contents": [{"type": "text", "text": "SepCare AI", "weight": "bold", "color": "#FFFFFF", "size": "md"}],
+                "backgroundColor": "#00897B", "paddingAll": "12px"
+            },
+            "body": {
+                "type": "box", "layout": "vertical",
+                "contents": [
+                    {"type": "text", "text": "ยินดีให้คำปรึกษาค่ะ 😊", "weight": "bold", "size": "md", "color": "#00897B", "wrap": True},
+                    {"type": "text", "text": "หากมีคำถามเพิ่มเติมสามารถพิมพ์ถามได้เลย หรือกดปุ่มด้านล่างเพื่อพูดคุยกับพยาบาลโครงการโดยตรงค่ะ", "size": "sm", "color": "#444444", "wrap": True, "margin": "md"}
+                ],
+                "paddingAll": "15px"
+            },
+            "footer": {
+                "type": "box", "layout": "vertical", "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "button",
+                        "action": {"type": "uri", "label": "💬 แชทกับพยาบาลโครงการ", "uri": nurse_line_link},
+                        "style": "primary", "color": "#00897B", "height": "sm"
+                    }
+                ]
+            }
+        }
+    }
+
+
+def build_faq_flex(question, answer):
+    """Flex Message สำหรับ FAQ + auto-append 'ค่ะ'"""
+    nurse_line_link = os.getenv('NURSE_LINE_PERSONAL_LINK', 'https://line.me/ti/p/~Siine8')
+    answer = (answer or '').strip()
+    if answer and not answer.endswith(('ค่ะ', 'นะคะ', 'ครับ', 'คะ')):
+        answer = answer.rstrip('.?! ') + ' ค่ะ'
+
+    return {
+        "type": "flex",
+        "altText": "SepCare FAQ: " + (question[:50] if question else ""),
+        "contents": {
+            "type": "bubble",
+            "header": {
+                "type": "box", "layout": "vertical",
+                "contents": [
+                    {"type": "text", "text": "SepCare FAQ", "weight": "bold", "color": "#FFFFFF", "size": "md"},
+                    {"type": "text", "text": "คำถามที่พบบ่อย", "color": "#E0F2F1", "size": "xs", "margin": "xs"}
+                ],
+                "backgroundColor": "#0277BD", "paddingAll": "12px"
+            },
+            "body": {
+                "type": "box", "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "box", "layout": "vertical",
+                        "contents": [
+                            {"type": "text", "text": "❓ คำถาม", "weight": "bold", "size": "xs", "color": "#0277BD"},
+                            {"type": "text", "text": question, "size": "sm", "color": "#333333", "wrap": True, "margin": "xs"}
+                        ]
+                    },
+                    {"type": "separator", "margin": "lg"},
+                    {
+                        "type": "box", "layout": "vertical", "margin": "lg",
+                        "contents": [
+                            {"type": "text", "text": "💡 คำตอบ", "weight": "bold", "size": "xs", "color": "#0277BD"},
+                            {"type": "text", "text": answer, "size": "sm", "color": "#333333", "wrap": True, "margin": "xs"}
+                        ]
+                    }
+                ],
+                "paddingAll": "15px"
+            },
+            "footer": {
+                "type": "box", "layout": "vertical", "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "button",
+                        "action": {"type": "uri", "label": "💬 สอบถามพยาบาลเพิ่มเติม", "uri": nurse_line_link},
+                        "style": "primary", "color": "#0277BD", "height": "sm"
+                    }
+                ]
+            }
+        }
+    }
+
