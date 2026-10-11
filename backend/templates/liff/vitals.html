@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บันทึกสัญญาณชีพ - Sepsis Care</title>
+    <title>บันทึกสัญญาณชีพ - SepCare</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -383,7 +384,7 @@
             <div class="logo-icon">
                 <i class="bi bi-heart-pulse-fill"></i>
             </div>
-            <h1>Sepsis <span>Care</span></h1>
+            <h1>Sep<span>Care</span></h1>
             <p>บันทึกสัญญาณชีพเพื่อติดตามสุขภาพ</p>
         </div>
 
@@ -437,12 +438,12 @@
                 <!-- Heart Rate -->
                 <div class="mb-3">
                     <label class="form-label" for="heart_rate">
-                        <i class="bi bi-heart"></i> อัตราชีพจร
+                        <i class="bi bi-heart-pulse"></i> อัตราการเต้นของหัวใจ
                         <span class="text-muted fw-normal" style="font-size:13px;">(ครั้ง/นาที)</span>
                     </label>
                     <div class="input-group-custom">
                         <input type="number" id="heart_rate" class="form-control" placeholder="75" min="30" max="200">
-                        <i class="bi bi-heart input-icon"></i>
+                        <i class="bi bi-heart-pulse input-icon"></i>
                     </div>
                 </div>
 
@@ -459,17 +460,37 @@
                     </div>
                 </div>
 
-                <!-- SpO2 -->
-                <div class="mb-4">
-                    <label class="form-label" for="spo2">
-                        <i class="bi bi-droplet-half"></i> ออกซิเจนในเลือด (SpO2)
+                <!-- Consciousness (ความรู้สึกตัว) -->
+                <div class="mb-3">
+                    <label class="form-label" for="consciousness">
+                        <i class="bi bi-person-check"></i> ระดับความรู้สึกตัว
                     </label>
                     <div class="input-group-custom">
-                        <input type="number" id="spo2" class="form-control" style="padding-right: 44px;"
-                            placeholder="98" min="70" max="100">
+                        <select id="consciousness" class="form-select" style="border-radius:14px; padding:12px 16px; padding-left:44px; border:2px solid #e4edf2; background-color:#f9fbfc; font-size:15px; color:#0a2a3a;">
+                            <option value="">-- เลือกความรู้สึกตัว --</option>
+                            <option value="alert">1. ตื่นดี (พูดคุยรู้เรื่อง)</option>
+                            <option value="confused">2. สับสน (กระสับกระส่ายที่เพิ่งเกิดขึ้น)</option>
+                            <option value="drowsy">3. ซึม (แต่เรียกแล้วตาสลึมลือ)</option>
+                            <option value="stupor">4. ซึมมาก (ต้องกระตุ้นจึงจะลืมตา)</option>
+                            <option value="unconscious">5. ไม่รู้สึกตัว (แม้จะกระตุ้นแล้วก็ตาม)</option>
+                        </select>
+                        <i class="bi bi-person-check input-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Daily Urine Output (ปริมาณปัสสาวะต่อวัน) -->
+                <div class="mb-4">
+                    <label class="form-label" for="urine_output">
+                        <i class="bi bi-droplet-half"></i> ปริมาณปัสสาวะต่อวัน
+                    </label>
+                    <div class="input-group-custom">
+                        <select id="urine_output" class="form-select" style="border-radius:14px; padding:12px 16px; padding-left:44px; border:2px solid #e4edf2; background-color:#f9fbfc; font-size:15px; color:#0a2a3a;">
+                            <option value="">-- เลือกปริมาณปัสสาวะ --</option>
+                            <option value="le_500">น้อยกว่าหรือเท่ากับ 500 มิลลิลิตร</option>
+                            <option value="501_999">501 - 999 มิลลิลิตร</option>
+                            <option value="ge_1000">มากกว่าหรือเท่ากับ 1,000 มิลลิลิตร</option>
+                        </select>
                         <i class="bi bi-droplet-half input-icon"></i>
-                        <span class="text-muted fw-bold"
-                            style="position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:15px;">%</span>
                     </div>
                 </div>
 
@@ -533,9 +554,10 @@
             const dbp = document.getElementById('diastolic_bp').value;
             const hr = document.getElementById('heart_rate').value;
             const rr = document.getElementById('respiratory_rate').value;
-            const spo2 = document.getElementById('spo2').value;
+            const consciousness = document.getElementById('consciousness').value;
+            const urine_output = document.getElementById('urine_output').value;
 
-            if (!temp && !sbp && !dbp && !hr && !rr && !spo2) {
+            if (!temp && !sbp && !dbp && !hr && !rr && !consciousness && !urine_output) {
                 errorText.innerText = 'กรุณาบันทึกข้อมูลสัญญาณชีพอย่างน้อย 1 รายการ';
                 errorDiv.classList.add('show');
                 return;
@@ -558,8 +580,10 @@
                 diastolic_bp: dbp ? parseInt(dbp) : null,
                 heart_rate: hr ? parseInt(hr) : null,
                 respiratory_rate: rr ? parseInt(rr) : null,
-                spo2: spo2 ? parseInt(spo2) : null,
+                consciousness: consciousness || null,
+                urine_output: urine_output || null,
             };
+
 
             try {
                 const response = await fetch('/api/v1/health/vitals/', {

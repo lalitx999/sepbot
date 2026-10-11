@@ -17,7 +17,7 @@ def send_daily_check_reminder():
     for user in registered_users:
         # Check if already answered today
         if not DailyCheck.objects.filter(user=user, date=today).exists():
-            msg = f"สวัสดีครับคุณ {user.name} 🩺 ได้เวลาเช็คอาการประจำวันแล้วครับ กรุณากดปุ่ม 'เช็คอาการ' บนเมนูด้านล่างเพื่อทำแบบประเมินครับ"
+            msg = f"สวัสดีครับคุณ {user.name} 🩺 ได้เวลาเช็กอาการประจำวันแล้วค่ะ วันนี้รู้สึกเป็นอย่างไรบ้าง? กรุณากดปุ่ม “เช็คอาการ” ที่เมนูด้านล่าง เพื่อประเมินอาการของวันนี้ค่ะ"
             noti = NotificationLog.objects.create(
                 user=user,
                 family=user.family,

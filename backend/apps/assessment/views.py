@@ -53,9 +53,10 @@ class DailyCheckView(APIView):
 
         try:
             from linebot.handlers import push_line_message
+            user_name = user.name or "คนดี"
             push_line_message(
                 user.line_user_id,
-                "ขอบคุณที่ประเมินอาการในวันนี้ อย่าลืมเช็กอาการทุกวันนะคะ 💙"
+                f"ขอบคุณคุณ {user_name} ที่ประเมินอาการวันนี้ค่ะ 💙\nอย่าลืมกลับมาประเมินอาการทุกวัน แม้วันที่รู้สึกสบายดี เพื่อช่วยสังเกตอาการที่เปลี่ยนไปนะคะ 🩺 SepCare เป็นกำลังใจให้ค่ะ"
             )
         except Exception as e:
             print(f"Daily check encouragement push warning: {e}")
@@ -128,7 +129,7 @@ class SepsisScreeningView(APIView):
             from linebot.handlers import push_line_message
             push_line_message(
                 user.line_user_id,
-                f"📋 **ผลการคัดกรองภาวะเซพซิสในชุมชน**:\n\n{summary}"
+                f"📋 **ผลเครื่องมือคัดกรองภาวะเซพซิส (สำหรับบุคลากรทางการแพทย์)**:\n\n{summary}"
             )
         except Exception as e:
             print(f"Sepsis screening push warning: {e}")

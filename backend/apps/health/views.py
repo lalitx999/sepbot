@@ -30,7 +30,8 @@ class VitalSignView(APIView):
             'systolic_bp': request.data.get('systolic_bp'),
             'diastolic_bp': request.data.get('diastolic_bp'),
             'respiratory_rate': request.data.get('respiratory_rate'),
-            'spo2': request.data.get('spo2'),
+            'consciousness': request.data.get('consciousness'),
+            'urine_output': request.data.get('urine_output'),
         }
 
         serializer = VitalSignSerializer(data=data)
@@ -49,28 +50,32 @@ class VitalSignView(APIView):
                 elif vitals.systolic_bp:
                     v_details.append(f"• ความดันตัวบน (SBP): {vitals.systolic_bp} mmHg")
                 if vitals.heart_rate:
-                    v_details.append(f"• อัตราชีพจร: {vitals.heart_rate} ครั้ง/นาที")
+                    v_details.append(f"• อัตราการเต้นของหัวใจ: {vitals.heart_rate} ครั้ง/นาที")
                 if vitals.respiratory_rate:
                     v_details.append(f"• อัตราการหายใจ: {vitals.respiratory_rate} ครั้ง/นาที")
-                if vitals.spo2:
-                    v_details.append(f"• ออกซิเจนในเลือด (SpO2): {vitals.spo2} %")
+                if vitals.consciousness:
+                    v_details.append(f"• ความรู้สึกตัว: {vitals.get_consciousness_display()}")
+                if vitals.urine_output:
+                    v_details.append(f"• ปริมาณปัสสาวะต่อวัน: {vitals.get_urine_output_display()}")
 
                 detail_str = "\n".join(v_details) if v_details else "• บันทึกสำเร็จ"
                 noti_msg = (
                     f"🩺 ขอบคุณที่บันทึกสุขภาพประจำวันค่ะ 💙\n\n"
                     f"📊 ค่าสัญญาณชีพที่คุณบันทึก:\n"
                     f"{detail_str}\n\n"
-                    f"ระบบจะคอยติดตามและดูแลสุขภาพของคุณอย่างต่อเนื่องนะคะ 😊"
+                    f"SepCare จะคอยติดตามและดูแลสุขภาพของคุณอย่างต่อเนื่องนะคะ 😊"
                 )
                 push_line_message(user.line_user_id, noti_msg)
 
                 # Check if any vital sign is critically abnormal -> Alert Nurse Sai
                 is_abnormal = False
-                if vitals.spo2 and vitals.spo2 < 95:
-                    is_abnormal = True
                 if vitals.temperature and (vitals.temperature >= 38.0 or vitals.temperature <= 35.5):
                     is_abnormal = True
                 if vitals.systolic_bp and (vitals.systolic_bp < 90 or vitals.systolic_bp > 140):
+                    is_abnormal = True
+                if vitals.consciousness in ['confused', 'stupor', 'unconscious']:
+                    is_abnormal = True
+                if vitals.urine_output == 'le_500':
                     is_abnormal = True
 
                 if is_abnormal:
@@ -83,6 +88,7 @@ class VitalSignView(APIView):
                 'message': 'บันทึกสัญญาณชีพเรียบร้อยแล้ว',
                 'vitals': VitalSignSerializer(vitals).data
             }, status=status.HTTP_201_CREATED)
+
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

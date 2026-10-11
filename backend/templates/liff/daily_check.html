@@ -414,7 +414,7 @@
             <div class="logo-icon">
                 <i class="bi bi-heart-pulse-fill"></i>
             </div>
-            <h1>Sepsis <span>Care</span></h1>
+            <h1>Sep<span>Care</span></h1>
             <p>เช็คอาการประจำวัน เพื่อความปลอดภัยของคุณ</p>
         </div>
 
@@ -428,7 +428,7 @@
                     <div class="q-label">
                         <span class="q-number">1</span>
                         <i class="bi bi-thermometer-half"></i>
-                        วันนี้มีไข้หรือหนาวสั่นไหม?
+                        วันนี้มีไข้หรือหนาวสั่นไหม
                     </div>
                     <div class="answer-group" id="hasFever">
                         <button type="button" class="answer-btn active" data-value="false">ไม่มี</button>
@@ -440,7 +440,7 @@
                     <div class="q-label">
                         <span class="q-number">2</span>
                         <i class="bi bi-bandage"></i>
-                        วันนี้แผลแดง บวม หรือมีน้ำออกไหม? (ถ้ามี)
+                        วันนี้แผลแดง บวม ร้อน หรือหนองไหม
                     </div>
                     <div class="answer-group" id="hasWound">
                         <button type="button" class="answer-btn active" data-value="false">ไม่มี</button>
@@ -452,7 +452,7 @@
                     <div class="q-label">
                         <span class="q-number">3</span>
                         <i class="bi bi-lungs"></i>
-                        วันนี้หายใจเหนื่อยกว่าปกติไหม?
+                        วันนี้หายใจเหนื่อยกว่าปกติไหม
                     </div>
                     <div class="answer-group" id="hasBreathless">
                         <button type="button" class="answer-btn active" data-value="false">ไม่เหนื่อย</button>
@@ -464,7 +464,7 @@
                     <div class="q-label">
                         <span class="q-number">4</span>
                         <i class="bi bi-person-exclamation"></i>
-                        วันนี้ซึมหรือสับสนกว่าปกติไหม?
+                        วันนี้ซึมหรือสับสนกว่าปกติไหม
                     </div>
                     <div class="answer-group" id="hasConfused">
                         <button type="button" class="answer-btn active" data-value="false">ไม่มี</button>
@@ -476,13 +476,14 @@
                     <div class="q-label">
                         <span class="q-number">5</span>
                         <i class="bi bi-cup-straw"></i>
-                        วันนี้กินอาหารหรือดื่มน้ำได้น้อยลงไหม?
+                        วันนี้กินอาหารหรือดื่มน้ำได้น้อยลงไหม
                     </div>
                     <div class="answer-group" id="hasLessEat">
                         <button type="button" class="answer-btn active" data-value="false">ไม่ลดลง</button>
                         <button type="button" class="answer-btn" data-value="true">ลดลง</button>
                     </div>
                 </div>
+
 
                 <hr>
 
@@ -507,6 +508,10 @@
             <h5><i class="bi bi-clipboard2-check"></i> ผลการประเมินอาการ</h5>
             <div id="resultBadge" class="status-badge mb-2"></div>
             <p id="resultAdvice"></p>
+            <div class="mt-4 p-3 rounded text-center" style="background-color: #f0f7fc; border: 1.5px solid #d0e5f2; color: #1e3a5f;">
+                <p class="mb-1 fw-bold text-primary" style="font-size: 15px;">ขอบคุณที่ประเมินอาการวันนี้ค่ะ 💙</p>
+                <small class="d-block text-muted" style="line-height: 1.5;">อย่าลืมกลับมาประเมินอาการทุกวัน แม้วันที่รู้สึกสบายดี เพื่อช่วยสังเกตอาการที่เปลี่ยนไปนะคะ 🩺 <strong style="color: #0b69a3;">SepCare</strong> เป็นกำลังใจให้ค่ะ</small>
+            </div>
         </div>
     </div>
 

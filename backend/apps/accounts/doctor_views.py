@@ -379,6 +379,8 @@ def api_patient_detail(request, user_id):
             'dbp': v.diastolic_bp,
             'rr': v.respiratory_rate,
             'spo2': v.spo2,
+            'consciousness': v.get_consciousness_display() if v.consciousness else '-',
+            'urine_output': v.get_urine_output_display() if v.urine_output else '-',
         })
         
     screening = SepsisScreening.objects.filter(user=patient).order_by('-date').first()

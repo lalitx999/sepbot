@@ -1,6 +1,6 @@
 from django.conf import settings
 from faq.models import FAQ
-from .flex_messages import build_greeting_flex, build_emergency_flex, build_ask_nurse_flex
+from .flex_messages import build_greeting_flex, build_emergency_flex, build_emergency_symptoms_info_flex, build_ask_nurse_flex
 
 import requests
 
@@ -67,12 +67,14 @@ def get_line_profile_name(line_user_id):
 def reply_line_message(reply_token, message_dict):
     """
     Utility function to reply a message back to LINE using replyToken.
-    Supports FlexMessage dict or TextMessage dict with direct HTTP fallback.
+    Supports single or multiple FlexMessage/TextMessage dicts with direct HTTP fallback.
     """
     access_token = settings.LINE_CHANNEL_ACCESS_TOKEN
     if not access_token or access_token == 'your_line_channel_access_token_here':
         print(f"[Mock Reply Message] Token: {reply_token} | Message: {message_dict}")
         return True
+
+    msg_list = message_dict if isinstance(message_dict, list) else [message_dict]
 
     # 1. Try SDK first
     try:
@@ -83,21 +85,22 @@ def reply_line_message(reply_token, message_dict):
         configuration = Configuration(access_token=access_token)
         with ApiClient(configuration) as api_client:
             line_bot_api = MessagingApi(api_client)
-            
-            if isinstance(message_dict, dict) and message_dict.get('type') == 'flex':
-                flex_content = FlexContainer.from_dict(message_dict['contents'])
-                msg_obj = FlexMessage(
-                    altText=message_dict.get('altText', 'Sepsis Care System'),
-                    contents=flex_content
-                )
-            elif isinstance(message_dict, dict) and message_dict.get('type') == 'text':
-                msg_obj = TextMessage(text=message_dict.get('text', ''))
-            else:
-                msg_obj = TextMessage(text=str(message_dict))
+            msg_objs = []
+            for item in msg_list:
+                if isinstance(item, dict) and item.get('type') == 'flex':
+                    flex_content = FlexContainer.from_dict(item['contents'])
+                    msg_objs.append(FlexMessage(
+                        altText=item.get('altText', 'SepCare System'),
+                        contents=flex_content
+                    ))
+                elif isinstance(item, dict) and item.get('type') == 'text':
+                    msg_objs.append(TextMessage(text=item.get('text', '')))
+                else:
+                    msg_objs.append(TextMessage(text=str(item)))
 
             request = ReplyMessageRequest(
                 replyToken=reply_token,
-                messages=[msg_obj]
+                messages=msg_objs
             )
             line_bot_api.reply_message(request)
             return True
@@ -111,14 +114,16 @@ def reply_line_message(reply_token, message_dict):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {access_token}"
         }
-        if isinstance(message_dict, dict):
-            msg_payload = message_dict
-        else:
-            msg_payload = {"type": "text", "text": str(message_dict)}
+        msg_payloads = []
+        for item in msg_list:
+            if isinstance(item, dict):
+                msg_payloads.append(item)
+            else:
+                msg_payloads.append({"type": "text", "text": str(item)})
 
         body = {
             "replyToken": reply_token,
-            "messages": [msg_payload]
+            "messages": msg_payloads
         }
         res = requests.post(url, headers=headers, json=body, timeout=5)
         return res.status_code == 200
@@ -187,7 +192,7 @@ def handle_incoming_text(line_user_id, text_content):
 
     if text in ['ติดต่อฉุกเฉิน', 'ฉุกเฉิน', '1669', '🚨']:
         notify_nurse_emergency(line_user_id, alert_type="emergency")
-        return build_emergency_flex()
+        return [build_emergency_flex(), build_emergency_symptoms_info_flex()]
 
     if text in ['ถามพยาบาล', 'พยาบาล', 'ติดต่อพยาบาล']:
         notify_nurse_emergency(line_user_id, alert_type="ask_nurse")

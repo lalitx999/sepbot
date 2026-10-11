@@ -23,9 +23,10 @@
                     <th>วันที่บันทึก</th>
                     <th>ผู้ป่วย / ครอบครัว</th>
                     <th>ความดันโลหิต (BP)</th>
-                    <th>อัตราการเต้นหัวใจ (HR)</th>
+                    <th>อัตราการเต้นของหัวใจ (HR)</th>
                     <th>อัตราการหายใจ (RR)</th>
-                    <th>ออกซิเจน (SpO₂)</th>
+                    <th>ความรู้สึกตัว</th>
+                    <th>ปัสสาวะ/วัน</th>
                     <th>อุณหภูมิกาย (Temp)</th>
                 </tr>
             </thead>
@@ -48,9 +49,16 @@
                     <td>{% if v.heart_rate %}{{ v.heart_rate }} bpm{% else %}-{% endif %}</td>
                     <td>{% if v.respiratory_rate %}{{ v.respiratory_rate }} /min{% else %}-{% endif %}</td>
                     <td>
-                        {% if v.spo2 %}
-                            <span class="badge {% if v.spo2 < 95 %}bg-danger{% else %}bg-success{% endif %}">
-                                {{ v.spo2 }}%
+                        {% if v.consciousness %}
+                            <span class="badge {% if v.consciousness == 'conscious_alert' %}bg-success-subtle text-success{% else %}bg-warning-subtle text-warning-emphasis{% endif %}">
+                                {{ v.get_consciousness_display }}
+                            </span>
+                        {% else %}-{% endif %}
+                    </td>
+                    <td>
+                        {% if v.urine_output %}
+                            <span class="badge {% if v.urine_output == 'le_500' %}bg-danger-subtle text-danger fw-bold{% else %}bg-light text-dark border{% endif %}">
+                                {{ v.get_urine_output_display }}
                             </span>
                         {% else %}-{% endif %}
                     </td>
@@ -63,7 +71,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="7" class="text-center py-4 text-muted">ไม่พบข้อมูลสัญญาณชีพ</td></tr>
+                <tr><td colspan="8" class="text-center py-4 text-muted">ไม่พบข้อมูลสัญญาณชีพ</td></tr>
                 {% endfor %}
             </tbody>
         </table>

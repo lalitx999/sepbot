@@ -74,15 +74,19 @@ def build_greeting_flex(display_name=""):
 def build_emergency_flex():
     """
     Flex Message sent when user clicks Emergency contact in Rich Menu.
+    Ordered as:
+    1) ผู้วิจัย ณัฏฐณิชา สิงห์จาน
+    2) สายด่วนการแพทย์ฉุกเฉิน 1669
+    3) รพใกล้บ้าน
+    4) รพจุฬาลงกรณ์ 022564000
     """
     emergency_phone = os.getenv('EMERGENCY_PHONE_1669', '1669')
-    police_phone = os.getenv('EMERGENCY_PHONE_191', '191')
     hospital_phone = os.getenv('HOSPITAL_CHULA_PHONE', '022564000')
     nurse_phone = os.getenv('NURSE_CONTACT_PHONE', '0996244555')
 
     return {
         "type": "flex",
-        "altText": "🚨 รายชื่อเบอร์โทรฉุกเฉินและสัญญาณอันตราย (Red Flags)",
+        "altText": "🚨 รายชื่อติดต่อฉุกเฉิน",
         "contents": {
             "type": "bubble",
             "header": {
@@ -91,7 +95,7 @@ def build_emergency_flex():
                 "contents": [
                     {
                         "type": "text",
-                        "text": "🚨 ติดต่อฉุกเฉิน / อาการวิกฤต",
+                        "text": "🚨 ช่องทางติดต่อฉุกเฉิน",
                         "weight": "bold",
                         "color": "#FFFFFF",
                         "size": "lg"
@@ -106,17 +110,17 @@ def build_emergency_flex():
                 "contents": [
                     {
                         "type": "text",
-                        "text": "หากมีอาการดังต่อไปนี้ โทร 1669 ทันที:",
+                        "text": "กรุณาเลือกช่องทางติดต่อด้านล่างทันที:",
                         "weight": "bold",
                         "color": "#D32F2F",
                         "size": "sm"
                     },
                     {
                         "type": "text",
-                        "text": "• พูดไม่ชัดหรือมีอาการสับสน\n• หนาวสั่นอย่างรุนแรงหรือปวดกล้ามเนื้อ\n• ไม่มีปัสสาวะออกเลยตลอดทั้งวัน\n• หายใจลำบากอย่างรุนแรง\n• ผิวหนังมีลายด่างสีเทาซีด เขียวคล้ำ หรือซีดมาก",
+                        "text": "หากมีอาการทรุดลงหรือสงสัยภาวะติดเชื้อในกระแสเลือด กรุณาติดต่อผู้วิจัยหรือโทร 1669 ทันที",
                         "wrap": True,
                         "size": "xs",
-                        "color": "#333333",
+                        "color": "#555555",
                         "margin": "sm"
                     }
                 ]
@@ -130,7 +134,17 @@ def build_emergency_flex():
                         "type": "button",
                         "action": {
                             "type": "uri",
-                            "label": "📞 โทร 1669 (การแพทย์ฉุกเฉิน)",
+                            "label": "1) ผู้วิจัย ณัฏฐณิชา สิงห์จาน",
+                            "uri": f"tel:{nurse_phone}"
+                        },
+                        "style": "primary",
+                        "color": "#7B3F9E"
+                    },
+                    {
+                        "type": "button",
+                        "action": {
+                            "type": "uri",
+                            "label": "2) สายด่วนการแพทย์ฉุกเฉิน 1669",
                             "uri": f"tel:{emergency_phone}"
                         },
                         "style": "primary",
@@ -140,8 +154,8 @@ def build_emergency_flex():
                         "type": "button",
                         "action": {
                             "type": "uri",
-                            "label": "📞 โทร 191 (เหตุด่วนเหตุร้าย)",
-                            "uri": f"tel:{police_phone}"
+                            "label": "3) โรงพยาบาลใกล้บ้าน",
+                            "uri": "https://www.google.com/maps/search/โรงพยาบาลใกล้ฉัน"
                         },
                         "style": "secondary"
                     },
@@ -149,19 +163,125 @@ def build_emergency_flex():
                         "type": "button",
                         "action": {
                             "type": "uri",
-                            "label": f"📞 โรงพยาบาลจุฬาลงกรณ์ ({hospital_phone})",
+                            "label": f"4) รพ.จุฬาลงกรณ์ 022564000",
                             "uri": f"tel:{hospital_phone}"
                         },
                         "style": "secondary"
+                    }
+                ]
+            }
+        }
+    }
+
+
+def build_emergency_symptoms_info_flex():
+    """
+    Flex Message displaying Red Flag Emergency symptoms infographic details.
+    """
+    return {
+        "type": "flex",
+        "altText": "🚨 ข้อมูลอาการฉุกเฉินสีแดง (Red Flags)",
+        "contents": {
+            "type": "bubble",
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "⚠️ สัญญาณอันตรายฉุกเฉิน (สีแดง)",
+                        "weight": "bold",
+                        "color": "#FFFFFF",
+                        "size": "md"
+                    }
+                ],
+                "backgroundColor": "#C62828",
+                "paddingAll": "12px"
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "หากมีอาการข้อใดข้อหนึ่งดังนี้ ให้รีบพบแพทย์ด่วน:",
+                        "weight": "bold",
+                        "color": "#C62828",
+                        "size": "xs",
+                        "margin": "none"
                     },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "md",
+                        "spacing": "xs",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "• ซึมมาก ไม่รู้สึกตัว หรือสับสนเฉียบพลัน",
+                                "size": "xs",
+                                "color": "#333333",
+                                "wrap": True
+                            },
+                            {
+                                "type": "text",
+                                "text": "• หายใจเร็ว หอบเหนื่อย หรือหายใจลำบากมาก",
+                                "size": "xs",
+                                "color": "#333333",
+                                "wrap": True
+                            },
+                            {
+                                "type": "text",
+                                "text": "• หัวใจเต้นเร็วผิดปกติ (> 130 ครั้ง/นาที)",
+                                "size": "xs",
+                                "color": "#333333",
+                                "wrap": True
+                            },
+                            {
+                                "type": "text",
+                                "text": "• ความดันโลหิตตก (ตัวบน ≤ 90 mmHg)",
+                                "size": "xs",
+                                "color": "#333333",
+                                "wrap": True
+                            },
+                            {
+                                "type": "text",
+                                "text": "• ไม่มีปัสสาวะออกเลยตลอดทั้งวัน (> 18 ชม.)",
+                                "size": "xs",
+                                "color": "#333333",
+                                "wrap": True
+                            },
+                            {
+                                "type": "text",
+                                "text": "• ผิวหนังลายด่าง ลายลูกหิน หรือเขียวคล้ำ",
+                                "size": "xs",
+                                "color": "#333333",
+                                "wrap": True
+                            },
+                            {
+                                "type": "text",
+                                "text": "• แผลติดเชื้อ บวม แดง ร้อน มีหนอง ลุกลาม",
+                                "size": "xs",
+                                "color": "#333333",
+                                "wrap": True
+                            }
+                        ]
+                    }
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
                     {
                         "type": "button",
                         "action": {
                             "type": "uri",
-                            "label": f"📞 โทรพยาบาลโครงการ ({nurse_phone})",
-                            "uri": f"tel:{nurse_phone}"
+                            "label": "📞 โทร 1669 ทันที",
+                            "uri": "tel:1669"
                         },
-                        "style": "secondary"
+                        "style": "primary",
+                        "color": "#D32F2F"
                     }
                 ]
             }
