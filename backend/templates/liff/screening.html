@@ -698,17 +698,7 @@
 
                 if (response.ok) {
                     closeLiffWindow();
-                    setTimeout(() => {
-                        Swal.fire({
-                            title: 'ประเมินคัดกรองเรียบร้อยค่ะ 💙',
-                            text: 'ระบบได้ส่งผลประเมินไปยังห้องแชท LINE แล้วค่ะ',
-                            icon: 'success',
-                            confirmButtonText: 'ปิดหน้านี้',
-                            confirmButtonColor: '#0288D1'
-                        }).then(() => {
-                            closeLiffWindow();
-                        });
-                    }, 500);
+                    return;
                 } else {
                     Swal.fire('ข้อผิดพลาด', data.error || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
                 }

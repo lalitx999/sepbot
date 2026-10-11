@@ -603,22 +603,9 @@
                         advice.innerText = 'กรุณานำผู้ป่วยส่งโรงพยาบาลด่วน หรือโทร 1669 ทันที!';
                     }
 
-                    // Scroll to result
-                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                    // Auto close LIFF window immediately so user returns directly to LINE chat
+                    // Close window immediately
                     closeLiffWindow();
-                    setTimeout(() => {
-                        Swal.fire({
-                            title: 'บันทึกอาการเรียบร้อยค่ะ 💙',
-                            text: 'ระบบได้ส่งผลประเมินไปยังห้องแชท LINE แล้วค่ะ',
-                            icon: 'success',
-                            confirmButtonText: 'ปิดหน้านี้',
-                            confirmButtonColor: '#0288D1'
-                        }).then(() => {
-                            closeLiffWindow();
-                        });
-                    }, 500);
+                    return;
                 } else {
                     const errorMsg = data.error || data.message || JSON.stringify(data);
                     if (errorMsg.includes("ไม่พบผู้ใช้ในระบบ")) {

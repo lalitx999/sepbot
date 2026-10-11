@@ -598,26 +598,8 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    msgText.innerText = data.message || 'บันทึกสัญญาณชีพสำเร็จ';
-                    msgDiv.classList.remove('d-none');
-                    // Reset form after success
-                    document.getElementById('vitalsForm').reset();
-                    // Scroll to message
-                    msgDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                    // Auto close LIFF window immediately so user returns directly to LINE chat
                     closeLiffWindow();
-                    setTimeout(() => {
-                        Swal.fire({
-                            title: 'บันทึกสุขภาพเรียบร้อยค่ะ 💙',
-                            text: 'ระบบได้ส่งสรุปข้อมูลไปยังห้องแชท LINE แล้วค่ะ',
-                            icon: 'success',
-                            confirmButtonText: 'ปิดหน้านี้',
-                            confirmButtonColor: '#0288D1'
-                        }).then(() => {
-                            closeLiffWindow();
-                        });
-                    }, 500);
+                    return;
                 } else {
                     const errorMsg = data.error || data.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
                     if (errorMsg.includes("ไม่พบผู้ใช้ในระบบ")) {
