@@ -34,10 +34,10 @@ def query_deepseek_ai(user_question, user_context=None):
         api_key = groq_api_key
         url = "https://api.groq.com/openai/v1/chat/completions"
         candidate_models = [
-            os.getenv('GROQ_MODEL', 'llama-3.1-8b-instant'),
+            os.getenv('GROQ_MODEL', 'openai/gpt-oss-20b'),
+            'openai/gpt-oss-20b',
+            'openai/gpt-oss-120b',
             'llama-3.1-8b-instant',
-            'gemma2-9b-it',
-            'llama3-8b-8192',
         ]
         # Remove duplicates while preserving order
         candidate_models = list(dict.fromkeys(candidate_models))
@@ -131,8 +131,8 @@ def query_deepseek_ai(user_question, user_context=None):
         try:
             response = requests.post(url, headers=headers, json=payload, timeout=12)
             if response.status_code == 200:
-                res_data = response.json()
-                raw_answer = res_data['choices'][0]['message']['content'].strip()
+                msg_obj = res_data['choices'][0]['message']
+                raw_answer = (msg_obj.get('content') or '').strip()
                 clean_answer = clean_think_tags(raw_answer)
                 return clean_answer
             elif response.status_code in [400, 404] and ('decommissioned' in response.text or 'does not exist' in response.text):
