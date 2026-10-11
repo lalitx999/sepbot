@@ -10,7 +10,7 @@ from .flex_messages import (
     build_thanks_flex,
     build_faq_flex,
     build_emergency_flex,
-    build_ask_nurse_flex,
+    build_default_help_flex,
     build_ebook_flex,
     build_ai_response_flex,
 )
@@ -243,25 +243,23 @@ def handle_incoming_text(line_user_id, text_content):
         threading.Thread(target=notify_nurse_emergency, args=(line_user_id, "emergency"), daemon=True).start()
         return [build_emergency_flex()]
 
-    # 5. Ask Nurse (Async nurse alert)
-    if text in ['ถามพยาบาล', 'พยาบาล', 'ติดต่อพยาบาล']:
-        threading.Thread(target=notify_nurse_emergency, args=(line_user_id, "ask_nurse"), daemon=True).start()
-        return build_ask_nurse_flex()
-
-    # 6. E-Book quick link
+    # 5. E-Book quick link
     if text.lower() in ['ebook', 'e-book', 'อีบุ๊ค', 'คู่มือ', 'สมุดคู่มือ', 'เปิดหนังสือ', 'อ่านหนังสือ', 'หนังสือ']:
         return build_ebook_flex()
 
-    # 7. FAQ exact / high similarity match
-    matched_faq = FAQ.objects.filter(question__iexact=text).first()
-    if not matched_faq and len(text) >= 8:
-        candidate = FAQ.objects.filter(question__icontains=text).first()
-        if candidate and len(text) >= len(candidate.question) * 0.6:
-            matched_faq = candidate
-    if matched_faq:
-        return build_faq_flex(matched_faq.question, matched_faq.answer)
+    # 6. FAQ exact / high similarity match
+    try:
+        matched_faq = FAQ.objects.filter(question__iexact=text).first()
+        if not matched_faq and len(text) >= 8:
+            candidate = FAQ.objects.filter(question__icontains=text).first()
+            if candidate and len(text) >= len(candidate.question) * 0.6:
+                matched_faq = candidate
+        if matched_faq:
+            return build_faq_flex(matched_faq.question, matched_faq.answer)
+    except Exception as db_e:
+        print(f"FAQ lookup exception: {db_e}")
 
-    # 8. Medical AI LLM Query (Self-care & healthcare advisor with medical guardrails)
+    # 7. Medical AI LLM Query (Self-care & healthcare advisor with medical guardrails)
     try:
         from .llm_service import query_medical_ai
         from accounts.models import LineUser
@@ -275,5 +273,5 @@ def handle_incoming_text(line_user_id, text_content):
     except Exception as e:
         print(f"Medical AI Query Error: {e}")
 
-    # 9. Fallback to Nurse hand-off
-    return build_ask_nurse_flex()
+    # 8. Fallback to Default Help guidance
+    return build_default_help_flex()

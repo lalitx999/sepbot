@@ -248,18 +248,13 @@ def build_emergency_symptoms_info_flex():
     }
 
 
-def build_ask_nurse_flex():
+def build_default_help_flex():
     """
-    Flex Message sent when user clicks "ถามพยาบาล" on Rich Menu or asks a
-    question that doesn't match any FAQ. Hands the conversation off to a
-    real nurse's personal LINE chat instead of the automated bot.
+    Fallback Flex Message when text is not understood or user needs help.
     """
-    nurse_line_link = os.getenv('NURSE_LINE_PERSONAL_LINK', 'https://line.me/ti/p/~Siine8')
-    nurse_phone = os.getenv('NURSE_CONTACT_PHONE', '0996244555')
-
     return {
         "type": "flex",
-        "altText": "พูดคุยกับพยาบาลโครงการโดยตรง",
+        "altText": "SepCare AI พร้อมช่วยเหลือค่ะ",
         "contents": {
             "type": "bubble",
             "header": {
@@ -268,13 +263,20 @@ def build_ask_nurse_flex():
                 "contents": [
                     {
                         "type": "text",
-                        "text": "💬 ถามพยาบาล",
+                        "text": "SepCare AI",
                         "weight": "bold",
                         "color": "#FFFFFF",
                         "size": "lg"
+                    },
+                    {
+                        "type": "text",
+                        "text": "ผู้ช่วยดูแลสุขภาพและการฟื้นฟูหลังภาวะเซพซิส",
+                        "color": "#E0F2F1",
+                        "size": "xs",
+                        "margin": "xs"
                     }
                 ],
-                "backgroundColor": "#7B3F9E",
+                "backgroundColor": "#00897B",
                 "paddingAll": "15px"
             },
             "body": {
@@ -283,12 +285,22 @@ def build_ask_nurse_flex():
                 "contents": [
                     {
                         "type": "text",
-                        "text": "หากคำถามของคุณไม่ตรงกับ FAQ ที่มี สามารถกดปุ่มด้านล่างเพื่อพูดคุยกับพยาบาลโครงการโดยตรงได้เลยค่ะ",
+                        "text": "สามารถพิมพ์สอบถามคำถามด้านสุขภาพและการดูแลตนเองกับ SepCare AI ได้เลยนะคะ 💙",
                         "wrap": True,
                         "size": "sm",
-                        "color": "#444444"
+                        "color": "#333333",
+                        "weight": "bold"
+                    },
+                    {
+                        "type": "text",
+                        "text": "หรือกดเลือกดูคำถามยอดนิยมที่พบบ่อย (33 ข้อ) จากปุ่มด้านล่างได้ค่ะ",
+                        "wrap": True,
+                        "size": "xs",
+                        "color": "#666666",
+                        "margin": "md"
                     }
-                ]
+                ],
+                "paddingAll": "15px"
             },
             "footer": {
                 "type": "box",
@@ -298,21 +310,13 @@ def build_ask_nurse_flex():
                     {
                         "type": "button",
                         "action": {
-                            "type": "uri",
-                            "label": "💬 แชทกับพยาบาลโครงการ",
-                            "uri": nurse_line_link
+                            "type": "message",
+                            "label": "📚 ดูคำถามยอดนิยม (33 ข้อ)",
+                            "text": "__SHOW_ALL_QUESTIONS__"
                         },
                         "style": "primary",
-                        "color": "#7B3F9E"
-                    },
-                    {
-                        "type": "button",
-                        "action": {
-                            "type": "uri",
-                            "label": f"📞 โทรพยาบาลโครงการ ({nurse_phone})",
-                            "uri": f"tel:{nurse_phone}"
-                        },
-                        "style": "secondary"
+                        "color": "#00897B",
+                        "height": "sm"
                     }
                 ]
             }
@@ -320,14 +324,16 @@ def build_ask_nurse_flex():
     }
 
 
+# Alias for backward compatibility
+build_ask_nurse_flex = build_default_help_flex
+
+
 def build_ai_response_flex(ai_answer, user_question=None):
     """
     Flex Message Card for SepCare AI responses.
-    Strictly NO emojis. Clean medical teal banner theme.
+    Clean medical teal banner theme.
     Displays only the AI answer in the card body.
     """
-    nurse_line_link = os.getenv('NURSE_LINE_PERSONAL_LINK', 'https://line.me/ti/p/~Siine8')
-
     return {
         "type": "flex",
         "altText": "SepCare AI: คำแนะนำการดูแลสุขภาพ",
@@ -358,23 +364,6 @@ def build_ai_response_flex(ai_answer, user_question=None):
                         "wrap": True,
                         "size": "sm",
                         "color": "#333333"
-                    }
-                ]
-            },
-            "footer": {
-                "type": "box",
-                "layout": "vertical",
-                "spacing": "sm",
-                "contents": [
-                    {
-                        "type": "button",
-                        "action": {
-                            "type": "uri",
-                            "label": "สอบถามพยาบาลเพิ่มเติม",
-                            "uri": nurse_line_link
-                        },
-                        "style": "primary",
-                        "color": "#005B5C"
                     }
                 ]
             }
@@ -614,7 +603,6 @@ def build_all_questions_flex():
 
 def build_thanks_flex():
     """Flex Message สำหรับตอบคำขอบคุณ"""
-    nurse_line_link = os.getenv('NURSE_LINE_PERSONAL_LINK', 'https://line.me/ti/p/~Siine8')
     return {
         "type": "flex",
         "altText": "ยินดีให้คำปรึกษาค่ะ",
@@ -629,19 +617,9 @@ def build_thanks_flex():
                 "type": "box", "layout": "vertical",
                 "contents": [
                     {"type": "text", "text": "ยินดีให้คำปรึกษาค่ะ 😊", "weight": "bold", "size": "md", "color": "#00897B", "wrap": True},
-                    {"type": "text", "text": "หากมีคำถามเพิ่มเติมสามารถพิมพ์ถามได้เลย หรือกดปุ่มด้านล่างเพื่อพูดคุยกับพยาบาลโครงการโดยตรงค่ะ", "size": "sm", "color": "#444444", "wrap": True, "margin": "md"}
+                    {"type": "text", "text": "หากมีข้อสงสัยหรือต้องการคำแนะนำด้านสุขภาพเพิ่มเติม สามารถพิมพ์สอบถามได้ตลอดเวลาเลยนะคะ 💙", "size": "sm", "color": "#444444", "wrap": True, "margin": "md"}
                 ],
                 "paddingAll": "15px"
-            },
-            "footer": {
-                "type": "box", "layout": "vertical", "spacing": "sm",
-                "contents": [
-                    {
-                        "type": "button",
-                        "action": {"type": "uri", "label": "💬 แชทกับพยาบาลโครงการ", "uri": nurse_line_link},
-                        "style": "primary", "color": "#00897B", "height": "sm"
-                    }
-                ]
             }
         }
     }
@@ -649,7 +627,6 @@ def build_thanks_flex():
 
 def build_faq_flex(question, answer):
     """Flex Message สำหรับ FAQ + auto-append 'ค่ะ'"""
-    nurse_line_link = os.getenv('NURSE_LINE_PERSONAL_LINK', 'https://line.me/ti/p/~Siine8')
     answer = (answer or '').strip()
     if answer and not answer.endswith(('ค่ะ', 'นะคะ', 'ครับ', 'คะ')):
         answer = answer.rstrip('.?! ') + ' ค่ะ'
@@ -687,16 +664,6 @@ def build_faq_flex(question, answer):
                     }
                 ],
                 "paddingAll": "15px"
-            },
-            "footer": {
-                "type": "box", "layout": "vertical", "spacing": "sm",
-                "contents": [
-                    {
-                        "type": "button",
-                        "action": {"type": "uri", "label": "💬 สอบถามพยาบาลเพิ่มเติม", "uri": nurse_line_link},
-                        "style": "primary", "color": "#0277BD", "height": "sm"
-                    }
-                ]
             }
         }
     }
