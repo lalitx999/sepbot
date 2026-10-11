@@ -33,12 +33,19 @@ def query_deepseek_ai(user_question, user_context=None):
     if groq_api_key and groq_api_key != 'your_groq_api_key_here':
         api_key = groq_api_key
         url = "https://api.groq.com/openai/v1/chat/completions"
-        model = os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile')
+        candidate_models = [
+            os.getenv('GROQ_MODEL', 'llama-3.1-8b-instant'),
+            'llama-3.1-8b-instant',
+            'gemma2-9b-it',
+            'llama3-8b-8192',
+        ]
+        # Remove duplicates while preserving order
+        candidate_models = list(dict.fromkeys(candidate_models))
         provider = "Groq"
     elif deepseek_api_key and deepseek_api_key != 'your_deepseek_api_key_here':
         api_key = deepseek_api_key
         url = "https://api.deepseek.com/v1/chat/completions"
-        model = os.getenv('DEEPSEEK_MODEL', 'deepseek-chat')
+        candidate_models = [os.getenv('DEEPSEEK_MODEL', 'deepseek-chat')]
         provider = "DeepSeek"
     else:
         print("[AI Service Warning] Neither GROQ_API_KEY nor DEEPSEEK_API_KEY is configured.")
@@ -107,30 +114,35 @@ def query_deepseek_ai(user_question, user_context=None):
     except ValueError:
         top_p_val = 0.5
 
-    payload = {
-        "model": model,
-        "messages": messages,
-        "temperature": temp_val,
-        "top_p": top_p_val,
-        "max_tokens": 800
-    }
-
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
 
-    try:
-        response = requests.post(url, headers=headers, json=payload, timeout=12)
-        if response.status_code == 200:
-            res_data = response.json()
-            raw_answer = res_data['choices'][0]['message']['content'].strip()
-            # Clean <think> tags for DeepSeek-R1 / Reasoning models
-            clean_answer = clean_think_tags(raw_answer)
-            return clean_answer
-        else:
-            print(f"[{provider} API Error] Status: {response.status_code} | Response: {response.text}")
-            return None
-    except Exception as e:
-        print(f"[{provider} API Exception]: {e}")
-        return None
+    for current_model in candidate_models:
+        payload = {
+            "model": current_model,
+            "messages": messages,
+            "temperature": temp_val,
+            "top_p": top_p_val,
+            "max_tokens": 800
+        }
+
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=12)
+            if response.status_code == 200:
+                res_data = response.json()
+                raw_answer = res_data['choices'][0]['message']['content'].strip()
+                clean_answer = clean_think_tags(raw_answer)
+                return clean_answer
+            elif response.status_code in [400, 404] and ('decommissioned' in response.text or 'does not exist' in response.text):
+                print(f"[{provider} Model Warning] Model '{current_model}' unavailable, trying next candidate...")
+                continue
+            else:
+                print(f"[{provider} API Error] Model: {current_model} | Status: {response.status_code} | Response: {response.text}")
+                return None
+        except Exception as e:
+            print(f"[{provider} API Exception with {current_model}]: {e}")
+            continue
+
+    return None
