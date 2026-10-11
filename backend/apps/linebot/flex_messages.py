@@ -330,7 +330,7 @@ def build_ai_response_flex(ai_answer, user_question=None):
 
     return {
         "type": "flex",
-        "altText": "SepCare AI: คำแนะนำตามคู่มือการดูแลผู้ป่วยหลังภาวะเซพซิส",
+        "altText": "SepCare AI: คำแนะนำการดูแลสุขภาพ",
         "contents": {
             "type": "bubble",
             "header": {
@@ -339,7 +339,7 @@ def build_ai_response_flex(ai_answer, user_question=None):
                 "contents": [
                     {
                         "type": "text",
-                        "text": "SepCare AI - คำแนะนำตามคู่มือ",
+                        "text": "SepCare AI - คำแนะนำการดูแลสุขภาพ",
                         "weight": "bold",
                         "color": "#FFFFFF",
                         "size": "md"

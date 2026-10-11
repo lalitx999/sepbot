@@ -213,20 +213,20 @@ def handle_incoming_text(line_user_id, text_content):
             'text': f"❓ **คำถาม**: {matched_faq.question}\n\n💡 **คำตอบ**: {matched_faq.answer}"
         }
 
-    # 2. DeepSeek AI LLM Query (Anti-Hallucination)
+    # 2. Medical AI LLM Query (Self-care & healthcare advisor with medical guardrails)
     try:
-        from .llm_service import query_deepseek_ai
+        from .llm_service import query_medical_ai
         from .flex_messages import build_ai_response_flex
         from accounts.models import LineUser
         
         user = LineUser.objects.filter(line_user_id=line_user_id).first()
         u_ctx = f"ชื่อ: {user.name}, อายุ: {user.age}, โรคประจำตัว: {user.underlying_disease}" if user else None
         
-        ai_response = query_deepseek_ai(text, user_context=u_ctx)
+        ai_response = query_medical_ai(text, user_context=u_ctx)
         if ai_response:
             return build_ai_response_flex(ai_response)
     except Exception as e:
-        print(f"DeepSeek Query Error: {e}")
+        print(f"Medical AI Query Error: {e}")
 
     # 3. Fallback to Nurse hand-off
     return build_ask_nurse_flex()
