@@ -9,7 +9,9 @@ from .flex_messages import (
     build_all_questions_flex,
     build_thanks_flex,
     build_faq_flex,
+    build_emergency_contacts_flex,
     build_emergency_flex,
+    build_ask_nurse_flex,
     build_default_help_flex,
     build_ebook_flex,
     build_ai_response_flex,
@@ -220,8 +222,14 @@ def handle_incoming_text(line_user_id, text_content):
     """
     text = (text_content or '').strip()
 
-    # 1. Magic keyword: ดูคำถามทั้งหมด 33 ข้อ (Carousel)
-    if text == '__SHOW_ALL_QUESTIONS__':
+    # 1. ดูคำถามทั้งหมด 33 ข้อ (Carousel) - รองรับทั้ง keyword ระบบ และภาษาไทย
+    ALL_QUESTIONS_KEYWORDS = [
+        '__SHOW_ALL_QUESTIONS__', 'คำถามทั้งหมด', 'ดูคำถามทั้งหมด',
+        'คำถามที่พบบ่อย', 'คำถามพบบ่อย', 'รวมคำถาม', 'รายการคำถาม',
+        'ดูคำถาม', 'คำถาม', 'faq', 'faqs'
+    ]
+    cleaned_q = text.lower().replace(' ', '')
+    if text == '__SHOW_ALL_QUESTIONS__' or any(k.replace(' ', '') == cleaned_q for k in ALL_QUESTIONS_KEYWORDS):
         return build_all_questions_flex()
 
     # 2. Greetings Recognition (สวัสดี, สวัสดีค่ะ, สวัสดีครับ, ดีจ้า, etc.)
@@ -238,12 +246,17 @@ def handle_incoming_text(line_user_id, text_content):
     if THANKS_REGEX.match(text):
         return build_thanks_flex()
 
-    # 4. Emergency (Single Infographic card + call 1669, async nurse alert)
+    # 4. Emergency: 1) การ์ดโทรผู้วิจัย, 1669, รพ.ใกล้บ้าน, รพ.จุฬาฯ แล้วตามด้วย 2) ภาพ Infographic 1669
     if text in ['ติดต่อฉุกเฉิน', 'ฉุกเฉิน', '1669', '🚨']:
         threading.Thread(target=notify_nurse_emergency, args=(line_user_id, "emergency"), daemon=True).start()
-        return [build_emergency_flex()]
+        return [build_emergency_contacts_flex(), build_emergency_flex()]
 
-    # 5. E-Book quick link
+    # 5. ถามพยาบาล / ติดต่อพยาบาลโครงการ (Direct Nurse Hand-off)
+    if text in ['ถามพยาบาล', 'พยาบาล', 'ติดต่อพยาบาล', 'คุยกับพยาบาล', 'แชทกับพยาบาล', 'แชทพยาบาล', 'โทรพยาบาล', 'ปรึกษาพยาบาล']:
+        threading.Thread(target=notify_nurse_emergency, args=(line_user_id, "ask_nurse"), daemon=True).start()
+        return build_ask_nurse_flex()
+
+    # 6. E-Book quick link
     if text.lower() in ['ebook', 'e-book', 'อีบุ๊ค', 'คู่มือ', 'สมุดคู่มือ', 'เปิดหนังสือ', 'อ่านหนังสือ', 'หนังสือ']:
         return build_ebook_flex()
 

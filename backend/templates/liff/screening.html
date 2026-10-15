@@ -575,53 +575,58 @@
                     <p class="small text-muted mb-3"><i class="bi bi-info-square me-1"></i> หากพบสัญญาณเตือนระดับสีเหลือง ให้รับการประเมินภายในวันเดียวกัน:</p>
 
                     <label class="check-tile-item">
-                        <input type="checkbox" id="amber_flag_behavior">
+                        <input type="checkbox" id="amber_flag_behavior" class="amber-check">
                         <span class="check-tile-label">1. ครอบครัวรายงานพฤติกรรมหรือสภาพจิตใจที่ผิดปกติ</span>
                     </label>
 
                     <label class="check-tile-item">
-                        <input type="checkbox" id="amber_flag_activity_down">
+                        <input type="checkbox" id="amber_flag_activity_down" class="amber-check">
                         <span class="check-tile-label">2. ความสามารถในการทำกิจกรรมต่าง ๆ ลดลง</span>
                     </label>
 
                     <label class="check-tile-item">
-                        <input type="checkbox" id="amber_flag_rr_21_24">
+                        <input type="checkbox" id="amber_flag_rr_21_24" class="amber-check">
                         <span class="check-tile-label">3. อัตราการหายใจอยู่ระหว่าง 21-24 ครั้งต่อนาที</span>
                     </label>
 
                     <label class="check-tile-item">
-                        <input type="checkbox" id="amber_flag_sbp_91_100">
+                        <input type="checkbox" id="amber_flag_sbp_91_100" class="amber-check">
                         <span class="check-tile-label">4. ความดันโลหิตตัวบน (Systolic BP) อยู่ระหว่าง 91-100 มม.ปรอท</span>
                     </label>
 
                     <label class="check-tile-item">
-                        <input type="checkbox" id="amber_flag_hr_91_120">
+                        <input type="checkbox" id="amber_flag_hr_91_120" class="amber-check">
                         <span class="check-tile-label">5. อัตราการเต้นของหัวใจอยู่ระหว่าง 91–120 ครั้งต่อนาที หรือมีภาวะหัวใจเต้นผิดจังหวะที่เกิดขึ้นใหม่</span>
                     </label>
 
                     <label class="check-tile-item">
-                        <input type="checkbox" id="amber_flag_spo2_lt92">
+                        <input type="checkbox" id="amber_flag_spo2_lt92" class="amber-check">
                         <span class="check-tile-label">6. ค่าความอิ่มตัวของออกซิเจนในเลือด (SpO₂) ต่ำกว่า 92% ขณะหายใจอากาศปกติ หรือมีความต้องการออกซิเจนเพิ่มขึ้น</span>
                     </label>
 
                     <label class="check-tile-item">
-                        <input type="checkbox" id="amber_flag_no_urine_12_18h">
+                        <input type="checkbox" id="amber_flag_no_urine_12_18h" class="amber-check">
                         <span class="check-tile-label">7. ไม่ได้ปัสสาวะออกเป็นเวลา 12-18 ชั่วโมง (0.5 มล./กก./ชม. ในกรณีที่ใส่สายสวนปัสสาวะ)</span>
                     </label>
 
                     <label class="check-tile-item">
-                        <input type="checkbox" id="amber_flag_immuno">
+                        <input type="checkbox" id="amber_flag_immuno" class="amber-check">
                         <span class="check-tile-label">8. มีภาวะภูมิคุ้มกันบกพร่อง</span>
                     </label>
 
                     <label class="check-tile-item">
-                        <input type="checkbox" id="amber_flag_infection_sign">
+                        <input type="checkbox" id="amber_flag_infection_sign" class="amber-check">
                         <span class="check-tile-label">9. มีสัญญาณของการติดเชื้อ รวมถึงการติดเชื้อบริเวณบาดแผล</span>
                     </label>
 
                     <label class="check-tile-item">
-                        <input type="checkbox" id="amber_flag_temp_lt36">
+                        <input type="checkbox" id="amber_flag_temp_lt36" class="amber-check">
                         <span class="check-tile-label">10. มีอุณหภูมิร่างกายน้อยกว่า 36 องศาเซลเซียส</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="amber_flag_none">
+                        <span class="check-tile-label">11. ไม่พบสัญญาณเตือน</span>
                     </label>
                 </div>
             </div>
@@ -644,7 +649,7 @@
                 <h4 class="mb-0 fw-bold">ผลการคัดกรองภาวะเซพซิส</h4>
             </div>
             <div id="resultBadge" class="status-badge mb-3"></div>
-            <div id="resultAdvice" class="p-3 rounded-3 mb-3" style="font-size: 15px; line-height: 1.6; background-color: #f8fafc; border: 1.5px solid #e2e8f0; color: #1e293b;"></div>
+            <div id="resultAdvice" class="p-3 rounded-3 mb-3" style="font-size: 15px; line-height: 1.6; background-color: #f8fafc; border: 1.5px solid #e2e8f0; color: #1e293b; white-space: pre-line;"></div>
             <div class="p-3 rounded-3 text-center mb-3" style="background-color: #f0f7fc; border: 1.5px solid #d0e5f2; color: #1e3a5f;">
                 <p class="mb-1 fw-bold text-primary" style="font-size: 15px;">ระบบได้ส่งผลการประเมินไปยังห้องแชท LINE เรียบร้อยแล้วค่ะ 💙</p>
                 <small class="text-muted d-block" style="line-height: 1.5;">หากผู้ป่วยมีอาการทรุดลงหรือสงสัยภาวะเซพซิส กรุณาติดต่อผู้วิจัยหรือโทร 1669 ทันที</small>
@@ -910,6 +915,24 @@
                     console.log("LIFF Init Fallback:", err);
                 });
             }
+
+            // Setup Amber Flag Interlocking (ข้อ 11 vs ข้อ 1-10)
+            const amberNone = document.getElementById('amber_flag_none');
+            const amberChecks = document.querySelectorAll('.amber-check');
+            if (amberNone) {
+                amberNone.addEventListener('change', function () {
+                    if (this.checked) {
+                        amberChecks.forEach(cb => cb.checked = false);
+                    }
+                });
+            }
+            amberChecks.forEach(cb => {
+                cb.addEventListener('change', function () {
+                    if (this.checked && amberNone && amberNone.checked) {
+                        amberNone.checked = false;
+                    }
+                });
+            });
         };
 
         document.getElementById('screeningForm').addEventListener('submit', function (e) {

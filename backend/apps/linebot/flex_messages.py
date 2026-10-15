@@ -71,6 +71,109 @@ def build_greeting_flex(display_name=""):
     }
 
 
+def build_emergency_contacts_flex():
+    """
+    Flex Message sent when user clicks Emergency contact in Rich Menu.
+    Ordered as:
+    1) ผู้วิจัย ณัฏฐณิชา สิงห์จาน
+    2) สายด่วนการแพทย์ฉุกเฉิน 1669
+    3) โรงพยาบาลใกล้บ้าน
+    4) รพ.จุฬาลงกรณ์ 022564000
+    """
+    emergency_phone = os.getenv('EMERGENCY_PHONE_1669', '1669')
+    hospital_phone = os.getenv('HOSPITAL_CHULA_PHONE', '022564000')
+    nurse_phone = os.getenv('NURSE_CONTACT_PHONE', '0996244555')
+
+    return {
+        "type": "flex",
+        "altText": "🚨 ช่องทางติดต่อฉุกเฉิน",
+        "contents": {
+            "type": "bubble",
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "🚨 ช่องทางติดต่อฉุกเฉิน",
+                        "weight": "bold",
+                        "color": "#FFFFFF",
+                        "size": "lg"
+                    }
+                ],
+                "backgroundColor": "#D32F2F",
+                "paddingAll": "15px"
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "กรุณาเลือกช่องทางติดต่อด้านล่างทันที:",
+                        "weight": "bold",
+                        "color": "#D32F2F",
+                        "size": "sm"
+                    },
+                    {
+                        "type": "text",
+                        "text": "หากมีอาการทรุดลงหรือสงสัยภาวะติดเชื้อในกระแสเลือด กรุณาติดต่อผู้วิจัยหรือโทร 1669 ทันที",
+                        "wrap": True,
+                        "size": "xs",
+                        "color": "#555555",
+                        "margin": "sm"
+                    }
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "button",
+                        "action": {
+                            "type": "uri",
+                            "label": "1) ผู้วิจัย ณัฏฐณิชา สิงห์จาน",
+                            "uri": f"tel:{nurse_phone}"
+                        },
+                        "style": "primary",
+                        "color": "#7B3F9E"
+                    },
+                    {
+                        "type": "button",
+                        "action": {
+                            "type": "uri",
+                            "label": "2) สายด่วนการแพทย์ฉุกเฉิน 1669",
+                            "uri": f"tel:{emergency_phone}"
+                        },
+                        "style": "primary",
+                        "color": "#D32F2F"
+                    },
+                    {
+                        "type": "button",
+                        "action": {
+                            "type": "uri",
+                            "label": "3) โรงพยาบาลใกล้บ้าน",
+                            "uri": "https://www.google.com/maps/search/โรงพยาบาลใกล้ฉัน"
+                        },
+                        "style": "secondary"
+                    },
+                    {
+                        "type": "button",
+                        "action": {
+                            "type": "uri",
+                            "label": "4) รพ.จุฬาลงกรณ์ 022564000",
+                            "uri": f"tel:{hospital_phone}"
+                        },
+                        "style": "secondary"
+                    }
+                ]
+            }
+        }
+    }
+
+
 def build_emergency_flex():
     """
     Flex Message sent when user clicks Emergency contact in Rich Menu.
@@ -324,8 +427,76 @@ def build_default_help_flex():
     }
 
 
-# Alias for backward compatibility
-build_ask_nurse_flex = build_default_help_flex
+def build_ask_nurse_flex():
+    """
+    Flex Message sent when user clicks "ถามพยาบาล" on Rich Menu or types "ถามพยาบาล".
+    Provides direct contact to research project nurse via LINE chat or phone.
+    """
+    nurse_line_link = os.getenv('NURSE_LINE_PERSONAL_LINK', 'https://line.me/ti/p/~Siine8')
+    nurse_phone = os.getenv('NURSE_CONTACT_PHONE', '0996244555')
+
+    return {
+        "type": "flex",
+        "altText": "💬 สอบถามพยาบาลโครงการ",
+        "contents": {
+            "type": "bubble",
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "💬 สอบถามพยาบาลโครงการ",
+                        "weight": "bold",
+                        "color": "#FFFFFF",
+                        "size": "lg"
+                    }
+                ],
+                "backgroundColor": "#7B3F9E",
+                "paddingAll": "15px"
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "หากมีข้อสงสัยหรือต้องการคำปรึกษาเพิ่มเติมเกี่ยวกับการดูแลผู้ป่วย สามารถกดปุ่มด้านล่างเพื่อพูดคุยหรือโทรติดต่อพยาบาลโครงการโดยตรงได้เลยค่ะ 💙",
+                        "wrap": True,
+                        "size": "sm",
+                        "color": "#444444"
+                    }
+                ],
+                "paddingAll": "16px"
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "button",
+                        "action": {
+                            "type": "uri",
+                            "label": "💬 แชทกับพยาบาลโครงการ",
+                            "uri": nurse_line_link
+                        },
+                        "style": "primary",
+                        "color": "#7B3F9E"
+                    },
+                    {
+                        "type": "button",
+                        "action": {
+                            "type": "uri",
+                            "label": f"📞 โทรหาพยาบาล ({nurse_phone})",
+                            "uri": f"tel:{nurse_phone}"
+                        },
+                        "style": "secondary"
+                    }
+                ]
+            }
+        }
+    }
 
 
 def build_ai_response_flex(ai_answer, user_question=None):
