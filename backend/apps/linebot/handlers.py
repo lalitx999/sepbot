@@ -65,6 +65,10 @@ def push_line_message(line_user_id, text_message):
                 "messages": [{"type": "text", "text": text_message}]
             }
             res = requests.post(url, headers=headers, json=body, timeout=5)
+            if res.status_code == 200:
+                print(f"[LINE Push OK via HTTP] to {line_user_id[:10]}...")
+            else:
+                print(f"[LINE Push FAIL] Status: {res.status_code} | Body: {res.text[:300]}")
             return res.status_code == 200
         except Exception as http_e:
             print(f"HTTP Push Error: {http_e}")
@@ -152,6 +156,10 @@ def reply_line_message(reply_token, message_dict):
             "messages": msg_payloads
         }
         res = requests.post(url, headers=headers, json=body, timeout=5)
+        if res.status_code == 200:
+            print(f"[LINE Reply OK via HTTP] {len(msg_payloads)} msgs")
+        else:
+            print(f"[LINE Reply FAIL] Status: {res.status_code} | Body: {res.text[:300]}")
         return res.status_code == 200
     except Exception as http_e:
         print(f"HTTP Reply Error: {http_e}")

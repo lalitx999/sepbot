@@ -155,7 +155,7 @@ def build_emergency_contacts_flex():
                         "action": {
                             "type": "uri",
                             "label": "3) โรงพยาบาลใกล้บ้าน",
-                            "uri": "https://www.google.com/maps/search/โรงพยาบาลใกล้ฉัน"
+                            "uri": "https://www.google.com/maps/search/%E0%B9%82%E0%B8%A3%E0%B8%87%E0%B8%9E%E0%B8%A2%E0%B8%B2%E0%B8%9A%E0%B8%B2%E0%B8%A5%E0%B9%83%E0%B8%81%E0%B8%A5%E0%B9%89%E0%B8%89%E0%B8%B1%E0%B8%99"
                         },
                         "style": "secondary"
                     },
