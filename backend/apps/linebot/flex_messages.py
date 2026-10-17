@@ -107,6 +107,7 @@ def build_emergency_contacts_flex():
             "body": {
                 "type": "box",
                 "layout": "vertical",
+                "paddingAll": "14px",
                 "contents": [
                     {
                         "type": "text",
@@ -117,11 +118,19 @@ def build_emergency_contacts_flex():
                     },
                     {
                         "type": "text",
-                        "text": "หากมีอาการทรุดลงหรือสงสัยภาวะเซพซิส\nกรุณาติดต่อผู้วิจัยหรือโทร 1669 ทันที",
+                        "text": "หากมีอาการทรุดลงหรือสงสัยภาวะเซพซิส",
                         "wrap": True,
                         "size": "xs",
                         "color": "#555555",
                         "margin": "sm"
+                    },
+                    {
+                        "type": "text",
+                        "text": "กรุณาติดต่อผู้วิจัยหรือโทร 1669 ทันที",
+                        "wrap": True,
+                        "size": "xs",
+                        "color": "#555555",
+                        "margin": "xs"
                     }
                 ]
             },
@@ -206,11 +215,20 @@ def build_emergency_flex():
                 "contents": [
                     {
                         "type": "text",
-                        "text": "หากมีอาการดังกล่าว กรุณาโทร 1669 ทันที\nไม่ต้องรอการตอบกลับของแชตบอต",
+                        "text": "หากมีอาการดังกล่าว กรุณาโทร 1669 ทันที",
                         "wrap": True,
                         "weight": "bold",
                         "size": "sm",
                         "color": "#D32F2F"
+                    },
+                    {
+                        "type": "text",
+                        "text": "ไม่ต้องรอการตอบกลับของแชตบอต",
+                        "wrap": True,
+                        "weight": "bold",
+                        "size": "sm",
+                        "color": "#D32F2F",
+                        "margin": "xs"
                     }
                 ]
             },
