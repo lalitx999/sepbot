@@ -1,16 +1,19 @@
-def evaluate_daily_check(has_fever, has_wound, has_breathless, has_confused, has_less_eat):
+def evaluate_daily_check(has_fever=False, has_confused=False, has_breathless=False, has_sputum=False, has_urine=False, has_less_eat=False, **kwargs):
     """
-    Evaluates 5 symptom questions into green, yellow, or red level.
+    Evaluates 6 daily check questions according to the new scoring rule:
+    0-1 symptoms: Green (อาการปกติ ติดตามอาการทุกวัน)
+    2-3 symptoms: Yellow (เฝ้าระวัง กรุณาติดต่อพยาบาลวิจัยและเฝ้าระวังอาการทุก 12 ชั่วโมง)
+    >3 symptoms: Red (อาการวิกฤต กรุณาผู้ป่วยส่งโรงพยาบาลด่วนหรือโทร 1669 ทันที)
     """
-    if not any([has_fever, has_wound, has_breathless, has_confused, has_less_eat]):
-        return 'green'
-    
-    # Severe combination -> Red
-    if has_confused and (has_fever or has_breathless or has_less_eat):
-        return 'red'
-    
-    # Any single symptom -> Yellow
-    return 'yellow'
+    symptoms = [has_fever, has_confused, has_breathless, has_sputum, has_urine, has_less_eat]
+    score = sum(1 for s in symptoms if bool(s))
+
+    if score <= 1:
+        return 'green', 'อาการปกติ ติดตามอาการทุกวัน'
+    elif 2 <= score <= 3:
+        return 'yellow', 'เฝ้าระวัง กรุณาติดต่อพยาบาลวิจัยและเฝ้าระวังอาการทุก 12 ชั่วโมง'
+    else:
+        return 'red', 'อาการวิกฤต กรุณาผู้ป่วยส่งโรงพยาบาลด่วนหรือโทร 1669 ทันที'
 
 
 def evaluate_sepsis_screening(data):
@@ -30,7 +33,7 @@ def evaluate_sepsis_screening(data):
     has_red = any(bool(data.get(k, False)) for k in red_keys)
 
     if has_red:
-        return True, False, "🚨 สัญญาณเตือนระดับสีแดง (Red Flags): พบสัญญาณเตือนอันตรายระดับสีแดง! ให้เริ่มชุดการดูแลผู้ป่วยภาวะเซพซิสที่มีสัญญาณเตือนระดับสีแดง: โทร 1669 และประสานการส่งผู้ป่วยไปโรงพยาบาลโดยรถพยาบาลที่มีไฟและเสียงสัญญาณฉุกเฉิน แจ้งทีมรถพยาบาลให้แจ้งเตือนโรงพยาบาลล่วงหน้าว่าเป็นผู้ป่วยที่มีภาวะติดเชื้อในกระแสเลือดที่มีสัญญาณเตือนระดับสีแดง"
+        return True, False, "🚨 สัญญาณเตือนระดับสีแดง (Red Flags): พบสัญญาณเตือนอันตรายระดับสีแดง! ให้เริ่มชุดการดูแลผู้ป่วยภาวะเซพซิสที่มีสัญญาณเตือนระดับสีแดง: โทร 1669 และประสานการส่งผู้ป่วยไปโรงพยาบาลโดยรถพยาบาลที่มีไฟและเสียงสัญญาณฉุกเฉิน แจ้งทีมรถพยาบาลให้แจ้งเตือนโรงพยาบาลล่วงหน้าว่าเป็นผู้ป่วยที่มีภาวะเซพซิสที่มีสัญญาณเตือนระดับสีแดง"
 
     # Step 4: Amber Flags (10 items)
     amber_keys = [

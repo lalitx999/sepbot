@@ -46,12 +46,14 @@
                     </td>
                     <td><span class="badge bg-light text-dark border">{{ c.get_responder_display }}</span></td>
                     <td class="small">
-                        {% if c.has_fever %}<span class="text-danger">• มีไข้/หนาวสั่น ({{ c.fever_detail|default:"-" }})</span><br>{% endif %}
-                        {% if c.has_wound %}<span class="text-danger">• แผลบวมแดง ({{ c.wound_detail|default:"-" }})</span><br>{% endif %}
-                        {% if c.has_breathless %}<span class="text-danger">• หายใจเหนื่อย ({{ c.breathless_detail|default:"-" }})</span><br>{% endif %}
-                        {% if c.has_confused %}<span class="text-danger">• ซึม/สับสน ({{ c.confused_detail|default:"-" }})</span><br>{% endif %}
-                        {% if c.has_less_eat %}<span class="text-warning text-dark">• ทานได้ลดลง ({{ c.less_eat_detail|default:"-" }})</span><br>{% endif %}
-                        {% if not c.has_fever and not c.has_wound and not c.has_breathless and not c.has_confused and not c.has_less_eat %}
+                        {% if c.has_fever %}<span class="text-danger">• มีไข้ >= 37.8°C / ต่ำกว่า 36°C / หนาวสั่น ({{ c.fever_detail|default:"-" }})</span><br>{% endif %}
+                        {% if c.has_confused %}<span class="text-danger">• ซึมลง สับสน พฤติกรรมเปลี่ยน ({{ c.confused_detail|default:"-" }})</span><br>{% endif %}
+                        {% if c.has_breathless %}<span class="text-danger">• หายใจลำบาก/เหนื่อย ({{ c.breathless_detail|default:"-" }})</span><br>{% endif %}
+                        {% if c.has_sputum %}<span class="text-danger">• เสมหะเปลี่ยนสี ({{ c.sputum_detail|default:"-" }})</span><br>{% endif %}
+                        {% if c.has_urine %}<span class="text-danger">• ปัสสาวะขุ่น/มีกลิ่น ({{ c.urine_detail|default:"-" }})</span><br>{% endif %}
+                        {% if c.has_less_eat %}<span class="text-warning text-dark">• ทานอาหาร/น้ำลดลง ({{ c.less_eat_detail|default:"-" }})</span><br>{% endif %}
+                        {% if c.has_wound %}<span class="text-secondary">• แผลบวมแดงเดิม ({{ c.wound_detail|default:"-" }})</span><br>{% endif %}
+                        {% if not c.has_fever and not c.has_confused and not c.has_breathless and not c.has_sputum and not c.has_urine and not c.has_less_eat and not c.has_wound %}
                             <span class="text-muted">ไม่มีอาการผิดปกติ</span>
                         {% endif %}
                     </td>

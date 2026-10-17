@@ -428,7 +428,7 @@
                     <div class="q-label">
                         <span class="q-number">1</span>
                         <i class="bi bi-thermometer-half"></i>
-                        วันนี้มีไข้หรือหนาวสั่นไหม
+                        วันนี้มีไข้ตั้งแต่ 37.8°C ขึ้นไป อุณหภูมิร่างกายต่ำกว่า 36°C หรือมีอาการหนาวสั่นหรือไม่
                     </div>
                     <div class="answer-group" id="hasFever">
                         <button type="button" class="answer-btn active" data-value="false">ไม่มี</button>
@@ -439,32 +439,8 @@
                 <div class="q-item">
                     <div class="q-label">
                         <span class="q-number">2</span>
-                        <i class="bi bi-bandage"></i>
-                        วันนี้แผลแดง บวม ร้อน หรือหนองไหม
-                    </div>
-                    <div class="answer-group" id="hasWound">
-                        <button type="button" class="answer-btn active" data-value="false">ไม่มี</button>
-                        <button type="button" class="answer-btn" data-value="true">มี</button>
-                    </div>
-                </div>
-
-                <div class="q-item">
-                    <div class="q-label">
-                        <span class="q-number">3</span>
-                        <i class="bi bi-lungs"></i>
-                        วันนี้หายใจเหนื่อยกว่าปกติไหม
-                    </div>
-                    <div class="answer-group" id="hasBreathless">
-                        <button type="button" class="answer-btn active" data-value="false">ไม่เหนื่อย</button>
-                        <button type="button" class="answer-btn" data-value="true">เหนื่อย</button>
-                    </div>
-                </div>
-
-                <div class="q-item">
-                    <div class="q-label">
-                        <span class="q-number">4</span>
                         <i class="bi bi-person-exclamation"></i>
-                        วันนี้ซึมหรือสับสนกว่าปกติไหม
+                        วันนี้มีอาการซึมลง สับสน หรือมีพฤติกรรมเปลี่ยนไปจากปกติหรือไม่
                     </div>
                     <div class="answer-group" id="hasConfused">
                         <button type="button" class="answer-btn active" data-value="false">ไม่มี</button>
@@ -474,16 +450,51 @@
 
                 <div class="q-item">
                     <div class="q-label">
+                        <span class="q-number">3</span>
+                        <i class="bi bi-lungs"></i>
+                        วันนี้มีอาการหายใจลำบากหรือเหนื่อยมากกว่าปกติหรือไม่
+                    </div>
+                    <div class="answer-group" id="hasBreathless">
+                        <button type="button" class="answer-btn active" data-value="false">ไม่มี</button>
+                        <button type="button" class="answer-btn" data-value="true">มี</button>
+                    </div>
+                </div>
+
+                <div class="q-item">
+                    <div class="q-label">
+                        <span class="q-number">4</span>
+                        <i class="bi bi-virus"></i>
+                        วันนี้เสมหะมีสีเปลี่ยนไปจากเดิมหรือไม่
+                    </div>
+                    <div class="answer-group" id="hasSputum">
+                        <button type="button" class="answer-btn active" data-value="false">ไม่มี</button>
+                        <button type="button" class="answer-btn" data-value="true">มี</button>
+                    </div>
+                </div>
+
+                <div class="q-item">
+                    <div class="q-label">
                         <span class="q-number">5</span>
+                        <i class="bi bi-droplet"></i>
+                        วันนี้ปัสสาวะขุ่นหรือมีกลิ่นผิดไปจากเดิมหรือไม่
+                    </div>
+                    <div class="answer-group" id="hasUrine">
+                        <button type="button" class="answer-btn active" data-value="false">ไม่มี</button>
+                        <button type="button" class="answer-btn" data-value="true">มี</button>
+                    </div>
+                </div>
+
+                <div class="q-item">
+                    <div class="q-label">
+                        <span class="q-number">6</span>
                         <i class="bi bi-cup-straw"></i>
-                        วันนี้กินอาหารหรือดื่มน้ำได้น้อยลงไหม
+                        วันนี้รับประทานอาหารหรือดื่มน้ำได้น้อยลงกว่าปกติหรือไม่
                     </div>
                     <div class="answer-group" id="hasLessEat">
                         <button type="button" class="answer-btn active" data-value="false">ไม่ลดลง</button>
                         <button type="button" class="answer-btn" data-value="true">ลดลง</button>
                     </div>
                 </div>
-
 
                 <hr>
 
@@ -506,7 +517,6 @@
             <div id="resultCard" class="card-check d-none mt-4" style="margin-bottom: 80px;">
                 <h5><i class="bi bi-clipboard2-check"></i> ผลการประเมินอาการ</h5>
                 <div id="resultBadge" class="status-badge mb-3"></div>
-                <p id="resultAdvice" class="mb-3" style="font-size: 15px; color: #1a2f3b; line-height: 1.6;"></p>
                 <div class="p-3 rounded text-center" style="background-color: #f0f7fc; border: 1.5px solid #d0e5f2; color: #1e3a5f;">
                     <p class="mb-1 fw-bold text-primary" style="font-size: 15px;">ขอบคุณที่ประเมินอาการวันนี้ค่ะ 💙</p>
                     <small class="d-block text-muted" style="line-height: 1.5;">อย่าลืมกลับมาประเมินอาการทุกวัน แม้วันที่รู้สึกสบายดี เพื่อช่วยสังเกตอาการที่เปลี่ยนไปนะคะ 🩺 <strong style="color: #0b69a3;">SepCare</strong> เป็นกำลังใจให้ค่ะ</small>
@@ -541,7 +551,7 @@
             }
         };
 
-        // มี / ไม่มี answer toggle buttons
+        // Answer toggle buttons
         document.querySelectorAll('.answer-group').forEach(function (group) {
             group.querySelectorAll('.answer-btn').forEach(function (btn) {
                 btn.addEventListener('click', function () {
@@ -569,9 +579,10 @@
                 line_user_id: document.getElementById('lineUserId').value,
                 responder: document.getElementById('responder').value,
                 has_fever: getAnswer('hasFever'),
-                has_wound: getAnswer('hasWound'),
-                has_breathless: getAnswer('hasBreathless'),
                 has_confused: getAnswer('hasConfused'),
+                has_breathless: getAnswer('hasBreathless'),
+                has_sputum: getAnswer('hasSputum'),
+                has_urine: getAnswer('hasUrine'),
                 has_less_eat: getAnswer('hasLessEat'),
             };
 
@@ -588,22 +599,18 @@
                     const res = data.daily_check;
                     const card = document.getElementById('resultCard');
                     const badge = document.getElementById('resultBadge');
-                    const advice = document.getElementById('resultAdvice');
 
                     card.classList.remove('d-none');
 
                     if (res.result_level === 'green') {
                         badge.className = 'status-badge bg-success';
-                        badge.innerHTML = '<i class="bi bi-check-circle-fill"></i> ปกติ (สีเขียว)';
-                        advice.innerText = 'อาการปกติ ให้ดูแลตนเองตามแผนการดูแลอย่างต่อเนื่อง';
+                        badge.innerHTML = '<i class="bi bi-check-circle-fill"></i> ' + (res.result_text || 'อาการปกติ ติดตามอาการทุกวัน');
                     } else if (res.result_level === 'yellow') {
                         badge.className = 'status-badge bg-warning';
-                        badge.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> อาการเฝ้าระวัง (สีเหลือง)';
-                        advice.innerText = 'พบอาการเสี่ยง ควรพักผ่อน สังเกตอาการใกล้ชิด และติดต่อพยาบาล/ผู้วิจัย';
+                        badge.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> ' + (res.result_text || 'เฝ้าระวัง กรุณาติดต่อพยาบาลวิจัยและเฝ้าระวังอาการทุก 12 ชั่วโมง');
                     } else {
                         badge.className = 'status-badge bg-danger';
-                        badge.innerHTML = '<i class="bi bi-exclamation-octagon-fill"></i> อาการวิกฤต (สีแดง)';
-                        advice.innerText = 'กรุณานำผู้ป่วยส่งโรงพยาบาลด่วน หรือโทร 1669 ทันที!';
+                        badge.innerHTML = '<i class="bi bi-exclamation-octagon-fill"></i> ' + (res.result_text || 'อาการวิกฤต กรุณาผู้ป่วยส่งโรงพยาบาลด่วนหรือโทร 1669 ทันที');
                     }
 
                     card.scrollIntoView({ behavior: 'smooth', block: 'center' });

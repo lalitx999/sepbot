@@ -23,20 +23,29 @@ class AssessmentAPITest(TestCase):
 
     def test_daily_check_green(self):
         url = '/api/v1/assessment/daily-check/'
+        # 0 symptoms
         data = {
             'line_user_id': self.user.line_user_id,
             'has_fever': False,
-            'has_wound': False,
-            'has_breathless': False,
             'has_confused': False,
+            'has_breathless': False,
+            'has_sputum': False,
+            'has_urine': False,
             'has_less_eat': False,
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['daily_check']['result_level'], 'green')
+        self.assertEqual(response.data['daily_check']['result_text'], 'อาการปกติ ติดตามอาการทุกวัน')
 
-    def test_daily_check_red(self):
+        # 1 symptom (still green)
+        data['has_fever'] = True
+        response2 = self.client.post(url, data, format='json')
+        self.assertEqual(response2.data['daily_check']['result_level'], 'green')
+
+    def test_daily_check_yellow(self):
         url = '/api/v1/assessment/daily-check/'
+        # 2 symptoms
         data = {
             'line_user_id': self.user.line_user_id,
             'has_fever': True,
@@ -44,25 +53,23 @@ class AssessmentAPITest(TestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['daily_check']['result_level'], 'red')
+        self.assertEqual(response.data['daily_check']['result_level'], 'yellow')
+        self.assertEqual(response.data['daily_check']['result_text'], 'เฝ้าระวัง กรุณาติดต่อพยาบาลวิจัยและเฝ้าระวังอาการทุก 12 ชั่วโมง')
 
-    def test_sepsis_screening_red_flag(self):
-        url = '/api/v1/assessment/screening/'
+    def test_daily_check_red(self):
+        url = '/api/v1/assessment/daily-check/'
+        # >3 symptoms (4 symptoms)
         data = {
             'line_user_id': self.user.line_user_id,
-            'red_flag_mental': True,
-            'red_flag_rr_ge25': True,
+            'has_fever': True,
+            'has_confused': True,
+            'has_breathless': True,
+            'has_sputum': True,
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(response.data['screening']['has_red_flag'])
-
-    def test_daily_check_yellow(self):
-        response = self.client.post('/api/v1/assessment/daily-check/', {
-            'line_user_id': self.user.line_user_id, 'has_fever': True}, format='json')
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data['daily_check']['result_level'], 'yellow')
-        self.push.assert_called_once()
+        self.assertEqual(response.data['daily_check']['result_level'], 'red')
+        self.assertEqual(response.data['daily_check']['result_text'], 'อาการวิกฤต กรุณาผู้ป่วยส่งโรงพยาบาลด่วนหรือโทร 1669 ทันที')
 
     def test_screening_levels_and_line_summary_match(self):
         for flags, red, amber in [({}, False, False),

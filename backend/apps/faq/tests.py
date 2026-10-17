@@ -10,7 +10,7 @@ class FAQAPITest(TestCase):
             order=1,
             category='general',
             question='ภาวะเซพซิสคืออะไร?',
-            answer='คือภาวะติดเชื้อในกระแสเลือดขั้นรุนแรง'
+            answer='คือภาวะเซพซิสขั้นรุนแรง'
         )
 
     def test_list_faq(self):

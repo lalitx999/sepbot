@@ -3,7 +3,7 @@ from .models import DailyCheck, SepsisScreening
 
 @admin.register(DailyCheck)
 class DailyCheckAdmin(admin.ModelAdmin):
-    list_display = ('user', 'date', 'result_level', 'has_fever', 'has_wound', 'has_breathless', 'has_confused', 'has_less_eat', 'responder', 'responded_at')
+    list_display = ('user', 'date', 'result_level', 'has_fever', 'has_confused', 'has_breathless', 'has_sputum', 'has_urine', 'has_less_eat', 'responder', 'responded_at')
     list_filter = ('result_level', 'responder', 'date')
     search_fields = ('user__name', 'user__id_card', 'user__line_user_id')
     date_hierarchy = 'date'

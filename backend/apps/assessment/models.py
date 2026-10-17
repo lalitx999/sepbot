@@ -19,23 +19,31 @@ class DailyCheck(models.Model):
     family = models.ForeignKey(FamilyGroup, on_delete=models.CASCADE, related_name='daily_checks', verbose_name="กลุ่มครอบครัว")
     date = models.DateField(default=timezone.now, verbose_name="วันที่ประเมิน")
     
-    # 5 Daily Assessment Questions
-    has_fever = models.BooleanField(default=False, verbose_name="1. มีไข้หรือหนาวสั่น")
+    # 6 Daily Assessment Questions
+    has_fever = models.BooleanField(default=False, verbose_name="1. มีไข้ >= 37.8°C หรือ < 36°C หรือหนาวสั่น")
     fever_detail = models.CharField(max_length=50, blank=True, null=True, verbose_name="รายละเอียดไข้/อุณหภูมิ")
 
-    has_wound = models.BooleanField(default=False, verbose_name="2. แผลบวม/แดง/มีปวดบวม")
-    wound_detail = models.CharField(max_length=100, blank=True, null=True, verbose_name="รายละเอียดแผล")
-
-    has_breathless = models.BooleanField(default=False, verbose_name="3. หายใจเหนื่อย/หอบ")
-    breathless_detail = models.CharField(max_length=100, blank=True, null=True, verbose_name="รายละเอียดหายใจ")
-
-    has_confused = models.BooleanField(default=False, verbose_name="4. ซึม/สับสน/ง่วงผิดปกติ")
+    has_confused = models.BooleanField(default=False, verbose_name="2. ซึมลง สับสน หรือพฤติกรรมเปลี่ยน")
     confused_detail = models.CharField(max_length=100, blank=True, null=True, verbose_name="รายละเอียดซึม/สับสน")
 
-    has_less_eat = models.BooleanField(default=False, verbose_name="5. ทานอาหาร/ดื่มน้ำได้ลดลงมาก")
+    has_breathless = models.BooleanField(default=False, verbose_name="3. หายใจลำบากหรือเหนื่อยมากกว่าปกติ")
+    breathless_detail = models.CharField(max_length=100, blank=True, null=True, verbose_name="รายละเอียดหายใจ")
+
+    has_sputum = models.BooleanField(default=False, verbose_name="4. เสมหะมีสีเปลี่ยนไปจากเดิม")
+    sputum_detail = models.CharField(max_length=100, blank=True, null=True, verbose_name="รายละเอียดเสมหะ")
+
+    has_urine = models.BooleanField(default=False, verbose_name="5. ปัสสาวะขุ่นหรือมีกลิ่นผิดไปจากเดิม")
+    urine_detail = models.CharField(max_length=100, blank=True, null=True, verbose_name="รายละเอียดปัสสาวะ")
+
+    has_less_eat = models.BooleanField(default=False, verbose_name="6. รับประทานอาหารหรือดื่มน้ำได้น้อยลง")
     less_eat_detail = models.CharField(max_length=100, blank=True, null=True, verbose_name="รายละเอียดการทาน")
 
+    # Kept for backward compatibility
+    has_wound = models.BooleanField(default=False, verbose_name="แผลบวม/แดง/มีปวดบวม (เดิม)")
+    wound_detail = models.CharField(max_length=100, blank=True, null=True, verbose_name="รายละเอียดแผล")
+
     result_level = models.CharField(max_length=10, choices=RESULT_CHOICES, verbose_name="ระดับผลประเมิน")
+    result_text = models.CharField(max_length=255, blank=True, null=True, verbose_name="ข้อความสรุปผลประเมิน")
     responder = models.CharField(max_length=20, choices=RESPONDER_CHOICES, default='patient', verbose_name="ผู้ตอบแบบประเมิน")
     responded_at = models.DateTimeField(default=timezone.now, verbose_name="เวลาที่ตอบ")
 

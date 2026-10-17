@@ -22,12 +22,21 @@ class DailyCheckView(APIView):
             return Response({'error': 'ผู้ใช้ยังไม่ได้ผูกกับกลุ่มครอบครัว'}, status=status.HTTP_400_BAD_REQUEST)
 
         has_fever = bool(request.data.get('has_fever', False))
-        has_wound = bool(request.data.get('has_wound', False))
-        has_breathless = bool(request.data.get('has_breathless', False))
         has_confused = bool(request.data.get('has_confused', False))
+        has_breathless = bool(request.data.get('has_breathless', False))
+        has_sputum = bool(request.data.get('has_sputum', False))
+        has_urine = bool(request.data.get('has_urine', False))
         has_less_eat = bool(request.data.get('has_less_eat', False))
+        has_wound = bool(request.data.get('has_wound', False))
 
-        result_level = evaluate_daily_check(has_fever, has_wound, has_breathless, has_confused, has_less_eat)
+        result_level, result_text = evaluate_daily_check(
+            has_fever=has_fever,
+            has_confused=has_confused,
+            has_breathless=has_breathless,
+            has_sputum=has_sputum,
+            has_urine=has_urine,
+            has_less_eat=has_less_eat,
+        )
 
         today = timezone.now().date()
         daily_check, created = DailyCheck.objects.update_or_create(
@@ -37,15 +46,20 @@ class DailyCheckView(APIView):
                 'family': user.family,
                 'has_fever': has_fever,
                 'fever_detail': request.data.get('fever_detail', ''),
-                'has_wound': has_wound,
-                'wound_detail': request.data.get('wound_detail', ''),
-                'has_breathless': has_breathless,
-                'breathless_detail': request.data.get('breathless_detail', ''),
                 'has_confused': has_confused,
                 'confused_detail': request.data.get('confused_detail', ''),
+                'has_breathless': has_breathless,
+                'breathless_detail': request.data.get('breathless_detail', ''),
+                'has_sputum': has_sputum,
+                'sputum_detail': request.data.get('sputum_detail', ''),
+                'has_urine': has_urine,
+                'urine_detail': request.data.get('urine_detail', ''),
                 'has_less_eat': has_less_eat,
                 'less_eat_detail': request.data.get('less_eat_detail', ''),
+                'has_wound': has_wound,
+                'wound_detail': request.data.get('wound_detail', ''),
                 'result_level': result_level,
+                'result_text': result_text,
                 'responder': request.data.get('responder', 'patient'),
                 'responded_at': timezone.now(),
             }
