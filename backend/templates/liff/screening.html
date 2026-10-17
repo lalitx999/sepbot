@@ -478,28 +478,38 @@
                     </label>
 
                     <label class="check-tile-item">
-                        <input type="checkbox" id="infection_device" class="step2-check">
-                        <span class="check-tile-label">3. วัตถุที่ค้างอยู่ในร่างกาย เช่น สายสวนปัสสาวะ สายให้อาหาร ท่อเจาะคอ หรือสายสวนหลอดเลือดส่วนกลาง</span>
+                        <input type="checkbox" id="infection_digestive" class="step2-check">
+                        <span class="check-tile-label">3. ระบบทางเดินอาหาร</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="infection_circulatory" class="step2-check">
+                        <span class="check-tile-label">4. ระบบไหลเวียนโลหิต</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="infection_skin" class="step2-check">
-                        <span class="check-tile-label">4. ผิวหนัง / ข้อต่อ / บาดแผล</span>
+                        <span class="check-tile-label">5. ผิวหนัง / ข้อต่อ / บาดแผล</span>
+                    </label>
+
+                    <label class="check-tile-item">
+                        <input type="checkbox" id="infection_device" class="step2-check">
+                        <span class="check-tile-label">6. วัตถุที่ค้างอยู่ในร่างกาย เช่น สายสวนปัสสาวะ สายให้อาหาร ท่อเจาะคอ หรือสายสวนหลอดเลือดส่วนกลาง</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="infection_brain" class="step2-check">
-                        <span class="check-tile-label">5. สมอง</span>
+                        <span class="check-tile-label">7. สมอง</span>
                     </label>
 
                     <label class="check-tile-item">
                         <input type="checkbox" id="infection_surgery" class="step2-check">
-                        <span class="check-tile-label">6. การผ่าตัด</span>
+                        <span class="check-tile-label">8. การผ่าตัด</span>
                     </label>
 
                     <label class="check-tile-item mb-1">
                         <input type="checkbox" id="infection_other_check" class="step2-check" onchange="toggleOtherText(this)">
-                        <span class="check-tile-label">7. อื่น ๆ (ระบุ)</span>
+                        <span class="check-tile-label">9. อื่น ๆ (ระบุ)</span>
                     </label>
                     <input type="text" id="infection_other_text" class="other-text-input d-none" placeholder="ระบุแหล่งติดเชื้ออื่นๆ...">
 
@@ -830,6 +840,8 @@
                 recent_surgery: document.getElementById('recent_surgery').checked,
                 infection_respiratory: false,
                 infection_urinary: false,
+                infection_digestive: false,
+                infection_circulatory: false,
                 infection_skin: false,
                 infection_device: false,
                 infection_brain: false,
@@ -873,6 +885,8 @@
 
                 infection_respiratory: document.getElementById('infection_respiratory').checked,
                 infection_urinary: document.getElementById('infection_urinary').checked,
+                infection_digestive: document.getElementById('infection_digestive').checked,
+                infection_circulatory: document.getElementById('infection_circulatory').checked,
                 infection_skin: document.getElementById('infection_skin').checked,
                 infection_device: document.getElementById('infection_device').checked,
                 infection_brain: document.getElementById('infection_brain').checked,

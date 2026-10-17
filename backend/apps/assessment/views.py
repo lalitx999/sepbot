@@ -106,6 +106,8 @@ class SepsisScreeningView(APIView):
             'recent_surgery': bool(request.data.get('recent_surgery', False)),
             'infection_respiratory': bool(request.data.get('infection_respiratory', False)),
             'infection_urinary': bool(request.data.get('infection_urinary', False)),
+            'infection_digestive': bool(request.data.get('infection_digestive', False)),
+            'infection_circulatory': bool(request.data.get('infection_circulatory', False)),
             'infection_skin': bool(request.data.get('infection_skin', False)),
             'infection_device': bool(request.data.get('infection_device', False)),
             'infection_brain': bool(request.data.get('infection_brain', False)),

@@ -61,8 +61,9 @@ def evaluate_sepsis_screening(data):
 
     # Step 2: Infection Source
     inf_keys = [
-        'infection_respiratory', 'infection_urinary', 'infection_skin',
-        'infection_device', 'infection_brain', 'infection_surgery'
+        'infection_respiratory', 'infection_urinary', 'infection_digestive',
+        'infection_circulatory', 'infection_skin', 'infection_device',
+        'infection_brain', 'infection_surgery'
     ]
     has_infection = any(bool(data.get(k, False)) for k in inf_keys) or bool(data.get('infection_other', '').strip())
 
