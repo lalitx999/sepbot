@@ -344,12 +344,25 @@
         }
 
         .status-badge .bi {
-            font-size: 32px;
+            font-size: 34px;
             flex-shrink: 0;
         }
 
         .status-badge .status-text {
             text-align: left;
+        }
+
+        .status-badge .status-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .status-badge .status-desc {
+            font-size: 1.02rem;
+            font-weight: 500;
+            margin-top: 10px;
+            line-height: 1.45;
         }
 
         #resultAdvice {
@@ -610,13 +623,13 @@
 
                     if (res.result_level === 'green') {
                         badge.className = 'status-badge bg-success';
-                        badge.innerHTML = '<i class="bi bi-check-circle-fill"></i> <div class="status-text">อาการปกติ<br>ติดตามอาการทุกวัน</div>';
+                        badge.innerHTML = '<i class="bi bi-check-circle-fill"></i> <div class="status-text"><div class="status-title">อาการปกติ</div><div class="status-desc">ติดตามอาการทุกวัน</div></div>';
                     } else if (res.result_level === 'yellow') {
                         badge.className = 'status-badge bg-warning';
-                        badge.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> <div class="status-text">เฝ้าระวัง<br>กรุณาติดต่อพยาบาลวิจัย<br>และเฝ้าระวังอาการทุก 12 ชั่วโมง</div>';
+                        badge.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> <div class="status-text"><div class="status-title">เฝ้าระวัง</div><div class="status-desc">กรุณาติดต่อพยาบาลวิจัย<br>และเฝ้าระวังอาการทุก 12 ชั่วโมง</div></div>';
                     } else {
                         badge.className = 'status-badge bg-danger';
-                        badge.innerHTML = '<i class="bi bi-exclamation-octagon-fill"></i> <div class="status-text">อาการวิกฤต<br>กรุณาผู้ป่วยส่งโรงพยาบาลด่วน<br>หรือโทร 1669 ทันที</div>';
+                        badge.innerHTML = '<i class="bi bi-exclamation-octagon-fill"></i> <div class="status-text"><div class="status-title">อาการวิกฤต</div><div class="status-desc">กรุณาผู้ป่วยส่งโรงพยาบาลด่วน<br>หรือโทร 1669 ทันที</div></div>';
                     }
 
                     card.scrollIntoView({ behavior: 'smooth', block: 'center' });
