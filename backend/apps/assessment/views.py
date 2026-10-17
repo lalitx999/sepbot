@@ -70,7 +70,7 @@ class DailyCheckView(APIView):
             user_name = user.name or "คนดี"
             push_line_message(
                 user.line_user_id,
-                f"ขอบคุณคุณ {user_name} ที่ประเมินอาการวันนี้ค่ะ 💙\nอย่าลืมกลับมาประเมินอาการทุกวัน แม้วันที่รู้สึกสบายดี เพื่อช่วยสังเกตอาการที่เปลี่ยนไปนะคะ 🩺 SepCare เป็นกำลังใจให้ค่ะ"
+                f"ขอบคุณคุณ {user_name} ที่ประเมินอาการวันนี้ค่ะ 💙\nอย่าลืมกลับมาประเมินอาการทุกวัน แม้วันที่รู้สึกสบายดี\nเพื่อช่วยสังเกตอาการที่เปลี่ยนไปนะคะ\n🩺 SepCare เป็นกำลังใจให้ค่ะ"
             )
         except Exception as e:
             print(f"Daily check encouragement push warning: {e}")

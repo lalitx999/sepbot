@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>เช็คอาการประจำวัน - SepCare</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -537,8 +540,8 @@
                 <h5><i class="bi bi-clipboard2-check"></i> ผลการประเมินอาการ</h5>
                 <div id="resultBadge" class="status-badge mb-3"></div>
                 <div class="p-3 rounded text-center" style="background-color: #f0f7fc; border: 1.5px solid #d0e5f2; color: #1e3a5f;">
-                    <p class="mb-1 fw-bold text-primary" style="font-size: 15px;">ขอบคุณที่ประเมินอาการวันนี้ค่ะ 💙</p>
-                    <small class="d-block text-muted" style="line-height: 1.5;">อย่าลืมกลับมาประเมินอาการทุกวัน แม้วันที่รู้สึกสบายดี เพื่อช่วยสังเกตอาการที่เปลี่ยนไปนะคะ 🩺 <strong style="color: #0b69a3;">SepCare</strong> เป็นกำลังใจให้ค่ะ</small>
+                    <p class="mb-2 fw-bold text-primary" style="font-size: 15px;">ขอบคุณที่ประเมินอาการวันนี้ค่ะ 💙</p>
+                    <small class="d-block text-muted" style="line-height: 1.6;">อย่าลืมกลับมาประเมินอาการทุกวัน แม้วันที่รู้สึกสบายดี<br>เพื่อช่วยสังเกตอาการที่เปลี่ยนไปนะคะ<br>🩺 <strong style="color: #0b69a3;">SepCare</strong> เป็นกำลังใจให้ค่ะ</small>
                 </div>
                 <button type="button" class="btn btn-outline-primary w-100 mt-3" onclick="closeLiffWindow()">
                     <i class="bi bi-x-circle me-1"></i> ปิดหน้านี้กลับไปที่ LINE
@@ -623,13 +626,13 @@
 
                     if (res.result_level === 'green') {
                         badge.className = 'status-badge bg-success';
-                        badge.innerHTML = '<i class="bi bi-check-circle-fill"></i> <div class="status-text"><div class="status-title">อาการปกติ</div><div class="status-desc">ติดตามอาการทุกวัน</div></div>';
+                        badge.innerHTML = '<i class="bi bi-check-circle-fill"></i> <div class="status-text"><div style="font-weight: 700; font-size: 1.25rem;">อาการปกติ</div><div style="height: 14px;"></div><div style="font-size: 1.05rem; font-weight: 500;">ติดตามอาการทุกวัน</div></div>';
                     } else if (res.result_level === 'yellow') {
                         badge.className = 'status-badge bg-warning';
-                        badge.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> <div class="status-text"><div class="status-title">เฝ้าระวัง</div><div class="status-desc">กรุณาติดต่อพยาบาลวิจัย<br>และเฝ้าระวังอาการทุก 12 ชั่วโมง</div></div>';
+                        badge.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> <div class="status-text"><div style="font-weight: 700; font-size: 1.25rem;">เฝ้าระวัง</div><div style="height: 14px;"></div><div style="font-size: 1.05rem; font-weight: 500;">กรุณาติดต่อพยาบาลวิจัย<br>และเฝ้าระวังอาการทุก 12 ชั่วโมง</div></div>';
                     } else {
                         badge.className = 'status-badge bg-danger';
-                        badge.innerHTML = '<i class="bi bi-exclamation-octagon-fill"></i> <div class="status-text"><div class="status-title">อาการวิกฤต</div><div class="status-desc">กรุณาผู้ป่วยส่งโรงพยาบาลด่วน<br>หรือโทร 1669 ทันที</div></div>';
+                        badge.innerHTML = '<i class="bi bi-exclamation-octagon-fill"></i> <div class="status-text"><div style="font-weight: 700; font-size: 1.25rem;">อาการวิกฤต</div><div style="height: 14px;"></div><div style="font-size: 1.05rem; font-weight: 500;">กรุณาผู้ป่วยส่งโรงพยาบาลด่วน<br>หรือโทร 1669 ทันที</div></div>';
                     }
 
                     card.scrollIntoView({ behavior: 'smooth', block: 'center' });
