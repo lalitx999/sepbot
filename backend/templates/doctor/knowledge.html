@@ -297,7 +297,7 @@
             cancelButtonText: 'ยกเลิก'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`/doctor/api/knowledge/delete/${id}/`, {
+                fetch('{% url "doctor-api-knowledge-delete" 0 %}'.replace(/0\/$/, id + '/'), {
                     method: 'POST',
                     headers: { 'X-CSRFToken': '{{ csrf_token }}' }
                 })

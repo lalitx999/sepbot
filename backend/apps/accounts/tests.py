@@ -117,3 +117,16 @@ class KnowledgeImageUploadTests(TestCase):
         fake = SimpleUploadedFile('evil.png', b'<script>alert(1)</script>', content_type='image/png')
         res = self.client.post(self.url, {'image': fake})
         self.assertEqual(res.status_code, 400)
+
+
+class DoctorDeleteRoutesTests(TestCase):
+    def test_knowledge_delete_removes_article(self):
+        from django.contrib.auth.models import User
+        from django.urls import reverse
+        from knowledge.models import KnowledgeArticle, KnowledgeCategory
+        self.client.force_login(User.objects.create_user('nurse2', password='x', is_staff=True))
+        cat = KnowledgeCategory.objects.create(name='c', slug='c')
+        art = KnowledgeArticle.objects.create(category=cat, title='t', content='<p>x</p>')
+        url = reverse('doctor-api-knowledge-delete', args=[art.id])
+        self.assertEqual(self.client.post(url).json()['status'], 'success')
+        self.assertFalse(KnowledgeArticle.objects.filter(id=art.id).exists())

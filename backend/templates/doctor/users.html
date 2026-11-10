@@ -173,7 +173,7 @@
             allergy: document.getElementById('usrAllergy').value,
         };
 
-        fetch(`/doctor/api/user/update/${userId}/`, {
+        fetch('{% url "doctor-api-user-update" 0 %}'.replace(/0\/$/, userId + '/'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
             body: JSON.stringify(payload)
