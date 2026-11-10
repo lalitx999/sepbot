@@ -111,6 +111,14 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">เนื้อหาบทความ <span class="text-primary font-monospace small">(พิมพ์ตามปกติ หรือก๊อบปี้มาจาก Word ได้ทันที)</span></label>
+                        <!-- Document import: fills the editor from a Word (.docx) or text file -->
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <input type="file" id="docUpload" accept=".docx,.txt,.md" class="d-none" onchange="importDocument(this)">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('docUpload').click()">
+                                <i class="bi bi-upload me-1"></i>อัปโหลดเอกสาร
+                            </button>
+                            <span class="text-muted small" id="docUploadStatus">รองรับไฟล์ Word (.docx) และข้อความ (.txt) — เนื้อหาจะถูกใส่ในช่องด้านล่างให้แก้ไขต่อได้</span>
+                        </div>
                         <!-- Quill Rich Text Editor Container -->
                         <div id="quillEditor" style="height: 250px; background: #ffffff;"></div>
                     </div>
@@ -128,6 +136,7 @@
 {% block extra_script %}
 <!-- Quill Rich Text Editor JS -->
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <script>
     let articleModalObj = null;
     let quill = null;
@@ -150,6 +159,45 @@
             }
         });
     });
+
+    function escapeHtml(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Import a .docx / .txt / .md file into the Quill editor (converted in the browser)
+    async function importDocument(input) {
+        const file = input.files[0];
+        const status = document.getElementById('docUploadStatus');
+        if (!file) return;
+        const name = file.name.toLowerCase();
+        try {
+            if (quill.getText().trim() && !confirm('เนื้อหาในช่องแก้ไขจะถูกแทนที่ด้วยไฟล์ที่อัปโหลด ต้องการดำเนินการต่อหรือไม่?')) {
+                return;
+            }
+            status.textContent = 'กำลังอ่านไฟล์...';
+            let html;
+            if (name.endsWith('.docx')) {
+                const result = await mammoth.convertToHtml({ arrayBuffer: await file.arrayBuffer() });
+                html = result.value;
+            } else if (name.endsWith('.txt') || name.endsWith('.md')) {
+                const text = await file.text();
+                html = text.split(/\n{2,}/).map(p => '<p>' + escapeHtml(p).replace(/\n/g, '<br>') + '</p>').join('');
+            } else {
+                throw new Error('รองรับเฉพาะไฟล์ .docx, .txt และ .md (ไฟล์ .doc เก่าให้บันทึกเป็น .docx ก่อน)');
+            }
+            quill.setContents([]);
+            quill.clipboard.dangerouslyPasteHTML(0, html);
+            const titleEl = document.getElementById('artTitle');
+            if (!titleEl.value.trim()) {
+                titleEl.value = file.name.replace(/\.[^.]+$/, '');
+            }
+            status.textContent = 'นำเข้าไฟล์ "' + file.name + '" แล้ว ตรวจสอบเนื้อหาก่อนกดบันทึก';
+        } catch (e) {
+            status.textContent = 'อัปโหลดไม่สำเร็จ: ' + e.message;
+        } finally {
+            input.value = '';
+        }
+    }
 
     function openArticleModal() {
         document.getElementById('artId').value = '';

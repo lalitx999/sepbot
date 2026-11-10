@@ -226,7 +226,7 @@ def handle_incoming_text(line_user_id, text_content):
       - Direct nurse hand-off
       - E-book quick access
       - FAQ database matching
-      - OpenAI Medical AI (self-care & healthcare advisor, strict diagnosis guardrails, topic lock)
+      - Medical AI (Groq, fallback DeepSeek) (self-care & healthcare advisor, strict diagnosis guardrails, topic lock)
     """
     text = (text_content or '').strip()
 

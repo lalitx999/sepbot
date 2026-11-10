@@ -17,49 +17,50 @@ def clean_think_tags(text):
 
 def query_medical_ai(user_question, user_context=None):
     """
-    Queries OpenAI, Groq, or DeepSeek API for medical and self-care advice.
+    Queries Groq (primary) with DeepSeek as fallback for medical and self-care advice.
     Strict medical safety boundaries:
       1. NEVER diagnose diseases (ห้ามวินิจฉัยโรคเด็ดขาด AI ไม่ใช่แพทย์)
       2. Advise on self-care, symptom monitoring, and proper care only (แนะนำการปฏิบัติตัวและการดูแลรักษาเบื้องต้นเท่านั้น)
       3. Strict topic lock: ONLY answer medical, health, and patient care questions. Politely decline off-topic queries.
       4. Emergency red flags: emphasize calling 1669 immediately when severe signs are detected.
     """
-    openai_api_key = getattr(settings, 'OPENAI_API_KEY', None) or os.getenv('OPENAI_API_KEY')
-    groq_api_key = getattr(settings, 'GROQ_API_KEY', None) or os.getenv('GROQ_API_KEY')
-    deepseek_api_key = getattr(settings, 'DEEPSEEK_API_KEY', None) or os.getenv('DEEPSEEK_API_KEY')
+    groq_api_key = (getattr(settings, 'GROQ_API_KEY', None) or os.getenv('GROQ_API_KEY') or '').strip()
+    deepseek_api_key = (getattr(settings, 'DEEPSEEK_API_KEY', None) or os.getenv('DEEPSEEK_API_KEY') or '').strip()
 
-    api_key = None
-    url = None
-    candidate_models = []
-    provider = None
-
-    if openai_api_key and openai_api_key not in ['your_openai_api_key_here', '']:
-        api_key = openai_api_key.strip()
-        url = "https://api.openai.com/v1/chat/completions"
-        candidate_models = [
-            os.getenv('OPENAI_MODEL', 'gpt-4o-mini'),
-            'gpt-4o-mini',
-            'gpt-4o',
-        ]
-        candidate_models = list(dict.fromkeys(candidate_models))
-        provider = "OpenAI"
-    elif groq_api_key and groq_api_key not in ['your_groq_api_key_here', '']:
-        api_key = groq_api_key.strip()
-        url = "https://api.groq.com/openai/v1/chat/completions"
-        candidate_models = [
-            os.getenv('GROQ_MODEL', 'llama-3.1-8b-instant'),
-            'llama-3.1-8b-instant',
+    # Providers are tried in order: Groq first, DeepSeek as fallback.
+    providers = []
+    if groq_api_key and groq_api_key != 'your_groq_api_key_here':
+        groq_models = list(dict.fromkeys([
+            os.getenv('GROQ_MODEL', 'openai/gpt-oss-20b'),
             'openai/gpt-oss-20b',
-        ]
-        candidate_models = list(dict.fromkeys(candidate_models))
-        provider = "Groq"
-    elif deepseek_api_key and deepseek_api_key not in ['your_deepseek_api_key_here', '']:
-        api_key = deepseek_api_key.strip()
-        url = "https://api.deepseek.com/v1/chat/completions"
-        candidate_models = [os.getenv('DEEPSEEK_MODEL', 'deepseek-chat')]
-        provider = "DeepSeek"
-    else:
-        print("[AI Service Warning] No valid OPENAI_API_KEY, GROQ_API_KEY, or DEEPSEEK_API_KEY configured.")
+            'llama-3.1-8b-instant',
+        ]))
+        try:
+            groq_temp = float(os.getenv('GROQ_TEMPERATURE', '0.2'))
+        except ValueError:
+            groq_temp = 0.2
+        try:
+            groq_top_p = float(os.getenv('GROQ_TOP_P', '0.5'))
+        except ValueError:
+            groq_top_p = 0.5
+        providers.append({
+            'name': 'Groq',
+            'api_key': groq_api_key,
+            'url': "https://api.groq.com/openai/v1/chat/completions",
+            'models': groq_models,
+            'extra': {'temperature': groq_temp, 'top_p': groq_top_p},
+        })
+    if deepseek_api_key and deepseek_api_key != 'your_deepseek_api_key_here':
+        providers.append({
+            'name': 'DeepSeek',
+            'api_key': deepseek_api_key,
+            'url': "https://api.deepseek.com/v1/chat/completions",
+            'models': [os.getenv('DEEPSEEK_MODEL', 'deepseek-chat')],
+            'extra': {'temperature': 0.4},
+        })
+
+    if not providers:
+        print("[AI Service Warning] No valid GROQ_API_KEY or DEEPSEEK_API_KEY configured.")
         return None
 
     system_prompt = (
@@ -93,41 +94,36 @@ def query_medical_ai(user_question, user_context=None):
         {"role": "user", "content": user_question}
     ]
 
-    try:
-        temp_val = float(os.getenv('OPENAI_TEMPERATURE', '0.4'))
-    except ValueError:
-        temp_val = 0.4
-
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-
-    for current_model in candidate_models:
-        payload = {
-            "model": current_model,
-            "messages": messages,
-            "temperature": temp_val,
-            "max_tokens": 800
+    for prov in providers:
+        headers = {
+            "Authorization": f"Bearer {prov['api_key']}",
+            "Content-Type": "application/json"
         }
-
-        try:
-            response = requests.post(url, headers=headers, json=payload, timeout=15)
-            if response.status_code == 200:
-                res_data = response.json()
-                msg_obj = res_data['choices'][0]['message']
-                raw_answer = (msg_obj.get('content') or '').strip()
-                clean_answer = clean_think_tags(raw_answer)
-                return clean_answer
-            elif response.status_code in [400, 404] and ('model' in response.text or 'decommissioned' in response.text):
-                print(f"[{provider} Model Warning] Model '{current_model}' unavailable, trying next candidate...")
+        for current_model in prov['models']:
+            payload = {
+                "model": current_model,
+                "messages": messages,
+                "max_tokens": 800,
+                **prov['extra'],
+            }
+            try:
+                response = requests.post(prov['url'], headers=headers, json=payload, timeout=15)
+                if response.status_code == 200:
+                    msg_obj = response.json()['choices'][0]['message']
+                    raw_answer = (msg_obj.get('content') or '').strip()
+                    clean_answer = clean_think_tags(raw_answer)
+                    if clean_answer:
+                        return clean_answer
+                    continue
+                elif response.status_code in [400, 404] and ('model' in response.text or 'decommissioned' in response.text):
+                    print(f"[{prov['name']} Model Warning] Model '{current_model}' unavailable, trying next candidate...")
+                    continue
+                else:
+                    print(f"[{prov['name']} API Error] Model: {current_model} | Status: {response.status_code} | Response: {response.text}")
+                    continue
+            except Exception as e:
+                print(f"[{prov['name']} API Exception with {current_model}]: {e}")
                 continue
-            else:
-                print(f"[{provider} API Error] Model: {current_model} | Status: {response.status_code} | Response: {response.text}")
-                continue
-        except Exception as e:
-            print(f"[{provider} API Exception with {current_model}]: {e}")
-            continue
 
     return None
 
