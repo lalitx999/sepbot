@@ -15,6 +15,58 @@ def clean_think_tags(text):
     cleaned = re.sub(r'</?think>', '', cleaned)
     return cleaned.strip()
 
+def to_plain_text(text):
+    """
+    LINE does not render Markdown, so convert whatever the model emits into
+    clean plain text: strip headings/bold/code marks and horizontal rules,
+    turn "-"/"*" bullets into "•", and flatten Markdown tables into one line per row.
+    """
+    if not text:
+        return ""
+    out = []
+    in_table = False
+    header_skipped = False
+    for raw in text.splitlines():
+        line = raw.rstrip()
+        stripped = line.strip()
+
+        # Horizontal rules (---, ***, ___)
+        if re.fullmatch(r'[-*_]{3,}', stripped):
+            in_table = False
+            continue
+
+        # Markdown tables
+        if stripped.startswith('|'):
+            if re.fullmatch(r'\|?[\s:|-]+\|?', stripped):  # |---|---| separator
+                continue
+            cells = [c.strip() for c in stripped.strip('|').split('|')]
+            if not in_table:
+                in_table = True
+                header_skipped = False
+            if not header_skipped:
+                # first row of a table is the header; the cells repeat in every row's meaning
+                header_skipped = True
+                continue
+            cells = [c for c in cells if c and not re.fullmatch(r'\d+', c)]
+            if cells:
+                out.append('• ' + ' – '.join(cells))
+            continue
+        in_table = False
+
+        line = re.sub(r'^\s{0,3}#{1,6}\s*', '', line)        # headings
+        line = re.sub(r'^\s*[-*+]\s+', '• ', line)            # bullets
+        line = re.sub(r'^\s*>\s?', '', line)                   # blockquotes
+        out.append(line)
+
+    result = '\n'.join(out)
+    result = re.sub(r'(\*\*|__)(.+?)\1', r'\2', result)     # bold
+    result = re.sub(r'(?<!\w)\*(?!\s)([^*\n]+?)\*(?!\w)', r'\1', result)  # italic
+    result = result.replace('**', '').replace('`', '')        # leftovers / code
+    result = re.sub(r'[ \t]+\n', '\n', result)
+    result = re.sub(r'\n{3,}', '\n\n', result)
+    return result.strip()
+
+
 def query_medical_ai(user_question, user_context=None):
     """
     Queries Groq (primary) with DeepSeek as fallback for medical and self-care advice.
@@ -84,7 +136,10 @@ def query_medical_ai(user_question, user_context=None):
         "- หากผู้ป่วยมีหรือสงสัยอาการฉุกเฉินรุนแรง ได้แก่: พูดไม่ชัดหรือสับสนเฉียบพลัน, ซึมมาก หมดสติ, หนาวสั่นรุนแรง, ปัสสาวะไม่ออกตลอดทั้งวัน, หายใจหอบเหนื่อยรุนแรง, ผิวหนังลายด่างเขียวคล้ำ: "
         "ต้องเน้นย้ำให้ผู้ป่วยหรือญาติรีบโทร 1669 ทันที หรือไปห้องฉุกเฉินโรงพยาบาลที่ใกล้ที่สุด โดยไม่ควรรอการตอบกลับในแชต\n\n"
         "6. [รูปแบบการตอบ]:\n"
-        "- ใช้ภาษาไทยที่สุภาพ อบอุ่น ชัดเจน เข้าใจง่ายสำหรับผู้สูงอายุและญาติผู้ดูแล ตอบกระชับ ตรงประเด็น สามารถแบ่งเป็นข้อย่อยอ่านง่ายได้"
+        "- ใช้ภาษาไทยที่สุภาพ อบอุ่น ชัดเจน เข้าใจง่ายสำหรับผู้สูงอายุและญาติผู้ดูแล ตอบกระชับ ตรงประเด็น\n"
+        "- ตอบเป็นข้อความธรรมดาเท่านั้น (PLAIN TEXT) เพราะแสดงผลใน LINE ซึ่งไม่รองรับ Markdown: ห้ามใช้ตาราง, ห้ามใช้เครื่องหมาย | # * ** --- และห้ามใช้หัวข้อ Markdown\n"
+        "- ถ้าต้องแบ่งเป็นข้อ ให้ใช้ตัวเลข 1. 2. 3. หรือขึ้นบรรทัดใหม่ธรรมดา ไม่เกิน 5 ข้อ ข้อละ 1-2 ประโยค\n"
+        "- ความยาวรวมไม่เกินประมาณ 10 บรรทัด และต้องจบประโยคให้สมบูรณ์เสมอ"
     )
 
     context_info = f"\n\n[ข้อมูลผู้ป่วยในระบบ]: {user_context}" if user_context else ""
@@ -111,7 +166,7 @@ def query_medical_ai(user_question, user_context=None):
                 if response.status_code == 200:
                     msg_obj = response.json()['choices'][0]['message']
                     raw_answer = (msg_obj.get('content') or '').strip()
-                    clean_answer = clean_think_tags(raw_answer)
+                    clean_answer = to_plain_text(clean_think_tags(raw_answer))
                     if clean_answer:
                         return clean_answer
                     continue
