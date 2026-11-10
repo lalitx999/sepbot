@@ -253,6 +253,40 @@ def api_knowledge_save(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
 
+ALLOWED_IMAGE_FORMATS = {'JPEG': 'jpg', 'PNG': 'png', 'GIF': 'gif', 'WEBP': 'webp'}
+MAX_IMAGE_BYTES = 8 * 1024 * 1024  # 8 MB
+
+@login_required(login_url='doctor-login')
+def api_knowledge_upload_image(request):
+    """Upload an image for a knowledge article; returns its URL for insertion in the editor."""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+    if not request.user.is_staff:
+        return JsonResponse({'status': 'error', 'message': 'ไม่มีสิทธิ์อัปโหลด'}, status=403)
+
+    upload = request.FILES.get('image')
+    if not upload:
+        return JsonResponse({'status': 'error', 'message': 'ไม่พบไฟล์รูปภาพ'}, status=400)
+    if upload.size > MAX_IMAGE_BYTES:
+        return JsonResponse({'status': 'error', 'message': 'ไฟล์ใหญ่เกิน 8 MB'}, status=400)
+
+    # Trust the file's real content, not its name or declared content type
+    from PIL import Image
+    try:
+        img = Image.open(upload)
+        img.verify()
+        ext = ALLOWED_IMAGE_FORMATS.get(img.format)
+    except Exception:
+        ext = None
+    if not ext:
+        return JsonResponse({'status': 'error', 'message': 'รองรับเฉพาะรูป JPG, PNG, GIF, WEBP'}, status=400)
+    upload.seek(0)
+
+    import uuid
+    from django.core.files.storage import default_storage
+    name = default_storage.save(f"knowledge/uploads/{uuid.uuid4().hex}.{ext}", upload)
+    return JsonResponse({'status': 'success', 'url': default_storage.url(name)})
+
 @login_required(login_url='doctor-login')
 def api_knowledge_delete(request, article_id):
     """Delete Knowledge Article"""

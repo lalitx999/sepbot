@@ -7,6 +7,7 @@
 <!-- Quill Rich Text Editor CSS -->
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
 <style>
+    .ql-editor img { max-width: 100%; height: auto; }
     .ql-editor {
         font-family: 'Sarabun', sans-serif;
         font-size: 0.95rem;
@@ -117,7 +118,11 @@
                             <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('docUpload').click()">
                                 <i class="bi bi-upload me-1"></i>อัปโหลดเอกสาร
                             </button>
-                            <span class="text-muted small" id="docUploadStatus">รองรับไฟล์ Word (.docx) และข้อความ (.txt) — เนื้อหาจะถูกใส่ในช่องด้านล่างให้แก้ไขต่อได้</span>
+                            <input type="file" id="imgUpload" accept="image/jpeg,image/png,image/gif,image/webp" multiple class="d-none" onchange="uploadImages(this)">
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="document.getElementById('imgUpload').click()">
+                                <i class="bi bi-image me-1"></i>แนบรูปภาพ
+                            </button>
+                            <span class="text-muted small" id="docUploadStatus">เอกสาร: Word (.docx) / .txt นำเข้าเนื้อหาลงช่องด้านล่าง · รูปภาพ: JPG, PNG, GIF, WEBP ไม่เกิน 8 MB แทรกตรงตำแหน่งเคอร์เซอร์</span>
                         </div>
                         <!-- Quill Rich Text Editor Container -->
                         <div id="quillEditor" style="height: 250px; background: #ffffff;"></div>
@@ -194,6 +199,40 @@
             status.textContent = 'นำเข้าไฟล์ "' + file.name + '" แล้ว ตรวจสอบเนื้อหาก่อนกดบันทึก';
         } catch (e) {
             status.textContent = 'อัปโหลดไม่สำเร็จ: ' + e.message;
+        } finally {
+            input.value = '';
+        }
+    }
+
+    // Upload one or more images and insert them at the cursor in the editor
+    async function uploadImages(input) {
+        const files = Array.from(input.files);
+        const status = document.getElementById('docUploadStatus');
+        if (!files.length) return;
+        let done = 0;
+        try {
+            for (const file of files) {
+                status.textContent = `กำลังอัปโหลดรูป ${done + 1}/${files.length}...`;
+                const fd = new FormData();
+                fd.append('image', file);
+                const res = await fetch('{% url "doctor-api-knowledge-upload-image" %}', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: fd
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || data.status !== 'success') {
+                    throw new Error(`${file.name}: ${data.message || 'เกิดข้อผิดพลาด'}`);
+                }
+                const index = (quill.getSelection(true) || { index: quill.getLength() }).index;
+                quill.insertEmbed(index, 'image', data.url, 'user');
+                quill.insertText(index + 1, '\n', 'user');
+                quill.setSelection(index + 2, 0, 'silent');
+                done++;
+            }
+            status.textContent = `แทรกรูปภาพ ${done} รูปแล้ว`;
+        } catch (e) {
+            status.textContent = `อัปโหลดรูปไม่สำเร็จ (${done}/${files.length} รูปสำเร็จ): ${e.message}`;
         } finally {
             input.value = '';
         }

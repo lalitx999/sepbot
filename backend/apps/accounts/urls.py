@@ -6,7 +6,7 @@ from .doctor_views import (
     doctor_families, doctor_users, doctor_knowledge,
     doctor_faq, doctor_notifications,
     api_patient_detail, api_update_patient_notes,
-    api_knowledge_save, api_knowledge_delete,
+    api_knowledge_save, api_knowledge_delete, api_knowledge_upload_image,
     api_faq_save, api_faq_delete,
     api_family_create, api_user_update
 )
@@ -33,6 +33,7 @@ urlpatterns = [
     path('doctor/patient/<int:user_id>/notes/', api_update_patient_notes, name='doctor-api-patient-notes'),
     path('doctor/api/knowledge/save/', api_knowledge_save, name='doctor-api-knowledge-save'),
     path('doctor/api/knowledge/delete/<int:article_id>/', api_knowledge_delete, name='doctor-api-knowledge-delete'),
+    path('doctor/api/knowledge/upload-image/', api_knowledge_upload_image, name='doctor-api-knowledge-upload-image'),
     path('doctor/api/faq/save/', api_faq_save, name='doctor-api-faq-save'),
     path('doctor/api/faq/delete/<int:faq_id>/', api_faq_delete, name='doctor-api-faq-delete'),
     path('doctor/api/family/create/', api_family_create, name='doctor-api-family-create'),

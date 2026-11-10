@@ -73,3 +73,47 @@ class AccountsAPITest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], 'สมชาย โปรไฟล์')
+
+
+class KnowledgeImageUploadTests(TestCase):
+    def setUp(self):
+        import tempfile
+        from django.contrib.auth.models import User
+        from django.test import override_settings
+        self._tmp = tempfile.TemporaryDirectory()
+        self._override = override_settings(MEDIA_ROOT=self._tmp.name)
+        self._override.enable()
+        self.staff = User.objects.create_user('nurse', password='x', is_staff=True)
+        self.url = '/api/v1/accounts/doctor/api/knowledge/upload-image/'
+
+    def tearDown(self):
+        self._override.disable()
+        self._tmp.cleanup()
+
+    def _png(self):
+        import io
+        from PIL import Image
+        buf = io.BytesIO()
+        Image.new('RGB', (4, 4), 'red').save(buf, 'PNG')
+        buf.seek(0)
+        buf.name = 'x.png'
+        return buf
+
+    def test_requires_login(self):
+        self.assertEqual(self.client.post(self.url, {'image': self._png()}).status_code, 302)
+
+    def test_upload_valid_image(self):
+        self.client.force_login(self.staff)
+        res = self.client.post(self.url, {'image': self._png()})
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertIn('knowledge/uploads/', data['url'])
+        self.assertTrue(data['url'].endswith('.png'))
+
+    def test_rejects_non_image_with_image_name(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        self.client.force_login(self.staff)
+        fake = SimpleUploadedFile('evil.png', b'<script>alert(1)</script>', content_type='image/png')
+        res = self.client.post(self.url, {'image': fake})
+        self.assertEqual(res.status_code, 400)
