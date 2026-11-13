@@ -26,3 +26,9 @@ Thumbs.db
 
 # Local raw media assets (served from backend/media)
 data/10Oct.Ebook/
+
+# collectstatic output (generated)
+backend/staticfiles/
+
+# Raw Bootstrap download kept at repo root (vendored copy lives in backend/static/vendor)
+bootstrap-5.3.8-dist/

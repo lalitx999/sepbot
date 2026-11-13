@@ -9,3 +9,8 @@ LINE_CHANNEL_ACCESS_TOKEN = ''
 LINE_CHANNEL_SECRET = ''
 GROQ_API_KEY = ''
 DEEPSEEK_API_KEY = ''
+# Tests render templates without running collectstatic, so skip the hashed-manifest storage
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+}
