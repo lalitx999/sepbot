@@ -1,0 +1,100 @@
+# Production stack for a VPS that already runs nginx on ports 80/443.
+#
+# Differences from docker-compose.yml (home server):
+#   * Postgres 16 runs in this stack (volume sepbot_pgdata) instead of the shared home-server DB
+#   * no external "global_net" network
+#   * web is published on 127.0.0.1 only; the host's nginx proxies the domain to it
+#   * the FAQ/knowledge seed scripts are NOT run on start (they overwrite doctors' edits)
+#
+# Usage:   docker compose -f docker-compose.vps.yml --env-file .env up -d db redis web
+# Celery:  start celery_worker/celery_beat ONLY at cut-over, otherwise patients get duplicate reminders
+#          from both servers.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sepbot_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sepbot_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - sepbot_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: sepbot_redis
+    restart: always
+    expose:
+      - "6379"
+
+  web:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: sepbot_web
+    restart: always
+    command: sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn sepbot.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60"
+    volumes:
+      - ./backend:/app
+      - ./scripts:/scripts
+    ports:
+      - "127.0.0.1:${PORT:-8020}:8000"
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: sepbot_celery_worker
+    restart: always
+    command: celery -A sepbot worker --loglevel=info
+    volumes:
+      - ./backend:/app
+      - ./scripts:/scripts
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: sepbot_celery_beat
+    restart: always
+    command: celery -A sepbot beat --loglevel=info
+    volumes:
+      - ./backend:/app
+      - ./scripts:/scripts
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  sepbot_pgdata:
