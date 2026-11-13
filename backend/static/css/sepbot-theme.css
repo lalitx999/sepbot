@@ -1,0 +1,150 @@
+/* Sepsis Care shared theme: self-hosted fonts + Bootstrap 5.3 variable overrides. No CDN. */
+
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300;
+  src: url('../vendor/fonts/sarabun-thai-300-normal.woff2') format('woff2');
+  unicode-range: U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC;
+}
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300;
+  src: url('../vendor/fonts/sarabun-latin-300-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('../vendor/fonts/sarabun-thai-400-normal.woff2') format('woff2');
+  unicode-range: U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC;
+}
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('../vendor/fonts/sarabun-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url('../vendor/fonts/sarabun-thai-500-normal.woff2') format('woff2');
+  unicode-range: U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC;
+}
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url('../vendor/fonts/sarabun-latin-500-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url('../vendor/fonts/sarabun-thai-600-normal.woff2') format('woff2');
+  unicode-range: U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC;
+}
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url('../vendor/fonts/sarabun-latin-600-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('../vendor/fonts/sarabun-thai-700-normal.woff2') format('woff2');
+  unicode-range: U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC;
+}
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('../vendor/fonts/sarabun-latin-700-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+:root,
+[data-bs-theme="light"] {
+  --sc-primary: #1e40af;
+  --sc-primary-hover: #1e3a8a;
+  --sc-surface: #ffffff;
+  --sc-bg: #f1f5f9;
+
+  --bs-primary: #1e40af;
+  --bs-primary-rgb: 30, 64, 175;
+  --bs-primary-text-emphasis: #172554;
+  --bs-primary-bg-subtle: #dbeafe;
+  --bs-primary-border-subtle: #bfdbfe;
+  --bs-link-color: #1e40af;
+  --bs-link-color-rgb: 30, 64, 175;
+  --bs-link-hover-color: #1e3a8a;
+  --bs-link-hover-color-rgb: 30, 58, 138;
+  --bs-body-font-family: 'Sarabun', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --bs-body-bg: var(--sc-bg);
+  --bs-body-color: #334155;
+  --bs-heading-color: #0f172a;
+  --bs-border-color: #e2e8f0;
+  --bs-border-radius: 0.6rem;
+  --bs-border-radius-lg: 0.9rem;
+}
+
+[data-bs-theme="dark"] {
+  --sc-primary: #60a5fa;
+  --sc-primary-hover: #93c5fd;
+  --sc-surface: #1e293b;
+  --sc-bg: #0f172a;
+
+  --bs-primary: #60a5fa;
+  --bs-primary-rgb: 96, 165, 250;
+  --bs-link-color: #93c5fd;
+  --bs-link-color-rgb: 147, 197, 253;
+  --bs-link-hover-color: #bfdbfe;
+  --bs-body-bg: var(--sc-bg);
+  --bs-body-color: #cbd5e1;
+  --bs-heading-color: #f1f5f9;
+  --bs-border-color: #334155;
+  --bs-body-font-family: 'Sarabun', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+body {
+  font-family: var(--bs-body-font-family);
+}
+
+/* Bootstrap bakes button colours at build time, so re-point the primary variants */
+.btn-primary {
+  --bs-btn-bg: var(--sc-primary);
+  --bs-btn-border-color: var(--sc-primary);
+  --bs-btn-hover-bg: var(--sc-primary-hover);
+  --bs-btn-hover-border-color: var(--sc-primary-hover);
+  --bs-btn-active-bg: var(--sc-primary-hover);
+  --bs-btn-active-border-color: var(--sc-primary-hover);
+  --bs-btn-disabled-bg: var(--sc-primary);
+  --bs-btn-disabled-border-color: var(--sc-primary);
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--sc-primary);
+  --bs-btn-border-color: var(--sc-primary);
+  --bs-btn-hover-bg: var(--sc-primary);
+  --bs-btn-hover-border-color: var(--sc-primary);
+  --bs-btn-active-bg: var(--sc-primary);
+  --bs-btn-active-border-color: var(--sc-primary);
+}
+[data-bs-theme="dark"] .btn-primary { --bs-btn-color: #0f172a; --bs-btn-hover-color: #0f172a; --bs-btn-active-color: #0f172a; }

@@ -1,10 +1,11 @@
 {% extends 'doctor/base.html' %}
+{% load static %}
 
 {% block title %}แดชบอร์ด Triage - Sepsis Care Clinical Portal{% endblock %}
 {% block header_title %}แผงควบคุมหลัก & คัดกรอง Triage{% endblock %}
 
 {% block extra_head %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
 <style>
     /* Metric Cards */
     .metric-card {

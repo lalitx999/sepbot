@@ -5,7 +5,6 @@
 | Bootstrap | 5.3.8 | MIT | `bootstrap/` |
 | Bootstrap Icons | 1.13.1 | MIT | `bootstrap-icons/` |
 | Sarabun (via @fontsource) | 5.3.0 | OFL-1.1 | `fonts/sarabun-*` |
-| Noto Serif Thai (via @fontsource) | 5.3.0 | OFL-1.1 | `fonts/noto-serif-thai-*` |
 | SweetAlert2 | 11.26.25 | MIT | `sweetalert2/` |
 | Chart.js | 4.6.1 | MIT | `chartjs/` |
 | Quill | 2.0.2 | BSD-3-Clause | `quill/` |

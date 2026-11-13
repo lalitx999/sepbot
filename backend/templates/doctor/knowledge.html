@@ -1,11 +1,12 @@
 {% extends 'doctor/base.html' %}
+{% load static %}
 
 {% block title %}บทความความรู้ - Doctor Portal{% endblock %}
 {% block header_title %}📖 จัดการบทความความรู้ 8 บทเรียน (Knowledge Management){% endblock %}
 
 {% block extra_head %}
 <!-- Quill Rich Text Editor CSS -->
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+<link href="{% static 'vendor/quill/quill.snow.css' %}" rel="stylesheet">
 <style>
     .ql-editor img { max-width: 100%; height: auto; }
     .ql-editor {
@@ -140,8 +141,8 @@
 
 {% block extra_script %}
 <!-- Quill Rich Text Editor JS -->
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+<script src="{% static 'vendor/quill/quill.js' %}"></script>
+<script src="{% static 'vendor/mammoth/mammoth.browser.min.js' %}"></script>
 <script>
     let articleModalObj = null;
     let quill = null;
