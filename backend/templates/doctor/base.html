@@ -4,298 +4,134 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Doctor Portal - Sepsis Care{% endblock %}</title>
+    <script>
+        // Apply the saved theme before first paint to avoid a flash
+        try { document.documentElement.setAttribute('data-bs-theme', localStorage.getItem('sc-theme') || 'light'); } catch (e) {}
+    </script>
     {% include 'partials/assets_head.html' %}
+    <link href="{% static 'css/doctor-portal.css' %}" rel="stylesheet">
     <script src="{% static 'vendor/sweetalert2/sweetalert2.all.min.js' %}"></script>
-    <style>
-        :root {
-            --bg-main: #F8FAFC;
-            --card-bg: #FFFFFF;
-            --navy-primary: #1E40AF;
-            --navy-hover: #1E3A8A;
-            --text-dark: #0F172A;
-            --text-body: #334155;
-            --text-muted: #64748B;
-            --border-light: #E2E8F0;
-            --sidebar-width: 260px;
-        }
-
-        body {
-            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-body);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-        }
-
-        /* Layout Container */
-        .wrapper {
-            display: flex;
-            width: 100%;
-            min-height: 100vh;
-        }
-
-        /* Sidebar Styling */
-        .sidebar {
-            width: var(--sidebar-width);
-            background-color: #FFFFFF;
-            border-right: 1px solid var(--border-light);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 1000;
-            transition: all 0.25s ease;
-        }
-
-        .sidebar-brand {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border-light);
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--navy-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .sidebar-menu {
-            padding: 16px 12px;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        .menu-category {
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            padding: 12px 14px 6px;
-        }
-
-        .nav-item-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            color: var(--text-body);
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.15s ease;
-            margin-bottom: 2px;
-        }
-
-        .nav-item-link i {
-            font-size: 1.1rem;
-            color: var(--text-muted);
-        }
-
-        .nav-item-link:hover {
-            background-color: #F1F5F9;
-            color: var(--navy-primary);
-        }
-
-        .nav-item-link:hover i {
-            color: var(--navy-primary);
-        }
-
-        .nav-item-link.active {
-            background-color: #EFF6FF;
-            color: var(--navy-primary);
-            border: 1px solid #BFDBFE;
-        }
-
-        .nav-item-link.active i {
-            color: var(--navy-primary);
-        }
-
-        /* Main Content Area */
-        .main-content {
-            flex-grow: 1;
-            margin-left: var(--sidebar-width);
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
-        /* Top Navbar */
-        .top-navbar {
-            background-color: #FFFFFF;
-            border-bottom: 1px solid var(--border-light);
-            padding: 14px 28px;
-            position: sticky;
-            top: 0;
-            z-index: 990;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .user-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #F1F5F9;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.88rem;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .content-body {
-            padding: 28px;
-            flex-grow: 1;
-        }
-
-        /* Mobile Styles */
-        @media (max-width: 992px) {
-            .sidebar {
-                margin-left: calc(-1 * var(--sidebar-width));
-            }
-            .sidebar.show {
-                margin-left: 0;
-            }
-            .main-content {
-                margin-left: 0;
-            }
-            .top-navbar {
-                padding: 12px 16px;
-            }
-            .content-body {
-                padding: 16px 12px;
-            }
-        }
-
-        /* Cards & Tables */
-        .card-custom {
-            background: #FFFFFF;
-            border: 1px solid var(--border-light);
-            border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-        }
-
-        .table-custom th {
-            background-color: #F8FAFC;
-            color: #475569;
-            font-weight: 700;
-            font-size: 0.84rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--border-light);
-            padding: 14px 16px;
-        }
-
-        .table-custom td {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border-light);
-            font-size: 0.9rem;
-            vertical-align: middle;
-        }
-    </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
 
-<div class="wrapper">
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebarNav">
-        <div class="sidebar-brand">
-            <i class="bi bi-hospital fs-4 text-primary"></i>
-            <span>Clinical Portal</span>
+<div class="d-lg-flex min-vh-100">
+    <!-- Sidebar: static on lg+, offcanvas on smaller screens -->
+    <aside class="offcanvas-lg offcanvas-start portal-sidebar border-end d-flex flex-column" tabindex="-1" id="sidebarNav" aria-labelledby="sidebarLabel">
+        <div class="d-flex align-items-center justify-content-between px-3 py-3 border-bottom">
+            <a class="portal-brand" href="{% url 'doctor-dashboard' %}" id="sidebarLabel">
+                <span class="portal-brand-icon"><i class="bi bi-hospital"></i></span>
+                <span class="lh-sm">Clinical Portal<small class="d-block fw-normal text-body-secondary">Sepsis Care</small></span>
+            </a>
+            <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebarNav" aria-label="ปิดเมนู"></button>
         </div>
 
-        <div class="sidebar-menu">
-            <!-- Section 1 -->
-            <div class="menu-category">การดูแลและคัดกรองผู้ป่วย</div>
-            <a href="{% url 'doctor-dashboard' %}" class="nav-item-link {% if request.resolver_match.url_name == 'doctor-dashboard' %}active{% endif %}">
-                <i class="bi bi-grid-1x2"></i>
-                <span>แดชบอร์ด Triage</span>
+        <nav class="portal-nav flex-grow-1 overflow-y-auto px-2 pb-3">
+            {% with current=request.resolver_match.url_name %}
+            <div class="portal-nav-title">การดูแลและคัดกรองผู้ป่วย</div>
+            <a href="{% url 'doctor-dashboard' %}" class="nav-link {% if current == 'doctor-dashboard' %}active{% endif %}">
+                <i class="bi bi-grid-1x2"></i><span>แดชบอร์ด Triage</span>
             </a>
-            <a href="{% url 'doctor-vitals' %}" class="nav-item-link {% if request.resolver_match.url_name == 'doctor-vitals' %}active{% endif %}">
-                <i class="bi bi-activity"></i>
-                <span>สัญญาณชีพ (Vitals)</span>
+            <a href="{% url 'doctor-vitals' %}" class="nav-link {% if current == 'doctor-vitals' %}active{% endif %}">
+                <i class="bi bi-activity"></i><span>สัญญาณชีพ (Vitals)</span>
             </a>
-            <a href="{% url 'doctor-screenings' %}" class="nav-item-link {% if request.resolver_match.url_name == 'doctor-screenings' %}active{% endif %}">
-                <i class="bi bi-shield-exclamation"></i>
-                <span>ผลคัดกรอง Sepsis</span>
+            <a href="{% url 'doctor-screenings' %}" class="nav-link {% if current == 'doctor-screenings' %}active{% endif %}">
+                <i class="bi bi-shield-exclamation"></i><span>ผลคัดกรอง Sepsis</span>
             </a>
-            <a href="{% url 'doctor-daily-checks' %}" class="nav-item-link {% if request.resolver_match.url_name == 'doctor-daily-checks' %}active{% endif %}">
-                <i class="bi bi-calendar-check"></i>
-                <span>เช็คอาการรายวัน</span>
+            <a href="{% url 'doctor-daily-checks' %}" class="nav-link {% if current == 'doctor-daily-checks' %}active{% endif %}">
+                <i class="bi bi-calendar-check"></i><span>เช็คอาการรายวัน</span>
             </a>
 
-            <!-- Section 2 -->
-            <div class="menu-category">ผู้ป่วยและครอบครัว</div>
-            <a href="{% url 'doctor-families' %}" class="nav-item-link {% if request.resolver_match.url_name == 'doctor-families' %}active{% endif %}">
-                <i class="bi bi-people"></i>
-                <span>กลุ่มครอบครัว (FG)</span>
+            <div class="portal-nav-title">ผู้ป่วยและครอบครัว</div>
+            <a href="{% url 'doctor-families' %}" class="nav-link {% if current == 'doctor-families' %}active{% endif %}">
+                <i class="bi bi-people"></i><span>กลุ่มครอบครัว (FG)</span>
             </a>
-            <a href="{% url 'doctor-users' %}" class="nav-item-link {% if request.resolver_match.url_name == 'doctor-users' %}active{% endif %}">
-                <i class="bi bi-person-lines-fill"></i>
-                <span>ผู้ใช้งาน LINE</span>
+            <a href="{% url 'doctor-users' %}" class="nav-link {% if current == 'doctor-users' %}active{% endif %}">
+                <i class="bi bi-person-lines-fill"></i><span>ผู้ใช้งาน LINE</span>
             </a>
 
-            <!-- Section 3 -->
-            <div class="menu-category">เนื้อหาและความรู้</div>
-            <a href="{% url 'doctor-knowledge' %}" class="nav-item-link {% if request.resolver_match.url_name == 'doctor-knowledge' %}active{% endif %}">
-                <i class="bi bi-book"></i>
-                <span>บทความความรู้ 8 บท</span>
+            <div class="portal-nav-title">เนื้อหาและความรู้</div>
+            <a href="{% url 'doctor-knowledge' %}" class="nav-link {% if current == 'doctor-knowledge' %}active{% endif %}">
+                <i class="bi bi-book"></i><span>บทความความรู้ 8 บท</span>
             </a>
-            <a href="{% url 'doctor-faq' %}" class="nav-item-link {% if request.resolver_match.url_name == 'doctor-faq' %}active{% endif %}">
-                <i class="bi bi-question-circle"></i>
-                <span>คลังคำถาม FAQ</span>
+            <a href="{% url 'doctor-faq' %}" class="nav-link {% if current == 'doctor-faq' %}active{% endif %}">
+                <i class="bi bi-question-circle"></i><span>คลังคำถาม FAQ</span>
             </a>
 
-            <!-- Section 4 -->
-            <div class="menu-category">การสื่อสาร & Logs</div>
-            <a href="{% url 'doctor-notifications' %}" class="nav-item-link {% if request.resolver_match.url_name == 'doctor-notifications' %}active{% endif %}">
-                <i class="bi bi-bell"></i>
-                <span>ประวัติแจ้งเตือน LINE</span>
+            <div class="portal-nav-title">การสื่อสาร & Logs</div>
+            <a href="{% url 'doctor-notifications' %}" class="nav-link {% if current == 'doctor-notifications' %}active{% endif %}">
+                <i class="bi bi-bell"></i><span>ประวัติแจ้งเตือน LINE</span>
             </a>
+            {% endwith %}
+        </nav>
+
+        <div class="border-top p-3 small text-body-secondary">
+            <i class="bi bi-shield-check text-primary me-1"></i> ใช้งานภายในบุคลากรที่ได้รับอนุญาต
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Top Navbar -->
-        <header class="top-navbar">
-            <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-light d-lg-none border" type="button" onclick="toggleSidebar()">
+    <!-- Main -->
+    <div class="portal-main flex-grow-1 d-flex flex-column">
+        <header class="portal-topbar navbar sticky-top border-bottom px-3 px-lg-4 py-2">
+            <div class="d-flex align-items-center gap-2 min-w-0">
+                <button class="btn btn-outline-secondary d-lg-none flex-shrink-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarNav" aria-controls="sidebarNav" aria-label="เปิดเมนู">
                     <i class="bi bi-list fs-5"></i>
                 </button>
-                <h5 class="mb-0 fw-bold text-dark d-none d-sm-block">{% block header_title %}Clinical Dashboard{% endblock %}</h5>
+                <span class="d-none d-sm-inline-flex align-items-center gap-2 fw-semibold text-body-emphasis min-w-0"><i class="bi {% block header_icon %}bi-grid-1x2{% endblock %} text-primary flex-shrink-0"></i><span class="text-truncate">{% block header_title %}Clinical Dashboard{% endblock %}</span></span>
             </div>
 
-            <div class="d-flex align-items-center gap-3">
-                <div class="user-badge">
-                    <i class="bi bi-person-circle text-primary"></i>
-                    <span>{{ request.user.get_full_name|default:request.user.username }}</span>
-                    <span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.72rem;">{{ request.session.doctor_role|default:"doctor"|upper }}</span>
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                <button type="button" class="btn btn-outline-secondary" id="themeToggle" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">
+                    <i class="bi bi-moon-stars" id="themeIcon"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle text-primary fs-5"></i>
+                        <span class="d-none d-md-inline">{{ request.user.get_full_name|default:request.user.username }}</span>
+                        <span class="badge text-bg-secondary d-none d-md-inline">{{ request.session.doctor_role|default:"doctor"|upper }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li class="px-3 py-2 small text-body-secondary">
+                            เข้าสู่ระบบเป็น<br><strong class="text-body-emphasis">{{ request.user.get_full_name|default:request.user.username }}</strong>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="{% url 'doctor-logout' %}">
+                                <i class="bi bi-box-arrow-right me-2"></i>ออกจากระบบ
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                <a href="{% url 'doctor-logout' %}" class="btn btn-outline-danger btn-sm rounded-2">
-                    <i class="bi bi-box-arrow-right"></i> <span class="d-none d-md-inline">ออกจากระบบ</span>
-                </a>
             </div>
         </header>
 
-        <!-- Content Body -->
-        <main class="content-body">
+        <main class="flex-grow-1 p-3 p-lg-4">
             {% block content %}{% endblock %}
         </main>
+
+        <footer class="px-4 py-3 border-top small text-body-secondary text-center">
+            Sepsis Care Line Chatbot · Clinical Portal
+        </footer>
     </div>
 </div>
 
 {% include 'partials/assets_scripts.html' %}
 <script>
-    function toggleSidebar() {
-        document.getElementById('sidebarNav').classList.toggle('show');
-    }
+    // Dark / light theme toggle (saved per browser)
+    (function () {
+        const root = document.documentElement;
+        const icon = document.getElementById('themeIcon');
+        function paint() {
+            icon.className = root.getAttribute('data-bs-theme') === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+        }
+        paint();
+        document.getElementById('themeToggle').addEventListener('click', function () {
+            const next = root.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-bs-theme', next);
+            try { localStorage.setItem('sc-theme', next); } catch (e) {}
+            paint();
+        });
+    })();
 </script>
 {% block extra_script %}{% endblock %}
 </body>

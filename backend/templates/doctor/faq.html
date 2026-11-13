@@ -1,7 +1,8 @@
 {% extends 'doctor/base.html' %}
 
 {% block title %}คำถามพบบ่อย FAQ - Doctor Portal{% endblock %}
-{% block header_title %}❓ คลังคำถามพบบ่อย (FAQ Management & Keyword Search){% endblock %}
+{% block header_title %}คลังคำถามพบบ่อย (FAQ Management & Keyword Search){% endblock %}
+{% block header_icon %}bi-question-circle{% endblock %}
 
 {% block content %}
 <div class="card-custom p-3 mb-4">
@@ -30,10 +31,10 @@
             <tbody>
                 {% for f in page_obj %}
                 <tr>
-                    <td class="fw-bold text-muted">#{{ f.id }}</td>
-                    <td class="fw-bold text-dark">{{ f.question }}</td>
-                    <td class="small text-muted">{{ f.answer }}</td>
-                    <td><span class="badge bg-light text-dark border">{{ f.get_category_display }}</span></td>
+                    <td class="fw-bold text-body-secondary">#{{ f.id }}</td>
+                    <td class="fw-bold text-body-emphasis">{{ f.question }}</td>
+                    <td class="small text-body-secondary">{{ f.answer }}</td>
+                    <td><span class="badge bg-body-tertiary text-body-emphasis border">{{ f.get_category_display }}</span></td>
                     <td class="text-end">
                         <button class="btn btn-sm btn-outline-primary me-1" onclick="editFaq({{ f.id }}, '{{ f.question|escapejs }}', '{{ f.answer|escapejs }}', '{{ f.category }}', {{ f.order }})">
                             <i class="bi bi-pencil"></i> แก้ไข
@@ -44,7 +45,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="5" class="text-center py-4 text-muted">ไม่พบข้อมูล FAQ</td></tr>
+                <tr><td colspan="5" class="text-center py-4 text-body-secondary">ไม่พบข้อมูล FAQ</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -52,21 +53,7 @@
 </div>
 
 <!-- Pagination Bar -->
-{% if page_obj.has_other_pages %}
-<nav class="mt-4">
-    <ul class="pagination justify-content-center mb-0">
-        {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page=1">&laquo; หน้าแรก</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">ก่อนหน้า</a></li>
-        {% endif %}
-        <li class="page-item disabled"><span class="page-link text-dark fw-bold">หน้า {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-        {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">ถัดไป</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">หน้าสุดท้าย &raquo;</a></li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}
+{% include 'partials/pagination.html' %}
 
 <!-- Add/Edit Modal -->
 <div class="modal fade" id="faqModal" tabindex="-1">

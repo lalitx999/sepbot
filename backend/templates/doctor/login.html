@@ -1,198 +1,99 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เข้าสู่ระบบบุคลากรทางการแพทย์ - Sepsis Care Portal</title>
+    <title>เข้าสู่ระบบ - Doctor Portal</title>
     {% include 'partials/assets_head.html' %}
-    <style>
-        :root {
-            --bg-color: #F8FAFC;
-            --card-bg: #FFFFFF;
-            --primary-navy: #1E40AF;
-            --primary-hover: #1E3A8A;
-            --text-dark: #0F172A;
-            --text-muted: #64748B;
-            --border-color: #E2E8F0;
-        }
-
-        body {
-            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-dark);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px 15px;
-            margin: 0;
-        }
-
-        .login-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-            width: 100%;
-            max-width: 440px;
-            padding: 36px 30px;
-        }
-
-        .brand-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background-color: #EFF6FF;
-            color: var(--primary-navy);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 1px solid #BFDBFE;
-            margin-bottom: 16px;
-        }
-
-        .login-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 6px;
-        }
-
-        .login-subtitle {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 28px;
-        }
-
-        .form-label {
-            font-weight: 600;
-            font-size: 0.88rem;
-            color: #334155;
-            margin-bottom: 6px;
-        }
-
-        .form-control, .form-select {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 0.95rem;
-            background-color: #FFFFFF;
-            color: var(--text-dark);
-            transition: all 0.2s ease;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-navy);
-            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
-            outline: none;
-        }
-
-        .input-icon-group {
-            position: relative;
-        }
-
-        .input-icon-group i {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 1.1rem;
-        }
-
-        .input-icon-group .form-control {
-            padding-left: 42px;
-        }
-
-        .btn-login {
-            background-color: var(--primary-navy);
-            color: #FFFFFF;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            width: 100%;
-            margin-top: 10px;
-            transition: background-color 0.2s ease;
-        }
-
-        .btn-login:hover {
-            background-color: var(--primary-hover);
-            color: #FFFFFF;
-        }
-
-        .security-note {
-            margin-top: 24px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-            text-align: center;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .alert-custom {
-            border-radius: 8px;
-            font-size: 0.88rem;
-            padding: 10px 14px;
-        }
-    </style>
+    <link href="{% static 'css/doctor-portal.css' %}" rel="stylesheet">
+    <script>
+        try { document.documentElement.setAttribute('data-bs-theme', localStorage.getItem('sc-theme') || 'light'); } catch (e) {}
+    </script>
 </head>
 <body>
-
-<div class="login-card">
-    <div class="text-center">
-        <div class="brand-badge">
-            <i class="bi bi-hospital"></i> Sepsis Care Clinical Portal
-        </div>
-        <h1 class="login-title">เข้าสู่ระบบแพทย์และพยาบาล</h1>
-        <p class="login-subtitle">ระบบติดตามและส่งเสริมการดูแลผู้ป่วยหลังภาวะเซพซิส</p>
-    </div>
-
-    {% if error_message %}
-    <div class="alert alert-danger alert-custom mb-3">
-        <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error_message }}
-    </div>
-    {% endif %}
-
-    <form method="POST" action="{% url 'doctor-login' %}">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label class="form-label">บทบาทตำแหน่ง (Role)</label>
-            <select name="role" class="form-select">
-                <option value="doctor">แพทย์เจ้าของไข้ / แพทย์ผู้ดูแล (Physician)</option>
-                <option value="nurse">พยาบาลผู้เชี่ยวชาญ / ทีมวิจัย (Nurse Specialist)</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">ชื่อผู้ใช้ / เลขใบอนุญาตประกอบวิชาชีพ</label>
-            <div class="input-icon-group">
-                <i class="bi bi-person-badge"></i>
-                <input type="text" name="username" class="form-control" placeholder="กรอก Username หรือ เลขใบอนุญาต" required autofocus>
+<main class="container-fluid p-0">
+    <div class="row g-0 min-vh-100">
+        <!-- Brand panel -->
+        <section class="col-lg-6 d-none d-lg-flex login-hero text-white">
+            <div class="m-auto px-5" style="max-width: 520px;">
+                <div class="login-hero-icon mb-4"><i class="bi bi-heart-pulse-fill"></i></div>
+                <h1 class="display-6 fw-bold mb-3">Sepsis Care<br>Clinical Portal</h1>
+                <p class="fs-5 opacity-75 mb-4">ระบบติดตามและส่งเสริมการดูแลผู้ป่วยสูงอายุหลังภาวะเซพซิส สำหรับแพทย์และพยาบาลโครงการ</p>
+                <ul class="list-unstyled mb-0 opacity-90">
+                    <li class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-check-circle-fill"></i> คัดกรองและจัดลำดับความเสี่ยง (Triage)</li>
+                    <li class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-check-circle-fill"></i> ติดตามสัญญาณชีพและคะแนน MEWS</li>
+                    <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill"></i> จัดการบทความความรู้และคำถามที่พบบ่อย</li>
+                </ul>
             </div>
-        </div>
+        </section>
 
-        <div class="mb-4">
-            <label class="form-label">รหัสผ่าน (Password)</label>
-            <div class="input-icon-group">
-                <i class="bi bi-lock"></i>
-                <input type="password" name="password" class="form-control" placeholder="กรอกรหัสผ่าน" required>
+        <!-- Form panel -->
+        <section class="col-lg-6 d-flex align-items-center justify-content-center p-4">
+            <div class="w-100" style="max-width: 420px;">
+                <div class="d-lg-none text-center mb-4">
+                    <span class="badge rounded-pill text-bg-primary-subtle text-primary-emphasis px-3 py-2 fs-6">
+                        <i class="bi bi-hospital me-1"></i> Sepsis Care Clinical Portal
+                    </span>
+                </div>
+
+                <h2 class="h3 fw-bold mb-1">เข้าสู่ระบบแพทย์และพยาบาล</h2>
+                <p class="text-body-secondary mb-4">กรอกข้อมูลเพื่อเข้าใช้งานพอร์ทัล</p>
+
+                {% if error_message %}
+                <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <div>{{ error_message }}</div>
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'doctor-login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="loginRole">บทบาทตำแหน่ง (Role)</label>
+                        <select name="role" id="loginRole" class="form-select form-select-lg">
+                            <option value="doctor">แพทย์เจ้าของไข้ / แพทย์ผู้ดูแล (Physician)</option>
+                            <option value="nurse">พยาบาลผู้เชี่ยวชาญ / ทีมวิจัย (Nurse Specialist)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="loginUser">ชื่อผู้ใช้ / เลขใบอนุญาตประกอบวิชาชีพ</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                            <input type="text" id="loginUser" name="username" class="form-control" placeholder="Username หรือ เลขใบอนุญาต" required autofocus>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold" for="loginPass">รหัสผ่าน (Password)</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" id="loginPass" name="password" class="form-control" placeholder="กรอกรหัสผ่าน" required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePass" aria-label="แสดงหรือซ่อนรหัสผ่าน">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> เข้าสู่ระบบ
+                    </button>
+                </form>
+
+                <p class="text-center text-body-secondary small mt-4 mb-0">
+                    <i class="bi bi-shield-check text-primary me-1"></i>
+                    สำหรับบุคลากรทางการแพทย์ที่ได้รับอนุญาตเท่านั้น
+                </p>
             </div>
-        </div>
-
-        <button type="submit" class="btn btn-login">
-            <i class="bi bi-box-arrow-in-right me-1"></i> เข้าสู่ระบบ (Sign In)
-        </button>
-    </form>
-
-    <div class="security-note">
-        <i class="bi bi-shield-check me-1 text-primary"></i> 
-        ระบบสำหรับการใช้งานภายในของบุคลากรทางการแพทย์ที่ได้รับอนุญาตเท่านั้น
+        </section>
     </div>
+</main>
 
-</div>
-
+{% include 'partials/assets_scripts.html' %}
+<script>
+    document.getElementById('togglePass').addEventListener('click', function () {
+        const input = document.getElementById('loginPass');
+        const show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        this.querySelector('i').className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+    });
+</script>
 </body>
 </html>

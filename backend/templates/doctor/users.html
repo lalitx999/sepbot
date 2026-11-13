@@ -1,7 +1,8 @@
 {% extends 'doctor/base.html' %}
 
 {% block title %}ผู้ใช้งาน LINE - Doctor Portal{% endblock %}
-{% block header_title %}👤 ผู้ใช้งาน LINE (Line Users & Roles Management){% endblock %}
+{% block header_title %}ผู้ใช้งาน LINE (Line Users & Roles Management){% endblock %}
+{% block header_icon %}bi-person-lines-fill{% endblock %}
 
 {% block content %}
 <div class="card-custom p-3 mb-4">
@@ -29,32 +30,32 @@
             <tbody>
                 {% for u in page_obj %}
                 <tr>
-                    <td class="small text-muted">{{ u.registered_at|date:"d/m/Y H:i" }}</td>
+                    <td class="small text-body-secondary">{{ u.registered_at|date:"d/m/Y H:i" }}</td>
                     <td>
-                        <div class="fw-bold text-dark">{{ u.name }}</div>
-                        <div class="text-muted small">LINE: {{ u.display_name }} ({{ u.age }} ปี)</div>
+                        <div class="fw-bold text-body-emphasis">{{ u.name }}</div>
+                        <div class="text-body-secondary small">LINE: {{ u.display_name }} ({{ u.age }} ปี)</div>
                     </td>
                     <td>
                         {% if u.role == 'patient' %}
                             <span class="badge bg-primary">ผู้ป่วย (Patient)</span>
                         {% elif u.role == 'caregiver' %}
-                            <span class="badge bg-info text-dark">ผู้ดูแล (Caregiver)</span>
+                            <span class="badge bg-info text-body-emphasis">ผู้ดูแล (Caregiver)</span>
                         {% else %}
                             <span class="badge bg-secondary">พยาบาล/ทีมงาน</span>
                         {% endif %}
                     </td>
                     <td>
                         {% if u.family %}
-                            <span class="badge bg-light text-dark border">{{ u.family.code }}</span>
+                            <span class="badge bg-body-tertiary text-body-emphasis border">{{ u.family.code }}</span>
                         {% else %}-{% endif %}
                     </td>
                     <td>
-                        <div class="small text-muted"><i class="bi bi-telephone"></i> {{ u.phone_number|default:"-" }}</div>
+                        <div class="small text-body-secondary"><i class="bi bi-telephone"></i> {{ u.phone_number|default:"-" }}</div>
                     </td>
                     <td class="small">
-                        {% if u.underlying_disease %}<span class="text-dark"><strong>โรค:</strong> {{ u.underlying_disease }}</span><br>{% endif %}
+                        {% if u.underlying_disease %}<span class="text-body-emphasis"><strong>โรค:</strong> {{ u.underlying_disease }}</span><br>{% endif %}
                         {% if u.allergy %}<span class="text-danger"><strong>แพ้ยา:</strong> {{ u.allergy }}</span><br>{% endif %}
-                        {% if not u.underlying_disease and not u.allergy %}<span class="text-muted">-</span>{% endif %}
+                        {% if not u.underlying_disease and not u.allergy %}<span class="text-body-secondary">-</span>{% endif %}
                     </td>
                     <td class="text-end">
                         <button class="btn btn-sm btn-outline-primary" onclick="editUser({{ u.id }}, '{{ u.name|escapejs }}', '{{ u.phone_number|default:''|escapejs }}', '{{ u.role }}', '{{ u.family.id|default:'' }}', '{{ u.underlying_disease|default:''|escapejs }}', '{{ u.allergy|default:''|escapejs }}')">
@@ -63,7 +64,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="7" class="text-center py-4 text-muted">ไม่พบข้อมูลผู้ใช้งาน LINE</td></tr>
+                <tr><td colspan="7" class="text-center py-4 text-body-secondary">ไม่พบข้อมูลผู้ใช้งาน LINE</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -71,21 +72,7 @@
 </div>
 
 <!-- Pagination Bar -->
-{% if page_obj.has_other_pages %}
-<nav class="mt-4">
-    <ul class="pagination justify-content-center mb-0">
-        {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page=1">&laquo; หน้าแรก</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">ก่อนหน้า</a></li>
-        {% endif %}
-        <li class="page-item disabled"><span class="page-link text-dark fw-bold">หน้า {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-        {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">ถัดไป</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">หน้าสุดท้าย &raquo;</a></li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}
+{% include 'partials/pagination.html' %}
 
 <!-- Edit User Modal -->
 <div class="modal fade" id="userModal" tabindex="-1">

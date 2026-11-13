@@ -1,13 +1,14 @@
 {% extends 'doctor/base.html' %}
 
 {% block title %}บันทึกสัญญาณชีพ - Doctor Portal{% endblock %}
-{% block header_title %}🩺 บันทึกสัญญาณชีพผู้ป่วย (Vital Signs Tracker){% endblock %}
+{% block header_title %}บันทึกสัญญาณชีพผู้ป่วย (Vital Signs Tracker){% endblock %}
+{% block header_icon %}bi-activity{% endblock %}
 
 {% block content %}
 <div class="card-custom p-3 mb-4">
     <div class="row g-3 align-items-center">
         <div class="col-12 col-md-6">
-            <input type="text" id="vitalsSearch" class="form-control" placeholder="ค้นหาชื่อผู้ป่วย, รหัสครอบครัว..." onkeyup="filterVitalsTable()">
+            <div class="input-group"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="text" id="vitalsSearch" class="form-control" placeholder="ค้นหาชื่อผู้ป่วย, รหัสครอบครัว..." onkeyup="filterVitalsTable()"></div>
         </div>
         <div class="col-12 col-md-6 text-md-end">
             <span class="badge bg-primary-subtle text-primary p-2 fs-6">รวม {{ total_count }} รายการ</span>
@@ -34,14 +35,14 @@
                 {% for v in page_obj %}
 
                 <tr class="vital-row" data-search="{{ v.user.name }} {{ v.family.code }}">
-                    <td class="fw-semibold text-dark">{{ v.date|date:"d/m/Y" }}</td>
+                    <td class="fw-semibold text-body-emphasis">{{ v.date|date:"d/m/Y" }}</td>
                     <td>
-                        <div class="fw-bold text-dark">{{ v.user.name }}</div>
-                        <div class="text-muted small">รหัสครอบครัว: {{ v.family.code }}</div>
+                        <div class="fw-bold text-body-emphasis">{{ v.user.name }}</div>
+                        <div class="text-body-secondary small">รหัสครอบครัว: {{ v.family.code }}</div>
                     </td>
                     <td>
                         {% if v.systolic_bp %}
-                            <span class="{% if v.systolic_bp <= 90 %}text-danger fw-bold{% else %}text-dark{% endif %}">
+                            <span class="{% if v.systolic_bp <= 90 %}text-danger fw-bold{% else %}text-body-emphasis{% endif %}">
                                 {{ v.systolic_bp }}/{{ v.diastolic_bp }} mmHg
                             </span>
                         {% else %}-{% endif %}
@@ -57,21 +58,21 @@
                     </td>
                     <td>
                         {% if v.urine_output %}
-                            <span class="badge {% if v.urine_output == 'le_500' %}bg-danger-subtle text-danger fw-bold{% else %}bg-light text-dark border{% endif %}">
+                            <span class="badge {% if v.urine_output == 'le_500' %}bg-danger-subtle text-danger fw-bold{% else %}bg-body-tertiary text-body-emphasis border{% endif %}">
                                 {{ v.get_urine_output_display }}
                             </span>
                         {% else %}-{% endif %}
                     </td>
                     <td>
                         {% if v.temperature %}
-                            <span class="{% if v.temperature >= 38.0 %}text-danger fw-bold{% else %}text-dark{% endif %}">
+                            <span class="{% if v.temperature >= 38.0 %}text-danger fw-bold{% else %}text-body-emphasis{% endif %}">
                                 {{ v.temperature }} °C
                             </span>
                         {% else %}-{% endif %}
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="8" class="text-center py-4 text-muted">ไม่พบข้อมูลสัญญาณชีพ</td></tr>
+                <tr><td colspan="8" class="text-center py-4 text-body-secondary">ไม่พบข้อมูลสัญญาณชีพ</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -79,21 +80,7 @@
 </div>
 
 <!-- Pagination Bar -->
-{% if page_obj.has_other_pages %}
-<nav class="mt-4">
-    <ul class="pagination justify-content-center mb-0">
-        {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page=1">&laquo; หน้าแรก</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">ก่อนหน้า</a></li>
-        {% endif %}
-        <li class="page-item disabled"><span class="page-link text-dark fw-bold">หน้า {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-        {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">ถัดไป</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">หน้าสุดท้าย &raquo;</a></li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}
+{% include 'partials/pagination.html' %}
 {% endblock %}
 
 

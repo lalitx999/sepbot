@@ -3,19 +3,18 @@
 
 {% block title %}แดชบอร์ด Triage - Sepsis Care Clinical Portal{% endblock %}
 {% block header_title %}แผงควบคุมหลัก & คัดกรอง Triage{% endblock %}
+{% block header_icon %}bi-grid-1x2{% endblock %}
 
 {% block extra_head %}
 <script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
 <style>
     /* Metric Cards */
     .metric-card {
-        background: #FFFFFF;
-        border: 1px solid var(--border-light);
-        border-radius: 10px;
-        padding: 20px;
-        height: 100%;
-        transition: transform 0.15s ease;
+        background: var(--sc-surface);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
+    .metric-card:hover { box-shadow: 0 .5rem 1rem rgba(15, 23, 42, .08); }
+    .min-w-0 { min-width: 0; }
     .metric-card:hover {
         transform: translateY(-2px);
     }
@@ -34,7 +33,7 @@
     }
     .metric-desc {
         font-size: 0.8rem;
-        color: var(--text-muted);
+        color: var(--text-body-secondary);
     }
 
     /* Triage Badges */
@@ -55,6 +54,7 @@
     .triage-overdue { background: #F1F5F9; color: #475569; border-color: #CBD5E1; }
 
     .nav-pills-custom .nav-link {
+        white-space: nowrap;
         color: var(--text-body);
         font-weight: 600;
         font-size: 0.88rem;
@@ -72,7 +72,7 @@
         left: 12px;
         top: 50%;
         transform: translateY(-50%);
-        color: var(--text-muted);
+        color: var(--text-body-secondary);
     }
     .search-input {
         border: 1px solid var(--border-light);
@@ -83,63 +83,75 @@
     }
 
     .patient-drawer { width: 100%; max-width: 650px; }
+    [data-bs-theme="dark"] .triage-red { background: rgba(220,38,38,.18); color: #fca5a5; border-color: rgba(220,38,38,.5); }
+    [data-bs-theme="dark"] .triage-yellow { background: rgba(217,119,6,.18); color: #fcd34d; border-color: rgba(217,119,6,.5); }
+    [data-bs-theme="dark"] .triage-green { background: rgba(5,150,105,.18); color: #6ee7b7; border-color: rgba(5,150,105,.5); }
+    [data-bs-theme="dark"] .triage-overdue { background: rgba(148,163,184,.15); color: #cbd5e1; border-color: rgba(148,163,184,.4); }
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Top Summary Stat Cards -->
 <div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="metric-card border-danger-subtle">
-            <div class="d-flex justify-content-between align-items-start">
-                <div class="metric-title text-danger">🔴 เคสวิกฤต (Red Flag)</div>
-                <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+    <div class="col-6 col-xl-3">
+        <div class="card metric-card border-danger-subtle h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon d-none d-sm-grid bg-danger-subtle text-danger-emphasis"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <div class="min-w-0">
+                    <div class="small fw-semibold text-body-secondary text-uppercase">เคสวิกฤต (Red Flag)</div>
+                    <div class="stat-value text-danger-emphasis">{{ red_count }}</div>
+                    <div class="small text-body-secondary">ต้องได้รับการดูแลด่วนวันนี้</div>
+                </div>
             </div>
-            <div class="metric-value text-danger">{{ red_count }}</div>
-            <div class="metric-desc">ต้องได้รับการดูแลด่วนวันนี้</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="metric-card border-warning-subtle">
-            <div class="d-flex justify-content-between align-items-start">
-                <div class="metric-title text-warning">🟡 เฝ้าระวัง (Amber)</div>
-                <i class="bi bi-exclamation-circle-fill text-warning fs-5"></i>
+    <div class="col-6 col-xl-3">
+        <div class="card metric-card border-warning-subtle h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon d-none d-sm-grid bg-warning-subtle text-warning-emphasis"><i class="bi bi-exclamation-circle-fill"></i></div>
+                <div class="min-w-0">
+                    <div class="small fw-semibold text-body-secondary text-uppercase">เฝ้าระวัง (Amber)</div>
+                    <div class="stat-value text-warning-emphasis">{{ yellow_count }}</div>
+                    <div class="small text-body-secondary">มีอาการต้องติดตามใกล้ชิด</div>
+                </div>
             </div>
-            <div class="metric-value text-warning">{{ yellow_count }}</div>
-            <div class="metric-desc">มีอาการต้องติดตามใกล้ชิด</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="metric-card border-success-subtle">
-            <div class="d-flex justify-content-between align-items-start">
-                <div class="metric-title text-success">🟢 ประเมินปกติวันนี้</div>
-                <i class="bi bi-check-circle-fill text-success fs-5"></i>
+    <div class="col-6 col-xl-3">
+        <div class="card metric-card border-success-subtle h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon d-none d-sm-grid bg-success-subtle text-success-emphasis"><i class="bi bi-check-circle-fill"></i></div>
+                <div class="min-w-0">
+                    <div class="small fw-semibold text-body-secondary text-uppercase">ประเมินปกติวันนี้</div>
+                    <div class="stat-value text-success-emphasis">{{ green_count }}</div>
+                    <div class="small text-body-secondary">ผลประเมินอาการปลอดภัย</div>
+                </div>
             </div>
-            <div class="metric-value text-success">{{ green_count }}</div>
-            <div class="metric-desc">ผลประเมินอาการปลอดภัย</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="metric-card border-secondary-subtle">
-            <div class="d-flex justify-content-between align-items-start">
-                <div class="metric-title text-secondary">⚠️ ขาดส่งประเมิน</div>
-                <i class="bi bi-clock-history text-secondary fs-5"></i>
+    <div class="col-6 col-xl-3">
+        <div class="card metric-card border-secondary-subtle h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon d-none d-sm-grid bg-secondary-subtle text-secondary-emphasis"><i class="bi bi-clock-history"></i></div>
+                <div class="min-w-0">
+                    <div class="small fw-semibold text-body-secondary text-uppercase">ขาดส่งประเมิน</div>
+                    <div class="stat-value text-secondary-emphasis">{{ overdue_count }}</div>
+                    <div class="small text-body-secondary">ยังไม่ได้เช็คอาการในวันนี้</div>
+                </div>
             </div>
-            <div class="metric-value text-secondary">{{ overdue_count }}</div>
-            <div class="metric-desc">ยังไม่ได้เช็คอาการในวันนี้</div>
         </div>
     </div>
 </div>
 
 <!-- Filter & Search Controls -->
-<div class="card-custom p-3 mb-4">
+<div class="card card-body shadow-sm mb-4">
     <div class="row g-3 align-items-center">
         <div class="col-12 col-md-7">
             <div class="nav nav-pills nav-pills-custom gap-1 overflow-auto flex-nowrap" id="filterTabs">
                 <button class="nav-link active" onclick="filterPatients('all')">ทั้งหมด ({{ total_patients }})</button>
-                <button class="nav-link text-danger" onclick="filterPatients('red')">🔴 เคสวิกฤต ({{ red_count }})</button>
-                <button class="nav-link text-warning" onclick="filterPatients('yellow')">🟡 เฝ้าระวัง ({{ yellow_count }})</button>
-                <button class="nav-link text-secondary" onclick="filterPatients('overdue')">⚠️ ขาดส่งวันนี้ ({{ overdue_count }})</button>
+                <button class="nav-link text-danger" onclick="filterPatients('red')"><i class="bi bi-circle-fill me-1"></i>เคสวิกฤต ({{ red_count }})</button>
+                <button class="nav-link text-warning" onclick="filterPatients('yellow')"><i class="bi bi-circle-fill me-1"></i>เฝ้าระวัง ({{ yellow_count }})</button>
+                <button class="nav-link text-secondary" onclick="filterPatients('overdue')"><i class="bi bi-clock-history me-1"></i>ขาดส่งวันนี้ ({{ overdue_count }})</button>
             </div>
         </div>
         <div class="col-12 col-md-5">
@@ -169,9 +181,9 @@
                 {% for p in patient_list %}
                 <tr class="patient-row" data-status="{{ p.status_code }}" data-search="{{ p.name }} {{ p.id_card }} {{ p.family_code }}">
                     <td>
-                        <div class="fw-bold text-dark" style="font-size:0.95rem;">{{ p.name }}</div>
-                        <div class="text-muted small">
-                            อายุ: {{ p.age }} ปี | รหัสครอบครัว: <span class="badge bg-light text-dark border">{{ p.family_code }}</span>
+                        <div class="fw-bold text-body-emphasis" style="font-size:0.95rem;">{{ p.name }}</div>
+                        <div class="text-body-secondary small">
+                            อายุ: {{ p.age }} ปี | รหัสครอบครัว: <span class="badge bg-body-tertiary text-body-emphasis border">{{ p.family_code }}</span>
                         </div>
                     </td>
                     <td>
@@ -187,10 +199,10 @@
                     </td>
                     <td>
                         {% if p.latest_check %}
-                            <div class="fw-semibold text-dark" style="font-size:0.88rem;">{{ p.latest_check.date|date:"d/m/Y" }}</div>
-                            <div class="text-muted small">{{ p.latest_check.get_responder_display }}</div>
+                            <div class="fw-semibold text-body-emphasis" style="font-size:0.88rem;">{{ p.latest_check.date|date:"d/m/Y" }}</div>
+                            <div class="text-body-secondary small">{{ p.latest_check.get_responder_display }}</div>
                         {% else %}
-                            <span class="text-muted small">ยังไม่มีประวัติ</span>
+                            <span class="text-body-secondary small">ยังไม่มีประวัติ</span>
                         {% endif %}
                     </td>
                     <td>
@@ -198,20 +210,20 @@
                             <div style="font-size:0.85rem;" class="fw-medium">
                                 BP: <strong>{{ p.latest_vitals.systolic_bp|default:"-" }}/{{ p.latest_vitals.diastolic_bp|default:"-" }}</strong> | HR: <strong>{{ p.latest_vitals.heart_rate|default:"-" }}</strong>
                             </div>
-                            <div class="text-muted small">
-                                {% if p.latest_vitals.consciousness %}<span class="badge bg-light text-dark border me-1">{{ p.latest_vitals.get_consciousness_display }}</span>{% endif %}
+                            <div class="text-body-secondary small">
+                                {% if p.latest_vitals.consciousness %}<span class="badge bg-body-tertiary text-body-emphasis border me-1">{{ p.latest_vitals.get_consciousness_display }}</span>{% endif %}
                                 Temp: <strong>{{ p.latest_vitals.temperature|default:"-" }} °C</strong>
                             </div>
                         {% else %}
-                            <span class="text-muted small">-</span>
+                            <span class="text-body-secondary small">-</span>
                         {% endif %}
                     </td>
                     <td>
                         {% if p.primary_caregiver %}
-                            <div class="fw-semibold text-dark" style="font-size:0.88rem;">{{ p.primary_caregiver.name }}</div>
-                            <div class="text-muted small"><i class="bi bi-telephone"></i> {{ p.primary_caregiver.phone_number|default:"-" }}</div>
+                            <div class="fw-semibold text-body-emphasis" style="font-size:0.88rem;">{{ p.primary_caregiver.name }}</div>
+                            <div class="text-body-secondary small"><i class="bi bi-telephone"></i> {{ p.primary_caregiver.phone_number|default:"-" }}</div>
                         {% else %}
-                            <span class="text-muted small">-</span>
+                            <span class="text-body-secondary small">-</span>
                         {% endif %}
                     </td>
                     <td class="text-end">
@@ -222,7 +234,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center py-4 text-muted">ไม่พบข้อมูลผู้ป่วยในระบบ</td>
+                    <td colspan="6" class="text-center py-4 text-body-secondary">ไม่พบข้อมูลผู้ป่วยในระบบ</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -232,20 +244,20 @@
 
 <!-- Offcanvas Patient Drawer -->
 <div class="offcanvas offcanvas-end patient-drawer" tabindex="-1" id="patientDrawer">
-    <div class="offcanvas-header bg-light border-bottom p-3">
+    <div class="offcanvas-header bg-body-tertiary border-bottom p-3">
         <div>
-            <h5 class="offcanvas-title fw-bold text-dark" id="drawerPatientName">กำลังโหลด...</h5>
-            <div class="text-muted small" id="drawerPatientSub">รหัสครอบครัว: -</div>
+            <h5 class="offcanvas-title fw-bold text-body-emphasis" id="drawerPatientName">กำลังโหลด...</h5>
+            <div class="text-body-secondary small" id="drawerPatientSub">รหัสครอบครัว: -</div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body p-4">
         <!-- Patient Summary Box -->
         <div class="row g-2 mb-4">
-            <div class="col-3"><div class="card p-2 text-center bg-light"><div class="small text-muted">อายุ</div><div class="fw-bold fs-6 text-dark" id="dValAge">-</div></div></div>
-            <div class="col-3"><div class="card p-2 text-center bg-light"><div class="small text-muted">SpO₂ ล่าสุด</div><div class="fw-bold fs-6 text-primary" id="dValSpo2">-</div></div></div>
-            <div class="col-3"><div class="card p-2 text-center bg-light"><div class="small text-muted">ความดัน (BP)</div><div class="fw-bold fs-6 text-dark" id="dValBP">-</div></div></div>
-            <div class="col-3"><div class="card p-2 text-center bg-light"><div class="small text-muted">อุณหภูมิ</div><div class="fw-bold fs-6 text-danger" id="dValTemp">-</div></div></div>
+            <div class="col-3"><div class="card p-2 text-center bg-body-tertiary"><div class="small text-body-secondary">อายุ</div><div class="fw-bold fs-6 text-body-emphasis" id="dValAge">-</div></div></div>
+            <div class="col-3"><div class="card p-2 text-center bg-body-tertiary"><div class="small text-body-secondary">SpO₂ ล่าสุด</div><div class="fw-bold fs-6 text-primary" id="dValSpo2">-</div></div></div>
+            <div class="col-3"><div class="card p-2 text-center bg-body-tertiary"><div class="small text-body-secondary">ความดัน (BP)</div><div class="fw-bold fs-6 text-body-emphasis" id="dValBP">-</div></div></div>
+            <div class="col-3"><div class="card p-2 text-center bg-body-tertiary"><div class="small text-body-secondary">อุณหภูมิ</div><div class="fw-bold fs-6 text-danger" id="dValTemp">-</div></div></div>
         </div>
 
         <ul class="nav nav-tabs mb-3" id="drawerTab">
@@ -258,7 +270,7 @@
         <div class="tab-content">
             <div class="tab-pane fade show active" id="tab-vitals">
                 <div class="card border p-3">
-                    <h6 class="fw-bold mb-3 text-dark">แนวโน้มสัญญาณชีพ (Vital Signs Trend)</h6>
+                    <h6 class="fw-bold mb-3 text-body-emphasis">แนวโน้มสัญญาณชีพ (Vital Signs Trend)</h6>
                     <canvas id="vitalsChart" height="220"></canvas>
                 </div>
             </div>
@@ -268,7 +280,7 @@
                         <thead class="table-light">
                             <tr><th>วันที่</th><th>ระดับผล</th><th>ผู้ตอบ</th><th>รายละเอียดอาการสำคัญ</th></tr>
                         </thead>
-                        <tbody id="historyTableBody"><tr><td colspan="4" class="text-center text-muted">ไม่มีข้อมูล</td></tr></tbody>
+                        <tbody id="historyTableBody"><tr><td colspan="4" class="text-center text-body-secondary">ไม่มีข้อมูล</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -387,7 +399,7 @@
     function renderHistoryTable(checks) {
         const tbody = document.getElementById('historyTableBody');
         if (checks.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">ไม่มีประวัติการเช็คอาการ</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-body-secondary">ไม่มีประวัติการเช็คอาการ</td></tr>';
             return;
         }
 
@@ -395,7 +407,7 @@
         checks.forEach(c => {
             let badge = `<span class="badge bg-success">🟢 ปกติ</span>`;
             if (c.result_level === 'red') badge = `<span class="badge bg-danger">🔴 รุนแรง</span>`;
-            else if (c.result_level === 'yellow') badge = `<span class="badge bg-warning text-dark">🟡 เฝ้าระวัง</span>`;
+            else if (c.result_level === 'yellow') badge = `<span class="badge bg-warning text-body-emphasis"><i class="bi bi-circle-fill me-1"></i>เฝ้าระวัง</span>`;
 
             let details = [];
             if (c.has_fever) details.push('มีไข้: ' + (c.fever_detail || '-'));
@@ -415,7 +427,7 @@
     function renderFamilyList(members) {
         const container = document.getElementById('familyListGroup');
         if (members.length === 0) {
-            container.innerHTML = '<div class="list-group-item text-muted">ไม่มีสมาชิกในกลุ่มครอบครัว</div>';
+            container.innerHTML = '<div class="list-group-item text-body-secondary">ไม่มีสมาชิกในกลุ่มครอบครัว</div>';
             return;
         }
 
@@ -423,8 +435,8 @@
         members.forEach(m => {
             html += `<div class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
-                    <div class="fw-bold text-dark">${m.name}</div>
-                    <div class="small text-muted">${m.role_display} | LINE: ${m.line_display}</div>
+                    <div class="fw-bold text-body-emphasis">${m.name}</div>
+                    <div class="small text-body-secondary">${m.role_display} | LINE: ${m.line_display}</div>
                 </div>
                 <div>
                     <a href="tel:${m.phone}" class="btn btn-outline-primary btn-sm"><i class="bi bi-telephone"></i> ${m.phone}</a>

@@ -1,0 +1,16 @@
+{% if page_obj.has_other_pages %}
+<nav class="mt-4 d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2" aria-label="การแบ่งหน้า">
+    <div class="small text-body-secondary">แสดงรายการที่ {{ page_obj.start_index }}–{{ page_obj.end_index }} จาก {{ page_obj.paginator.count }}</div>
+    <ul class="pagination pagination-sm mb-0">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1" aria-label="หน้าแรก"><i class="bi bi-chevron-double-left"></i></a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i> ก่อนหน้า</a></li>
+        {% endif %}
+        <li class="page-item active" aria-current="page"><span class="page-link">หน้า {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">ถัดไป <i class="bi bi-chevron-right"></i></a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="หน้าสุดท้าย"><i class="bi bi-chevron-double-right"></i></a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}

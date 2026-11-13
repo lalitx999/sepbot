@@ -1,13 +1,14 @@
 {% extends 'doctor/base.html' %}
 
 {% block title %}ผลคัดกรอง Sepsis - Doctor Portal{% endblock %}
-{% block header_title %}🚨 ผลประเมินและคัดกรองภาวะ Sepsis{% endblock %}
+{% block header_title %}ผลประเมินและคัดกรองภาวะ Sepsis{% endblock %}
+{% block header_icon %}bi-shield-exclamation{% endblock %}
 
 {% block content %}
 <div class="card-custom p-3 mb-4">
     <div class="row g-3 align-items-center">
         <div class="col-12 col-md-6">
-            <input type="text" id="screeningSearch" class="form-control" placeholder="ค้นหาชื่อผู้ป่วย, รหัสครอบครัว..." onkeyup="filterScreeningTable()">
+            <div class="input-group"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="text" id="screeningSearch" class="form-control" placeholder="ค้นหาชื่อผู้ป่วย, รหัสครอบครัว..." onkeyup="filterScreeningTable()"></div>
         </div>
         <div class="col-12 col-md-6 text-md-end">
             <span class="badge bg-danger-subtle text-danger p-2 fs-6">รวม {{ total_count }} รายการ</span>
@@ -30,29 +31,29 @@
             <tbody>
                 {% for s in page_obj %}
                 <tr class="screening-row" data-search="{{ s.user.name }} {{ s.family.code }}">
-                    <td class="fw-semibold text-dark">{{ s.date|date:"d/m/Y" }}</td>
+                    <td class="fw-semibold text-body-emphasis">{{ s.date|date:"d/m/Y" }}</td>
                     <td>
-                        <div class="fw-bold text-dark">{{ s.user.name }}</div>
-                        <div class="text-muted small">รหัสครอบครัว: {{ s.family.code }}</div>
+                        <div class="fw-bold text-body-emphasis">{{ s.user.name }}</div>
+                        <div class="text-body-secondary small">รหัสครอบครัว: {{ s.family.code }}</div>
                     </td>
                     <td>
                         {% if s.has_red_flag %}
                             <span class="badge bg-danger p-2"><i class="bi bi-exclamation-triangle-fill"></i> พบ Red Flag</span>
                         {% else %}
-                            <span class="badge bg-light text-secondary border">ไม่พบ</span>
+                            <span class="badge bg-body-tertiary text-secondary border">ไม่พบ</span>
                         {% endif %}
                     </td>
                     <td>
                         {% if s.has_amber_flag %}
-                            <span class="badge bg-warning text-dark p-2"><i class="bi bi-exclamation-circle-fill"></i> พบ Amber Flag</span>
+                            <span class="badge bg-warning text-body-emphasis p-2"><i class="bi bi-exclamation-circle-fill"></i> พบ Amber Flag</span>
                         {% else %}
-                            <span class="badge bg-light text-secondary border">ไม่พบ</span>
+                            <span class="badge bg-body-tertiary text-secondary border">ไม่พบ</span>
                         {% endif %}
                     </td>
-                    <td class="small text-muted">{{ s.result|default:"-" }}</td>
+                    <td class="small text-body-secondary">{{ s.result|default:"-" }}</td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="5" class="text-center py-4 text-muted">ไม่พบข้อมูลการคัดกรอง Sepsis</td></tr>
+                <tr><td colspan="5" class="text-center py-4 text-body-secondary">ไม่พบข้อมูลการคัดกรอง Sepsis</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -60,21 +61,7 @@
 </div>
 
 <!-- Pagination Bar -->
-{% if page_obj.has_other_pages %}
-<nav class="mt-4">
-    <ul class="pagination justify-content-center mb-0">
-        {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page=1">&laquo; หน้าแรก</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">ก่อนหน้า</a></li>
-        {% endif %}
-        <li class="page-item disabled"><span class="page-link text-dark fw-bold">หน้า {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-        {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">ถัดไป</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">หน้าสุดท้าย &raquo;</a></li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}
+{% include 'partials/pagination.html' %}
 {% endblock %}
 
 {% block extra_script %}

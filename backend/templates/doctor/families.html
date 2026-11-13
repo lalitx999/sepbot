@@ -1,7 +1,8 @@
 {% extends 'doctor/base.html' %}
 
 {% block title %}กลุ่มครอบครัว (FG) - Doctor Portal{% endblock %}
-{% block header_title %}👨‍👩‍👧‍👦 กลุ่มครอบครัวผู้ป่วยและผู้ดูแล (Family Groups Management){% endblock %}
+{% block header_title %}กลุ่มครอบครัวผู้ป่วยและผู้ดูแล (Family Groups Management){% endblock %}
+{% block header_icon %}bi-people{% endblock %}
 
 {% block content %}
 <div class="card-custom p-3 mb-4">
@@ -21,60 +22,46 @@
         <div class="card-custom p-3 h-100">
             <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                 <span class="badge bg-primary fs-6">{{ item.group.code }}</span>
-                <span class="text-muted small">สร้างเมื่อ: {{ item.group.created_at|date:"d/m/Y" }}</span>
+                <span class="text-body-secondary small">สร้างเมื่อ: {{ item.group.created_at|date:"d/m/Y" }}</span>
             </div>
 
             <!-- Patient -->
             <div class="mb-3">
-                <div class="small text-muted fw-bold">🏥 ผู้ป่วยหลัก (Patient)</div>
+                <div class="small text-body-secondary fw-bold">🏥 ผู้ป่วยหลัก (Patient)</div>
                 {% if item.patient %}
-                    <div class="fw-bold text-dark fs-6">{{ item.patient.name }}</div>
-                    <div class="small text-muted">อายุ: {{ item.patient.age }} ปี | เบอร์: {{ item.patient.phone_number|default:"-" }}</div>
+                    <div class="fw-bold text-body-emphasis fs-6">{{ item.patient.name }}</div>
+                    <div class="small text-body-secondary">อายุ: {{ item.patient.age }} ปี | เบอร์: {{ item.patient.phone_number|default:"-" }}</div>
                 {% else %}
-                    <div class="text-muted small">ยังไม่มีผู้ป่วยผูกรหัสนี้</div>
+                    <div class="text-body-secondary small">ยังไม่มีผู้ป่วยผูกรหัสนี้</div>
                 {% endif %}
             </div>
 
             <!-- Caregivers -->
             <div>
-                <div class="small text-muted fw-bold mb-1">🤝 ผู้ดูแลในครอบครัว (Caregivers)</div>
+                <div class="small text-body-secondary fw-bold mb-1">🤝 ผู้ดูแลในครอบครัว (Caregivers)</div>
                 {% for c in item.caregivers %}
-                    <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded mb-1">
+                    <div class="d-flex justify-content-between align-items-center bg-body-tertiary p-2 rounded mb-1">
                         <div>
-                            <div class="fw-semibold text-dark small">{{ c.name }}</div>
-                            <div class="text-muted" style="font-size:0.75rem;">LINE: {{ c.display_name }}</div>
+                            <div class="fw-semibold text-body-emphasis small">{{ c.name }}</div>
+                            <div class="text-body-secondary" style="font-size:0.75rem;">LINE: {{ c.display_name }}</div>
                         </div>
                         {% if c.phone_number %}
                             <a href="tel:{{ c.phone_number }}" class="btn btn-outline-primary btn-sm py-0 px-2 small"><i class="bi bi-telephone"></i></a>
                         {% endif %}
                     </div>
                 {% empty %}
-                    <div class="text-muted small">ไม่มีผู้ดูแลผูกกับกลุ่มนี้</div>
+                    <div class="text-body-secondary small">ไม่มีผู้ดูแลผูกกับกลุ่มนี้</div>
                 {% endfor %}
             </div>
         </div>
     </div>
     {% empty %}
-    <div class="col-12 text-center py-4 text-muted card-custom">ไม่พบข้อมูลกลุ่มครอบครัว</div>
+    <div class="col-12 text-center py-4 text-body-secondary card-custom">ไม่พบข้อมูลกลุ่มครอบครัว</div>
     {% endfor %}
 </div>
 
 <!-- Pagination Bar -->
-{% if page_obj.has_other_pages %}
-<nav class="mt-4">
-    <ul class="pagination justify-content-center mb-0">
-        {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page=1">&laquo; หน้าแรก</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">ก่อนหน้า</a></li>
-        {% endif %}
-        <li class="page-item disabled"><span class="page-link text-dark fw-bold">หน้า {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-        {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">ถัดไป</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">หน้าสุดท้าย &raquo;</a></li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}
+{% include 'partials/pagination.html' %}
 {% endblock %}
 
 {% block extra_script %}
